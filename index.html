@@ -473,7 +473,7 @@ async function apiPost(b){setSS('syncing');try{const r=await fetch(API,{method:'
 function setSS(s){const dot=document.getElementById('sync-dot');const lbl=document.getElementById('sync-label');dot.className='sync-dot '+s;lbl.textContent=s==='ok'?'저장됨':s==='syncing'?'동기화 중...':'연결 오류';}
 
 async function loadData(){
-  try{const d=await api({action:'getData'});S=d;S.services=S.services||[];S.svcParts=S.svcParts||[];renderAll();if(document.getElementById('tab-sim').classList.contains('active'))renderSim();}
+  try{const d=await api({action:'getData'});S=d;S.services=S.services||[];S.svcParts=S.svcParts||[];S.kosaList=S.kosaList||[];renderAll();if(document.getElementById('tab-sim').classList.contains('active'))renderSim();}
   catch(e){setSS('err');}
 }
 
@@ -513,7 +513,7 @@ function sw(tab, module){
   if(tab==='svc-sim')renderSvcSim();
   // 용역/KOSA/자격증 준비중 메시지
   if(tab.startsWith('svc-'))renderSvcPlaceholder(tab);
-  if(tab==='kosa-list')renderKosaPlaceholder();
+  if(tab==='kosa-list')renderKosaList();
   if(tab==='cert-list')renderCertPlaceholder();
 }
 
@@ -539,18 +539,110 @@ function renderSvcPlaceholder(tab){
       <div style="margin-top:16px;font-size:11px;color:var(--text3)">순차적으로 구현 예정입니다</div>
     </div>`;
 }
-function renderKosaPlaceholder(){
-  document.getElementById('kosa-content').innerHTML=`
-    <div style="background:var(--amber-bg);border:1px solid var(--border);border-radius:var(--rl);padding:2rem;text-align:center;margin-top:1rem">
-      <div style="font-size:32px;margin-bottom:12px">📋</div>
-      <div style="font-size:15px;font-weight:700;color:var(--amber-text);margin-bottom:8px">KOSA 관리 모듈 준비 중</div>
-      <div style="font-size:12px;color:var(--text2);line-height:1.8">
-        · 개인별 KOSA 등록 정보 수동 입력<br>
-        · 직무 분야별 분류 및 조회<br>
-        · 제안서 작성 시 유자격자 조회 연계
-      </div>
-      <div style="margin-top:16px;font-size:11px;color:var(--text3)">순차적으로 구현 예정입니다</div>
+function renderKosaList(){
+  const kosaFields=['IT 전략·계획','IT 컨설팅','IT 시스템 구조','응용 SW 엔지니어링','데이터베이스 엔지니어링','NW 엔지니어링','보안 엔지니어링','IT 테스트','IT 품질 보증','IT 기술 지원','디지털·영상·정보 디자인'];
+  const kosaGrades=['초급','중급','고급','특급'];
+  const fieldOpts=kosaFields.map(f=>`<option value="${f}">${f}</option>`).join('');
+  const gradeOpts=kosaGrades.map(g=>`<option value="${g}">${g}</option>`).join('');
+  const personOpts=S.people.map(p=>`<option value="${p.id}">${p.name}(${p.rank})</option>`).join('');
+
+  let html=`<div style="display:flex;justify-content:flex-end;margin-bottom:1rem">
+    <button class="btn btn-primary" onclick="toggleForm('add-kosa-form')">+ KOSA 정보 추가</button>
+  </div>
+  <div class="add-form" id="add-kosa-form">
+    <div class="form-title">KOSA 등록 정보 추가</div>
+    <div class="g3" style="margin-bottom:10px">
+      <div class="form-row"><label class="form-label">인원</label><select id="nk-pid">${personOpts}</select></div>
+      <div class="form-row"><label class="form-label">직무분야</label><select id="nk-field">${fieldOpts}</select></div>
+      <div class="form-row"><label class="form-label">등급</label><select id="nk-grade">${gradeOpts}</select></div>
+    </div>
+    <div class="g4">
+      <div class="form-row"><label class="form-label">등록번호</label><input type="text" id="nk-regno" placeholder="KOSA-2024-001"></div>
+      <div class="form-row"><label class="form-label">등록일</label><input type="text" id="nk-regdate" placeholder="2024-01-01"></div>
+      <div class="form-row"><label class="form-label">만료일</label><input type="text" id="nk-expdate" placeholder="2026-12-31"></div>
+      <div class="form-row"><label class="form-label">비고</label><input type="text" id="nk-memo" placeholder="특이사항"></div>
+    </div>
+    <div class="form-actions"><button class="btn" onclick="toggleForm('add-kosa-form')">취소</button><button class="btn btn-primary" onclick="addKosa()">추가</button></div>
+  </div>`;
+
+  // 직무분야별 유자격자 현황
+  html+=`<div class="card" style="margin-bottom:1rem"><div class="card-title">직무분야별 유자격자 현황</div>
+  <div style="display:flex;flex-wrap:wrap;gap:8px">`;
+  kosaFields.forEach(f=>{
+    const cnt=S.kosaList.filter(k=>k.field===f).length;
+    if(cnt===0)return;
+    const people=[...new Set(S.kosaList.filter(k=>k.field===f).map(k=>k.pid))];
+    html+=`<div style="background:var(--amber-bg);border:1px solid var(--border);border-radius:var(--r);padding:8px 12px;min-width:160px">
+      <div style="font-size:11px;font-weight:600;color:var(--amber-text);margin-bottom:4px">${f}</div>
+      <div style="font-size:20px;font-weight:700;color:var(--text)">${people.length}<span style="font-size:12px;font-weight:400">명</span></div>
+      <div style="font-size:10px;color:var(--text3);margin-top:2px">${people.map(pid=>{const p=S.people.find(x=>x.id===pid);return p?p.name:''}).filter(Boolean).join(', ')}</div>
     </div>`;
+  });
+  html+=`</div></div>`;
+
+  // 인원별 KOSA 테이블
+  html+=`<div class="card" style="padding:0"><div class="tbl-wrap"><table><thead><tr>
+    <th>이름</th><th>직급</th><th>직무분야</th><th>등급</th><th>등록번호</th><th>등록일</th><th>만료일</th><th>비고</th><th></th>
+  </tr></thead><tbody>`;
+
+  if(!S.kosaList.length){
+    html+=`<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:2rem">등록된 KOSA 정보가 없습니다</td></tr>`;
+  } else {
+    // 인원별로 그룹화
+    const byPid={};
+    S.kosaList.forEach(k=>{if(!byPid[k.pid])byPid[k.pid]=[];byPid[k.pid].push(k);});
+    Object.keys(byPid).forEach(pid=>{
+      const person=S.people.find(p=>p.id===+pid);
+      if(!person)return;
+      byPid[pid].forEach((k,i)=>{
+        // 만료 여부 확인
+        const today=new Date();
+        const expDate=k.expDate?new Date(k.expDate):null;
+        const isExpired=expDate&&expDate<today;
+        const isNearExp=expDate&&!isExpired&&(expDate-today)<90*24*60*60*1000;
+        html+=`<tr ${isExpired?'style="background:var(--red-bg)"':isNearExp?'style="background:var(--amber-bg)"':''}>
+          <td style="font-weight:600">${i===0?person.name:''}</td>
+          <td style="color:var(--text3)">${i===0?person.rank:''}</td>
+          <td><span class="badge b-amber" style="background:var(--amber-bg);color:var(--amber-text)">${k.field}</span></td>
+          <td><span class="badge ${k.grade==='특급'?'b-over':k.grade==='고급'?'b-blue':k.grade==='중급'?'b-ok':'b-gray'}">${k.grade}</span></td>
+          <td style="font-size:11px;color:var(--text2)">${k.regNo||'-'}</td>
+          <td style="font-size:11px">${k.regDate||'-'}</td>
+          <td style="font-size:11px;color:${isExpired?'var(--red-text)':isNearExp?'var(--amber-text)':'var(--text)'}">${k.expDate||'-'}${isExpired?' ⚠만료':isNearExp?' ⚡곧만료':''}</td>
+          <td style="font-size:11px;color:var(--text3)">${k.memo||''}</td>
+          <td><button class="btn btn-danger btn-sm" onclick="deleteKosa(${k.id})">삭제</button></td>
+        </tr>`;
+      });
+    });
+  }
+  html+=`</tbody></table></div></div>`;
+  document.getElementById('kosa-content').innerHTML=html;
+}
+
+// KOSA CRUD
+async function addKosa(){
+  const pid=parseInt(document.getElementById('nk-pid').value);
+  const field=document.getElementById('nk-field').value;
+  const grade=document.getElementById('nk-grade').value;
+  const regNo=document.getElementById('nk-regno').value.trim();
+  const regDate=document.getElementById('nk-regdate').value.trim();
+  const expDate=document.getElementById('nk-expdate').value.trim();
+  const memo=document.getElementById('nk-memo').value.trim();
+  const res=await apiPost({action:'addKosa',pid,field,grade,regNo,regDate,expDate,memo});
+  if(res.id){
+    S.kosaList.push({id:res.id,pid,field,grade,regNo,regDate,expDate,memo});
+    toggleForm('add-kosa-form');
+    renderKosaList();
+  }
+}
+async function deleteKosa(id){
+  if(!confirm('KOSA 정보를 삭제하시겠습니까?'))return;
+  S.kosaList=S.kosaList.filter(k=>k.id!==id);
+  renderKosaList();
+  await apiPost({action:'deleteKosa',id});
+}
+
+function renderKosaPlaceholder(){
+  renderKosaList();
 }
 function renderCertPlaceholder(){
   document.getElementById('cert-content').innerHTML=`
