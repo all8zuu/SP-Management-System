@@ -289,7 +289,7 @@ hr{border:none;border-top:1px solid var(--border);margin:12px 0}
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:center">
         <div><div class="page-title">연차별 투입인력 참여율</div><div class="page-sub">과제별 연도별 참여율 입력·수정 (저장 자동)</div></div>
         <div style="display:flex;gap:8px;align-items:center">
-          <input type="number" id="new-year-input" value="2027" style="width:75px;font-size:11px;padding:5px 8px">
+          <input type="number" id="new-year-input" value="2024" min="2000" max="2050" style="width:75px;font-size:11px;padding:5px 8px">
           <button class="btn btn-primary" onclick="addYearCol()">+ 연도 추가</button>
         </div>
       </div>
@@ -487,7 +487,18 @@ function stOf(t){if(t>100)return{l:'초과',c:'b-over'};if(t>=80)return{l:'검�
 function bc(t){return t>100?'var(--red)':t>=80?'var(--amber)':t>=20?'var(--green)':'var(--blue)'}
 function fmtW(v){if(!v||v===0)return'-';return Math.round(v).toLocaleString('ko-KR')+'원'}
 function getSal(pid,projId,year){const p=S.parts.find(x=>x.pid===pid&&x.projId===projId&&x.year===year);if(p&&p.salary)return p.salary;const person=S.people.find(x=>x.id===pid);return person?person.salary:60000;}
-function getYears(){const ys=[...new Set(S.parts.map(p=>p.year))].sort();return ys.length?ys:[2026];}
+function getYears(){
+  const fromParts=[...new Set(S.parts.map(p=>p.year))];
+  // 과제 시작일/종료일 연도도 포함
+  const fromProjects=S.projects.flatMap(p=>{
+    const years=[];
+    if(p.startDate)years.push(new Date(p.startDate).getFullYear());
+    if(p.endDate)years.push(new Date(p.endDate).getFullYear());
+    return years;
+  }).filter(y=>!isNaN(y));
+  const ys=[...new Set([...fromParts,...fromProjects])].sort();
+  return ys.length?ys:[2026];
+}
 function stMap(s){return s==='수행중'?'b-ok':s==='협약중'?'b-blue':s==='평가중'?'b-warn':s==='계획중'?'b-purple':s==='종료'?'b-gray':'b-safe'}
 
 function toggleModule(el){
@@ -754,7 +765,7 @@ function toggleForm(id){const f=document.getElementById(id);f.style.display=f.st
 
 // 대시보드
 // 대시보드 필터 상태 전역 변수
-let dashYear=2026;
+let dashYear=null; // null이면 자동으로 가장 빠른 연도로 설정
 let dashStatusChecks={수행중:true,협약중:true,평가중:false,계획중:false};
 let dashExclude6m=false;
 
@@ -812,7 +823,7 @@ function renderOverviewFiltered(){
 function renderOverview(){
   const years=getYears();
   // 연도 필터 동기화
-  if(!years.includes(dashYear))dashYear=years.includes(2026)?2026:years[years.length-1];
+  if(!dashYear||!years.includes(dashYear))dashYear=years[0]||2026;
   const refYear=dashYear;
 
   // 상태 체크박스 필터 적용 (종료는 항상 제외)
@@ -1534,7 +1545,7 @@ async function rmPersonProj(pid,projId){
 }
 function addYearCol(){
   const y=parseInt(document.getElementById('new-year-input').value);
-  if(!y||y<2020||y>2040)return alert('올바른 연도를 입력해주세요');
+  if(!y||y<2000||y>2050)return alert('올바른 연도를 입력해주세요');
   if(getYears().includes(y))return alert('이미 있는 연도예요');
   S.parts.push({pid:-1,projId:-1,year:y,rate:0,salary:null});
   document.getElementById('yearly-content').innerHTML='';renderAll();
@@ -1596,7 +1607,15 @@ function svcMmTotal(pid, year){
   return S.svcParts.filter(p=>p.pid===pid&&p.year===year).reduce((sum,p)=>sum+p.manmonth,0);
 }
 function getSvcYears(){
-  const ys=[...new Set(S.svcParts.map(p=>p.year))].sort();
+  const fromParts=[...new Set(S.svcParts.map(p=>p.year))];
+  const fromSvcs=S.services.flatMap(s=>{
+    const years=[];
+    if(s.startDate)years.push(new Date(s.startDate).getFullYear());
+    if(s.endDate)years.push(new Date(s.endDate).getFullYear());
+    if(s.startYear)years.push(+s.startYear);
+    return years;
+  }).filter(y=>!isNaN(y)&&y>2000);
+  const ys=[...new Set([...fromParts,...fromSvcs])].sort();
   return ys.length?ys:[new Date().getFullYear()];
 }
 
@@ -1875,7 +1894,7 @@ async function removeSvcPerson(pid,svcId){
 }
 function addSvcYear(){
   const y=parseInt(document.getElementById('svc-new-year').value);
-  if(!y||y<2020||y>2040)return alert('올바른 연도를 입력해주세요');
+  if(!y||y<2000||y>2050)return alert('올바른 연도를 입력해주세요');
   if(getSvcYears().includes(y))return alert('이미 있는 연도예요');
   S.svcParts.push({pid:-1,svcId:-1,year:y,manmonth:0});
   renderSvcManmonth();
