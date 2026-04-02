@@ -315,7 +315,11 @@ hr{border:none;border-top:1px solid var(--border);margin:12px 0}
           <div class="form-row"><label class="form-label">자체분(자동)</label><input type="number" id="npr-self" readonly></div>
           <div class="form-row"><label class="form-label">기간(개월)</label><input type="number" id="npr-months" placeholder="30" step="1"></div>
         </div>
-        <div class="form-row" style="margin-top:8px"><label class="form-label">비고</label><textarea id="npr-memo" rows="2" placeholder="위탁비, 특이사항 등"></textarea></div>
+        <div class="g3" style="margin-top:8px">
+          <div class="form-row"><label class="form-label">시작일</label><input type="date" id="npr-startdate"></div>
+          <div class="form-row"><label class="form-label">종료일</label><input type="date" id="npr-enddate"></div>
+          <div class="form-row"><label class="form-label">비고</label><textarea id="npr-memo" rows="1" placeholder="위탁비, 특이사항 등"></textarea></div>
+        </div>
         <div class="form-actions"><button class="btn" onclick="toggleForm('add-proj-form')">취소</button><button class="btn btn-primary" onclick="addProject()">등록</button></div>
       </div>
       <div id="projects-content"><div class="loading"><div class="spinner"></div></div></div>
@@ -931,11 +935,11 @@ function renderOverview(){
   html+=`</div>`;
 
   // 과제 포트폴리오
-  html+=`<div class="card"><div class="card-title">과제 포트폴리오</div><div class="tbl-wrap"><table><thead><tr><th>과제명</th><th>발주기관</th><th>상태</th><th>정부지원금</th><th>자체분</th><th>지분율</th><th>기간</th>`;
+  html+=`<div class="card"><div class="card-title">과제 포트폴리오</div><div class="tbl-wrap"><table><thead><tr><th>과제명</th><th>발주기관</th><th>상태</th><th>정부지원금</th><th>자체분</th><th>지분율</th><th>기간</th><th>시작일</th><th>종료일</th>`;
   years.forEach(y=>html+=`<th style="text-align:center">${y}년 인원</th>`);
   html+=`</tr></thead><tbody>`;
   S.projects.forEach(pr=>{
-    html+=`<tr><td style="font-weight:600">${pr.name}</td><td style="color:var(--text2)">${pr.client}</td><td><span class="badge ${stMap(pr.status)}">${pr.status}</span></td><td>${fmtW(pr.govAmt*1000)}</td><td style="color:var(--green);font-weight:600">${fmtW(pr.selfAmt*1000)}</td><td>${pr.shareRate}%</td><td>${pr.months}개월</td>`;
+    html+=`<tr><td style="font-weight:600">${pr.name}</td><td style="color:var(--text2)">${pr.client}</td><td><span class="badge ${stMap(pr.status)}">${pr.status}</span></td><td>${fmtW(pr.govAmt*1000)}</td><td style="color:var(--green);font-weight:600">${fmtW(pr.selfAmt*1000)}</td><td>${pr.shareRate}%</td><td>${pr.months}개월</td><td style="font-size:11px">${pr.startDate||'-'}</td><td style="font-size:11px">${pr.endDate||'-'}</td>`;
     years.forEach(y=>{const cnt=[...new Set(S.parts.filter(p=>p.projId===pr.id&&p.year===y).map(p=>p.pid))].length;html+=`<td style="text-align:center">${cnt?cnt+'명':'-'}</td>`;});
     html+=`</tr>`;
   });
@@ -1099,6 +1103,8 @@ function renderProjects(){
         <div class="proj-meta">
           <div class="pm-item"><div class="pm-label">발주기관</div><input type="text" value="${pr.client}" onchange="updProj(${pr.id},'client',this.value)"></div>
           <div class="pm-item"><div class="pm-label">기간(개월)</div><input type="number" value="${pr.months}" step="1" onchange="updProj(${pr.id},'months',+this.value)"></div>
+          <div class="pm-item"><div class="pm-label">시작일</div><input type="date" value="${pr.startDate||''}" onchange="updProj(${pr.id},'startDate',this.value)"></div>
+          <div class="pm-item"><div class="pm-label">종료일</div><input type="date" value="${pr.endDate||''}" onchange="updProj(${pr.id},'endDate',this.value)"></div>
           <div class="pm-item"><div class="pm-label">지분율(%)</div><input type="number" value="${pr.shareRate}" step="1" onchange="updProjFinance(${pr.id},'shareRate',+this.value)"></div>
           <div class="pm-item"><div class="pm-label">정부지원금(억원)</div><input type="number" value="${(pr.govAmt/100000).toFixed(2)}" step="0.1" placeholder="예: 6.6" onchange="updProjFinance(${pr.id},'govAmt',Math.round(this.value*100000))"><div class="pm-sub">${fmtW(pr.govAmt*1000)}</div></div>
           <div class="pm-item"><div class="pm-label">자체분(자동)</div><input type="number" value="${(pr.selfAmt/100000).toFixed(2)}" readonly><div class="pm-sub">${fmtW(pr.selfAmt*1000)}</div></div>
@@ -1536,7 +1542,7 @@ function addYearCol(){
 async function updProj(id,key,val){
   const pr=S.projects.find(p=>p.id===id);if(!pr)return;
   pr[key]=val;renderOverview();renderProjects();
-  await apiPost({action:'updateProject',...pr});
+  await apiPost({action:'updateProject',id:pr.id,name:pr.name,client:pr.client,status:pr.status,govAmt:pr.govAmt,shareRate:pr.shareRate,months:pr.months,memo:pr.memo||'',startDate:pr.startDate||'',endDate:pr.endDate||''});
 }
 async function updProjFinance(id,key,val){
   const pr=S.projects.find(p=>p.id===id);if(!pr)return;
@@ -1561,7 +1567,9 @@ async function addProject(){
   const share=parseFloat(document.getElementById('npr-share').value)||0;
   const memo=document.getElementById('npr-memo').value.trim();
   const govKr=Math.round(gov*100000); // 억원→천원
-  const res=await apiPost({action:'addProject',name,client:document.getElementById('npr-client').value.trim(),status:document.getElementById('npr-status').value,govAmt:govKr,shareRate:share,months:parseInt(document.getElementById('npr-months').value)||24,memo});
+  const startDate=document.getElementById('npr-startdate').value;
+  const endDate=document.getElementById('npr-enddate').value;
+  const res=await apiPost({action:'addProject',name,client:document.getElementById('npr-client').value.trim(),status:document.getElementById('npr-status').value,govAmt:govKr,shareRate:share,months:parseInt(document.getElementById('npr-months').value)||24,memo,startDate,endDate});
   if(res.id){S.projects.push({id:res.id,name,client:document.getElementById('npr-client').value.trim(),status:document.getElementById('npr-status').value,govAmt:gov,shareRate:share,selfAmt:Math.round(gov*(share/100)),months:parseInt(document.getElementById('npr-months').value)||24,memo});toggleForm('add-proj-form');renderAll();}
 }
 async function addPerson(){
@@ -1681,6 +1689,10 @@ function renderSvcManmonth(){
       <div class="form-row"><label class="form-label">시작연도</label><input type="number" id="ns-startyear" value="${new Date().getFullYear()}"></div>
       <div class="form-row"><label class="form-label">비고</label><input type="text" id="ns-memo" placeholder="특이사항"></div>
     </div>
+    <div class="g3" style="margin-top:8px">
+      <div class="form-row"><label class="form-label">시작일</label><input type="date" id="ns-startdate"></div>
+      <div class="form-row"><label class="form-label">종료일</label><input type="date" id="ns-enddate"></div>
+    </div>
     <div class="form-actions"><button class="btn" onclick="toggleForm('add-svc-form')">취소</button><button class="btn btn-primary" onclick="addService()">등록</button></div>
   </div>`;
 
@@ -1696,7 +1708,7 @@ function renderSvcManmonth(){
     html+=`<div class="yearly-proj"><div class="yearly-proj-head">
       <span style="font-size:13px;font-weight:600">${svc.name}</span>
       <span class="badge ${statusMap[svc.status]||'b-gray'}">${svc.status}</span>
-      <span style="font-size:11px;color:var(--text3)">${svc.client} · ${svc.months}개월 · ${svc.startYear}년 시작</span>
+      <span style="font-size:11px;color:var(--text3)">${svc.client} · ${svc.months}개월 · ${svc.startDate||svc.startYear+'년'}${svc.endDate?' ~ '+svc.endDate:''}</span>
       <button class="btn btn-danger btn-sm" style="margin-left:auto" onclick="deleteService(${svc.id})">삭제</button>
     </div><div style="padding:1rem 1.2rem">
     <div class="tbl-wrap"><table><thead><tr><th>이름</th><th>직급</th>`;
@@ -1820,8 +1832,10 @@ function renderSvcSimResult(){
 // ── 용역 CRUD ──
 async function addService(){
   const name=document.getElementById('ns-name').value.trim();if(!name)return;
-  const res=await apiPost({action:'addService',name,client:document.getElementById('ns-client').value.trim(),status:document.getElementById('ns-status').value,months:parseInt(document.getElementById('ns-months').value)||12,startYear:parseInt(document.getElementById('ns-startyear').value)||new Date().getFullYear(),memo:document.getElementById('ns-memo').value.trim()});
-  if(res.id){S.services.push({id:res.id,name,client:document.getElementById('ns-client').value.trim(),status:document.getElementById('ns-status').value,months:parseInt(document.getElementById('ns-months').value)||12,startYear:parseInt(document.getElementById('ns-startyear').value)||new Date().getFullYear(),memo:document.getElementById('ns-memo').value.trim()});toggleForm('add-svc-form');renderSvcManmonth();renderSvcOverview();}
+  const svcStartDate=document.getElementById('ns-startdate').value;
+  const svcEndDate=document.getElementById('ns-enddate').value;
+  const res=await apiPost({action:'addService',name,client:document.getElementById('ns-client').value.trim(),status:document.getElementById('ns-status').value,months:parseInt(document.getElementById('ns-months').value)||12,startYear:parseInt(document.getElementById('ns-startyear').value)||new Date().getFullYear(),memo:document.getElementById('ns-memo').value.trim(),startDate:svcStartDate,endDate:svcEndDate});
+  if(res.id){S.services.push({id:res.id,name,client:document.getElementById('ns-client').value.trim(),status:document.getElementById('ns-status').value,months:parseInt(document.getElementById('ns-months').value)||12,startYear:parseInt(document.getElementById('ns-startyear').value)||new Date().getFullYear(),memo:document.getElementById('ns-memo').value.trim(),startDate:svcStartDate,endDate:svcEndDate});toggleForm('add-svc-form');renderSvcManmonth();renderSvcOverview();}
 }
 async function deleteService(id){
   if(!confirm('용역을 삭제하시겠습니까?'))return;
