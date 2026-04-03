@@ -423,19 +423,19 @@ hr{border:none;border-top:1px solid var(--border);margin:12px 0}
 
     <!-- 용역 관리 섹션들 -->
     <div id="tab-svc-overview" class="section">
-      <div class="page-header"><div class="page-title">용역 관리 · 대시보드</div><div class="page-sub">기관별 맨먼스 현황 및 초과 여부</div></div>
+      <div class="page-header"><div class="page-title">대시보드</div><div class="page-sub">기관별 맨먼스 현황 및 초과 여부</div></div>
       <div id="svc-overview-content"><div class="loading"><div class="spinner"></div><span style="font-size:12px;color:var(--text3)">준비 중...</span></div></div>
     </div>
     <div id="tab-svc-manmonth" class="section">
-      <div class="page-header"><div class="page-title">용역 관리 · 맨먼스 관리</div><div class="page-sub">인원별 연도별 맨먼스 입력 및 12 맨먼스 초과 경고</div></div>
+      <div class="page-header"><div class="page-title">맨먼스 관리</div><div class="page-sub">인원별 연도별 맨먼스 입력 및 12 맨먼스 초과 경고</div></div>
       <div id="svc-manmonth-content"><div class="loading"><div class="spinner"></div><span style="font-size:12px;color:var(--text3)">준비 중...</span></div></div>
     </div>
     <div id="tab-svc-agency" class="section">
-      <div class="page-header"><div class="page-title">용역 관리 · 기관별 현황</div><div class="page-sub">발주기관별 맨먼스 합산 현황</div></div>
+      <div class="page-header"><div class="page-title">기관별 현황</div><div class="page-sub">발주기관별 맨먼스 합산 현황</div></div>
       <div id="svc-agency-content"><div class="loading"><div class="spinner"></div><span style="font-size:12px;color:var(--text3)">준비 중...</span></div></div>
     </div>
     <div id="tab-svc-sim" class="section">
-      <div class="page-header"><div class="page-title">용역 관리 · 시뮬레이션</div><div class="page-sub">신규 용역 수주 시 맨먼스 여유 확인</div></div>
+      <div class="page-header"><div class="page-title">시뮬레이션</div><div class="page-sub">신규 용역 수주 시 맨먼스 여유 확인</div></div>
       <div id="svc-sim-content"><div class="loading"><div class="spinner"></div><span style="font-size:12px;color:var(--text3)">준비 중...</span></div></div>
     </div>
 
@@ -478,6 +478,15 @@ const ITSQF = {
 };
 
 // 등급 자동 산출 (ITSQF 실무 통용 기준)
+
+// 날짜 포맷 헬퍼 (ISO 문자열 → YYYY-MM-DD)
+function fmtDate(d){
+  if(!d)return '';
+  const s=String(d);
+  // ISO 형식(T 포함) 처리
+  if(s.includes('T'))return s.split('T')[0];
+  return s;
+}
 function calcKosaGrade(edu, eduCareer, cert, certCareer) {
   if (cert === '기술사') return '특급';
   if (cert === '기사') {
@@ -1182,7 +1191,7 @@ function renderYearly(){
           html+=`<td style="text-align:center"><button class="btn btn-sm" onclick="addPartY(${pid},${pr.id},${y})">+ 추가</button></td>`;
         }
       });
-      html+=`<td><button class="btn btn-danger btn-sm" onclick="rmPersonProj(${pid},${pr.id})">전체삭제</button></td></tr>`;
+      html+=`<td><button class="btn btn-danger btn-sm" onclick="rmPersonProj(${pid},${pr.id})">삭제</button></td></tr>`;
     });
     html+=`</tbody></table></div>`;
     const addOpts=S.people.filter(p=>!pids.includes(p.id)).map(p=>`<option value="${p.id}">${p.name}(${p.rank})</option>`).join('');
@@ -1667,7 +1676,7 @@ async function addPartYNew(projId){
   await apiPost({action:'addPart',pid,projId,year,rate,salary:''});
 }
 async function rmPersonProj(pid,projId){
-  if(!confirm('이 인원을 이 과제에서 전체 삭제할까요?'))return;
+  if(!confirm('이 인원을 해당 과제에서 제외하시겠습니까?\n(등록된 모든 연도의 참여율 데이터가 삭제됩니다)'))return;
   const toDel=S.parts.filter(p=>p.pid===pid&&p.projId===projId);
   S.parts=S.parts.filter(p=>!(p.pid===pid&&p.projId===projId));
   renderAll();for(const d of toDel)await apiPost({action:'removePart',pid,projId,year:d.year});
@@ -1859,7 +1868,7 @@ function renderSvcManmonth(){
     html+=`<div class="yearly-proj"><div class="yearly-proj-head">
       <span style="font-size:13px;font-weight:600">${svc.name}</span>
       <span class="badge ${statusMap[svc.status]||'b-gray'}">${svc.status}</span>
-      <span style="font-size:11px;color:var(--text3)">${svc.client} · ${svc.months}개월 · ${svc.startDate||svc.startYear+'년'}${svc.endDate?' ~ '+svc.endDate:''}</span>
+      <span style="font-size:11px;color:var(--text3)">${svc.client} · ${svc.months}개월 · ${fmtDate(svc.startDate)||svc.startYear+'년 시작'}${svc.endDate?' ~ '+fmtDate(svc.endDate):''}</span>
       <button class="btn btn-danger btn-sm" style="margin-left:auto" onclick="deleteService(${svc.id})">삭제</button>
     </div><div style="padding:1rem 1.2rem">
     <div class="tbl-wrap"><table><thead><tr><th>이름</th><th>직급</th>`;
@@ -1867,7 +1876,7 @@ function renderSvcManmonth(){
       // 해당 연도 기관 전체 경고
       html+=`<th style="text-align:center">${y}년<br><span style="font-size:9px;font-weight:400">맨먼스</span></th>`;
     });
-    html+=`<th style="text-align:center">기간합산MM</th><th>기관합산경고</th><th></th></tr></thead><tbody>`;
+    html+=`<th style="text-align:center;min-width:90px">기간합산MM</th><th style="text-align:center;min-width:120px">기관합산경고</th><th style="min-width:50px"></th></tr></thead><tbody>`;
 
     pids.forEach(pid=>{
       const person=S.people.find(x=>x.id===pid);if(!person)return;
@@ -1883,18 +1892,15 @@ function renderSvcManmonth(){
         }
         html+=`</td>`;
       });
-      // 기간합산 (모든 연도 MM 합계)
+      // 기간합산 (이 용역에서 해당 인원의 전 연도 MM 합계)
       const periodTotal=years.reduce((sum,y)=>{
         const part=S.svcParts.find(p=>p.pid===pid&&p.svcId===svc.id&&p.year===y);
         return sum+(part?part.manmonth:0);
       },0);
-      html+=`<td style="text-align:center;font-weight:700;color:${periodTotal>0?'var(--green-text)':'var(--text3)'}">${periodTotal?periodTotal.toFixed(1)+'MM':'-'}</td>`;
-      // 기관 합산 경고
-      const clientTotal=years.map(y=>svcMmByYear(pid,svc.client,y));
-      const maxMm=Math.max(...clientTotal);
-      // 기관 합산: 해당 기관의 모든 용역 맨먼스를 연도별로 합산하여 최댓값 표시
+      html+=`<td style="text-align:center;font-weight:700;color:${periodTotal>0?'var(--green)':'var(--text3)'}">${periodTotal?periodTotal.toFixed(1)+'MM':'-'}</td>`;
+      // 기관합산경고 (같은 기관 모든 용역의 연도별 합산 중 최댓값)
       const agencyMaxMm=Math.max(...years.map(y=>svcMmByYear(pid,svc.client,y)));
-      html+=`<td style="text-align:center">${agencyMaxMm>12?`<span class="badge b-over">⚠ ${agencyMaxMm}MM/년 초과</span>`:agencyMaxMm>0?`<span class="badge b-ok">최대 ${agencyMaxMm}MM/년</span>`:'<span style="color:var(--text3);font-size:11px">-</span>'}</td>`;
+      html+=`<td style="text-align:center;min-width:120px">${agencyMaxMm>12?`<span class="badge b-over">⚠ ${agencyMaxMm.toFixed(1)}MM/년 초과</span>`:agencyMaxMm>0?`<span class="badge b-ok">최대 ${agencyMaxMm.toFixed(1)}MM/년</span>`:'<span style="color:var(--text3);font-size:11px">-</span>'}</td>`;
       html+=`<td><button class="btn btn-danger btn-sm" onclick="removeSvcPerson(${pid},${svc.id})">삭제</button></td></tr>`;
     });
     html+=`</tbody></table></div>`;
