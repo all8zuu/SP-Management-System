@@ -199,148 +199,9 @@ hr{border:none;border-top:1px solid var(--border);margin:12px 0}
   #print-only-header{display:block!important}
 }
 #print-only-header{display:none;font-size:14px;font-weight:700;margin-bottom:12px}
-
-/* ── 모바일 전용 ── */
-#mobile-app{display:none}
-@media(max-width:768px){
-  .layout,.header{display:none!important}
-  #mobile-app{display:block}
-  #login-wrap .login-card{width:88vw;padding:2rem 1.5rem}
-}
-.m-wrap{min-height:100vh;background:#f5f5f3;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
-.m-header{background:#1a1a2e;color:#fff;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-.m-header-title{font-size:15px;font-weight:700;letter-spacing:-.3px}
-.m-header-sub{font-size:10px;opacity:.6;margin-top:1px}
-.m-sync{font-size:10px;opacity:.7;display:flex;align-items:center;gap:4px}
-.m-nav{display:flex;overflow-x:auto;background:#fff;border-bottom:1px solid #e8e8e8;padding:0 4px;gap:2px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-.m-nav::-webkit-scrollbar{display:none}
-.m-tab{flex-shrink:0;padding:10px 14px;font-size:12px;font-weight:600;color:#888;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;transition:all .15s}
-.m-tab.on{color:#1a1a2e;border-bottom-color:#1a1a2e}
-.m-body{padding:12px}
-.m-card{background:#fff;border-radius:12px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
-.m-card-title{font-size:12px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px}
-.m-kpi-row{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:10px}
-.m-kpi{background:#f5f5f3;border-radius:10px;padding:12px;text-align:center}
-.m-kpi-label{font-size:10px;color:#999;margin-bottom:4px}
-.m-kpi-value{font-size:22px;font-weight:700;color:#1a1a2e;line-height:1}
-.m-kpi-unit{font-size:11px;font-weight:400;color:#999}
-.m-filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-.m-chip{padding:5px 12px;border-radius:99px;font-size:11px;font-weight:600;border:1.5px solid #e8e8e8;background:#fff;color:#555;cursor:pointer;transition:all .12s}
-.m-chip.on{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
-.m-chip.on-blue{background:#2563eb;color:#fff;border-color:#2563eb}
-.m-chip.on-green{background:#16a34a;color:#fff;border-color:#16a34a}
-.m-chip.on-amber{background:#d97706;color:#fff;border-color:#d97706}
-.m-chip.on-gray{background:#6b7280;color:#fff;border-color:#6b7280}
-.m-chip.on-purple{background:#7c3aed;color:#fff;border-color:#7c3aed}
-.m-proj-card{background:#fff;border-radius:12px;padding:14px 16px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);border-left:4px solid #e8e8e8}
-.m-proj-card.st-수행중{border-left-color:#16a34a}
-.m-proj-card.st-협약중{border-left-color:#2563eb}
-.m-proj-card.st-계획중{border-left-color:#7c3aed}
-.m-proj-card.st-평가중{border-left-color:#d97706}
-.m-proj-card.st-종료{border-left-color:#9ca3af}
-.m-proj-name{font-size:13px;font-weight:700;color:#1a1a2e;margin-bottom:4px;line-height:1.4}
-.m-proj-meta{font-size:11px;color:#999;margin-bottom:8px}
-.m-proj-bar{height:6px;background:#f0f0f0;border-radius:99px;overflow:hidden;margin-bottom:4px}
-.m-proj-bar-fill{height:100%;border-radius:99px;transition:width .3s}
-.m-proj-stat{display:flex;justify-content:space-between;font-size:11px}
-.m-person-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f0f0f0}
-.m-person-row:last-child{border-bottom:none}
-.m-avatar{width:36px;height:36px;border-radius:50%;background:#1a1a2e;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
-.m-person-info{flex:1;min-width:0}
-.m-person-name{font-size:13px;font-weight:700;color:#1a1a2e}
-.m-person-rank{font-size:10px;color:#999}
-.m-person-rate{text-align:right;flex-shrink:0}
-.m-rate-num{font-size:16px;font-weight:700}
-.m-rate-bar{height:4px;background:#f0f0f0;border-radius:99px;overflow:hidden;margin-top:4px;width:60px}
-.m-rate-fill{height:100%;border-radius:99px}
-.m-badge{display:inline-block;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:600}
-.m-badge-ok{background:#dcfce7;color:#16a34a}
-.m-badge-over{background:#fee2e2;color:#dc2626}
-.m-badge-warn{background:#fef3c7;color:#d97706}
-.m-badge-idle{background:#f3f4f6;color:#6b7280}
-.m-badge-blue{background:#dbeafe;color:#2563eb}
-.m-badge-purple{background:#ede9fe;color:#7c3aed}
-.m-badge-gray{background:#f3f4f6;color:#6b7280}
-.m-svc-card{background:#fff;border-radius:12px;padding:14px 16px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
-.m-svc-name{font-size:13px;font-weight:700;color:#1a1a2e;margin-bottom:2px}
-.m-svc-meta{font-size:11px;color:#999;margin-bottom:10px}
-.m-mm-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f5f5f3}
-.m-mm-row:last-child{border-bottom:none}
-.m-mm-name{font-size:12px;font-weight:600;color:#333;width:60px;flex-shrink:0}
-.m-mm-bars{flex:1;display:flex;gap:4px;align-items:center;flex-wrap:wrap}
-.m-mm-year{font-size:10px;color:#999;background:#f5f5f3;border-radius:6px;padding:2px 6px;white-space:nowrap}
-.m-empty{text-align:center;padding:2.5rem 1rem;color:#bbb;font-size:13px}
-.m-section{display:none}
-.m-section.on{display:block}
-.m-refresh-btn{background:rgba(255,255,255,.15);border:none;color:#fff;font-size:11px;padding:5px 10px;border-radius:6px;cursor:pointer}
 </style>
 </head>
 <body>
-
-<!-- ══ 모바일 전용 앱 ══ -->
-<div id="mobile-app">
-  <div class="m-wrap">
-    <div class="m-header">
-      <div>
-        <div class="m-header-title">SP Management</div>
-        <div class="m-header-sub">SmartPRO · 조회 전용</div>
-      </div>
-      <button class="m-refresh-btn" onclick="mRefresh()">↺ 새로고침</button>
-    </div>
-    <div class="m-nav">
-      <div class="m-tab on" onclick="mSw('home',this)">홈</div>
-      <div class="m-tab" onclick="mSw('projects',this)">연구과제</div>
-      <div class="m-tab" onclick="mSw('people',this)">인원 참여율</div>
-      <div class="m-tab" onclick="mSw('service',this)">용역 맨먼스</div>
-    </div>
-    <div class="m-body">
-
-      <!-- 홈 -->
-      <div id="m-home" class="m-section on">
-        <div id="m-home-content"><div class="m-empty">데이터 불러오는 중...</div></div>
-      </div>
-
-      <!-- 연구과제 -->
-      <div id="m-projects" class="m-section">
-        <div class="m-filter-row" id="m-proj-filter">
-          <div class="m-chip on" onclick="mProjFilter('전체',this)">전체</div>
-          <div class="m-chip" onclick="mProjFilter('수행중',this)">수행중</div>
-          <div class="m-chip" onclick="mProjFilter('협약중',this)">협약중</div>
-          <div class="m-chip" onclick="mProjFilter('계획중',this)">계획중</div>
-          <div class="m-chip" onclick="mProjFilter('평가중',this)">평가중</div>
-          <div class="m-chip" onclick="mProjFilter('종료',this)">종료</div>
-        </div>
-        <div id="m-proj-content"><div class="m-empty">데이터 불러오는 중...</div></div>
-      </div>
-
-      <!-- 인원 참여율 -->
-      <div id="m-people" class="m-section">
-        <div class="m-filter-row" id="m-people-filter">
-          <div class="m-chip on" onclick="mPeopleFilter('전체',this)">전체</div>
-          <div class="m-chip" onclick="mPeopleFilter('초과',this)">초과</div>
-          <div class="m-chip" onclick="mPeopleFilter('검토',this)">검토</div>
-          <div class="m-chip" onclick="mPeopleFilter('적정',this)">적정</div>
-          <div class="m-chip" onclick="mPeopleFilter('활용',this)">활용</div>
-        </div>
-        <div class="m-card" id="m-people-content"><div class="m-empty">데이터 불러오는 중...</div></div>
-      </div>
-
-      <!-- 용역 맨먼스 -->
-      <div id="m-service" class="m-section">
-        <div class="m-filter-row" id="m-svc-filter">
-          <div class="m-chip on" onclick="mSvcFilter('전체',this)">전체</div>
-          <div class="m-chip" onclick="mSvcFilter('수행중',this)">수행중</div>
-          <div class="m-chip" onclick="mSvcFilter('협약중',this)">협약중</div>
-          <div class="m-chip" onclick="mSvcFilter('계획중',this)">계획중</div>
-        </div>
-        <div id="m-svc-content"><div class="m-empty">데이터 불러오는 중...</div></div>
-      </div>
-
-    </div>
-  </div>
-</div>
-<!-- ══ 모바일 전용 끝 ══ -->
-
 
 <div class="login-wrap" id="login-wrap">
   <div class="login-card">
@@ -637,11 +498,8 @@ function fmtDate(d){
   if(!d)return '';
   const s=String(d).trim();
   if(!s||s==='-'||s==='null'||s==='undefined')return '';
-  // ISO 형식(T 포함): 2023-04-30T15:00:00.000Z → 2023-04-30
   if(s.includes('T'))return s.split('T')[0];
-  // 이미 YYYY-MM-DD 형식
   if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;
-  // Date 객체로 파싱 시도
   const dt=new Date(d);
   if(!isNaN(dt.getTime())){
     const y=dt.getUTCFullYear();
@@ -691,16 +549,14 @@ let curPeopleYear=2026;
 function checkLogin(){
   if(document.getElementById('login-pw').value===PW){
     document.getElementById('login-wrap').style.display='none';
-    sessionStorage.setItem('sp_auth','ok');
-    if(window.innerWidth<=768){document.getElementById('mobile-app').style.display='block';mLoadData();}
-    else{loadData();}
+    sessionStorage.setItem('sp_auth','ok');loadData();
   }else{
     document.getElementById('login-err').style.display='block';
     document.getElementById('login-pw').value='';
     document.getElementById('login-pw').focus();
   }
 }
-if(sessionStorage.getItem('sp_auth')==='ok'){document.getElementById('login-wrap').style.display='none';if(window.innerWidth<=768){document.getElementById('mobile-app').style.display='block';mLoadData();}else{loadData();}}
+if(sessionStorage.getItem('sp_auth')==='ok'){document.getElementById('login-wrap').style.display='none';loadData();}
 
 async function api(p){setSS('syncing');try{const r=await fetch(API+'?'+new URLSearchParams(p));const d=await r.json();setSS('ok');return d;}catch(e){setSS('err');throw e;}}
 async function apiPost(b){setSS('syncing');try{const r=await fetch(API,{method:'POST',body:JSON.stringify(b)});const d=await r.json();setSS('ok');return d;}catch(e){setSS('err');throw e;}}
@@ -792,8 +648,6 @@ function renderKosaList(){
     <button class="btn" onclick="toggleForm('manage-kosa-form')">✏️ 인원별 관리</button>
     <button class="btn btn-primary" onclick="toggleForm('add-kosa-form')">+ KOSA 경력 추가</button>
   </div>
-
-  <!-- 인원별 관리 모드 -->
   <div class="add-form" id="manage-kosa-form" style="margin-bottom:1rem">
     <div class="form-title">인원별 KOSA 경력 관리 <span style="font-size:11px;font-weight:400;color:var(--text3)">— 인원 선택 시 전체 경력을 한 화면에서 추가·수정·삭제</span></div>
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px">
@@ -804,7 +658,6 @@ function renderKosaList(){
     </div>
     <div id="manage-kosa-body"></div>
   </div>
-
   <div class="add-form" id="add-kosa-form">
     <div class="form-title">KOSA 경력 추가 <span style="font-size:11px;font-weight:400;color:var(--text3)">— 행 추가 버튼으로 여러 건을 한 번에 입력</span></div>
     <div style="background:var(--amber-bg);border:1px solid var(--border);border-radius:var(--r);padding:8px 14px;margin-bottom:12px;font-size:10px">
@@ -815,14 +668,12 @@ function renderKosaList(){
       <div class="form-row" style="max-width:220px"><label class="form-label">이름</label><select id="nk-pid">${personOpts}</select></div>
     </div>
     <div id="kosa-add-rows"></div>
-    <div style="margin:8px 0 12px">
-      <button class="btn btn-sm" onclick="addKosaRow()">+ 행 추가</button>
-    </div>
+    <div style="margin:8px 0 12px"><button class="btn btn-sm" onclick="addKosaRow()">+ 행 추가</button></div>
     <div class="form-actions">
       <button class="btn" onclick="toggleForm('add-kosa-form')">취소</button>
       <button class="btn btn-primary" onclick="addKosaBatch()">일괄 저장</button>
     </div>
-  </div>`;
+  </div>\`
 
   // 직종별 등록 현황 카드
   const allJobs=[...new Set(S.kosaList.map(k=>k.job||k.field).filter(Boolean))];
@@ -879,215 +730,82 @@ function renderKosaList(){
   document.getElementById('kosa-content').innerHTML=html;
 }
 
-// ── KOSA 행 생성 헬퍼 ──
+function updateDetailJob(){
+  const job=document.getElementById('nk-job').value;
+  const sel=document.getElementById('nk-detail');
+  if(!job){sel.innerHTML='<option value="">직종 먼저 선택</option>';return;}
+  const details=ITSQF[job]||[];
+  sel.innerHTML=details.map(d=>`<option value="${d}">${d}</option>`).join('');
+}
+
+function autoCalcGrade(){
+  const edu=document.getElementById('nk-edu').value;
+  const eduCareer=parseFloat(document.getElementById('nk-edu-career').value)||0;
+  const cert=document.getElementById('nk-cert-type').value;
+  const certCareer=parseFloat(document.getElementById('nk-cert-career').value)||0;
+  const grade=calcKosaGrade(edu,eduCareer,cert,certCareer);
+  const colorMap={특급:'var(--red-text)',고급:'var(--blue)',중급:'var(--green)',초급:'var(--text3)'};
+  const el=document.getElementById('nk-grade-result');
+  const elBasis=document.getElementById('nk-grade-basis');
+  if(grade==='—'){el.textContent='—';el.style.color='var(--text3)';elBasis.textContent='';return;}
+  el.textContent=grade;
+  el.style.color=colorMap[grade]||'var(--text)';
+  elBasis.textContent=cert?`자격증 기준 (${cert}+${certCareer}년)`:edu?`학력 기준 (${edu}+${eduCareer}년)`:'';
+}
+
+// KOSA CRUD
+// ── KOSA 헬퍼 ──
 let kosaRowCount=0;
-function makeJobDetailSelect(rowId,jobVal='',detailVal=''){
+function makeJobDetailSelect(rowId,jobVal,detailVal){
+  jobVal=jobVal||'';detailVal=detailVal||'';
   const jobOpts=Object.keys(ITSQF).map(j=>`<option value="${j}" ${j===jobVal?'selected':''}>${j}</option>`).join('');
-  const detailOpts=jobVal&&ITSQF[jobVal]?ITSQF[jobVal].map(d=>`<option value="${d}" ${d===detailVal?'selected':''}>${d}</option>`).join(''):'';
   const isCustomJob=jobVal&&!ITSQF[jobVal];
+  const detailOpts=jobVal&&ITSQF[jobVal]?ITSQF[jobVal].map(d=>`<option value="${d}" ${d===detailVal?'selected':''}>${d}</option>`).join(''):'';
   const isCustomDetail=jobVal&&ITSQF[jobVal]&&detailVal&&!ITSQF[jobVal].includes(detailVal);
-  return `
-    <div style="display:flex;flex-direction:column;gap:3px">
-      <select id="row-job-${rowId}" onchange="syncRowDetail(${rowId})" style="font-size:11px">
-        <option value="">직종 선택</option>${jobOpts}
-        <option value="__custom__" ${isCustomJob?'selected':''}>✏️ 직접 입력</option>
-      </select>
-      <input type="text" id="row-job-custom-${rowId}" placeholder="직종 직접 입력" value="${isCustomJob?jobVal:''}" style="display:${isCustomJob?'block':'none'};font-size:11px;padding:3px 6px">
-    </div>
-    <div style="display:flex;flex-direction:column;gap:3px">
-      <select id="row-detail-${rowId}" onchange="syncRowDetailCustom(${rowId})" style="font-size:11px">
-        ${detailOpts?detailOpts+'<option value="__custom__">✏️ 직접 입력</option>':'<option value="">직종 먼저 선택</option><option value="__custom__">✏️ 직접 입력</option>'}
-      </select>
-      <input type="text" id="row-detail-custom-${rowId}" placeholder="상세직무 직접 입력" value="${isCustomDetail?detailVal:''}" style="display:${isCustomDetail?'block':'none'};font-size:11px;padding:3px 6px">
-    </div>`;
+  return `<div style="display:flex;flex-direction:column;gap:3px"><select id="row-job-${rowId}" onchange="syncRowDetail(${rowId})" style="font-size:11px"><option value="">직종 선택</option>${jobOpts}<option value="__custom__" ${isCustomJob?'selected':''}>✏️ 직접 입력</option></select><input type="text" id="row-job-custom-${rowId}" placeholder="직종 직접 입력" value="${isCustomJob?jobVal:''}" style="display:${isCustomJob?'block':'none'};font-size:11px;padding:3px 6px"></div><div style="display:flex;flex-direction:column;gap:3px"><select id="row-detail-${rowId}" onchange="syncRowDetailCustom(${rowId})" style="font-size:11px">${detailOpts?detailOpts+'<option value="__custom__">✏️ 직접 입력</option>':'<option value="">직종 먼저 선택</option><option value="__custom__">✏️ 직접 입력</option>'}</select><input type="text" id="row-detail-custom-${rowId}" placeholder="상세직무 직접 입력" value="${isCustomDetail?detailVal:''}" style="display:${isCustomDetail?'block':'none'};font-size:11px;padding:3px 6px"></div>`;
 }
-function syncRowDetail(rowId){
-  const job=document.getElementById(`row-job-${rowId}`)?.value;
-  const detSel=document.getElementById(`row-detail-${rowId}`);
-  const jobCustom=document.getElementById(`row-job-custom-${rowId}`);
-  const detCustom=document.getElementById(`row-detail-custom-${rowId}`);
-  if(job==='__custom__'){jobCustom.style.display='block';detSel.innerHTML='<option value="__custom__">✏️ 직접 입력</option>';detCustom.style.display='block';return;}
-  jobCustom.style.display='none';
-  if(!job){detSel.innerHTML='<option value="">직종 먼저 선택</option><option value="__custom__">✏️ 직접 입력</option>';return;}
-  const opts=(ITSQF[job]||[]).map(d=>`<option value="${d}">${d}</option>`).join('');
-  detSel.innerHTML=opts+'<option value="__custom__">✏️ 직접 입력</option>';
-  detCustom.style.display='none';
-}
-function syncRowDetailCustom(rowId){
-  const detSel=document.getElementById(`row-detail-${rowId}`);
-  const detCustom=document.getElementById(`row-detail-custom-${rowId}`);
-  if(detSel&&detSel.value==='__custom__')detCustom.style.display='block';
-  else if(detCustom)detCustom.style.display='none';
-}
-function getRowJobDetail(rowId){
-  const jobSel=document.getElementById(`row-job-${rowId}`)?.value||'';
-  const job=jobSel==='__custom__'?document.getElementById(`row-job-custom-${rowId}`).value.trim():jobSel;
-  const detSel=document.getElementById(`row-detail-${rowId}`)?.value||'';
-  const detail=detSel==='__custom__'?document.getElementById(`row-detail-custom-${rowId}`).value.trim():detSel;
-  return {job,detail};
-}
-function makeKosaRowHtml(id,vals={}){
+function syncRowDetail(rowId){const job=document.getElementById(`row-job-${rowId}`)?.value;const detSel=document.getElementById(`row-detail-${rowId}`);const jc=document.getElementById(`row-job-custom-${rowId}`);const dc=document.getElementById(`row-detail-custom-${rowId}`);if(job==='__custom__'){jc.style.display='block';detSel.innerHTML='<option value="__custom__">✏️ 직접 입력</option>';dc.style.display='block';return;}jc.style.display='none';if(!job){detSel.innerHTML='<option value="">직종 먼저 선택</option><option value="__custom__">✏️ 직접 입력</option>';return;}const opts=(ITSQF[job]||[]).map(d=>`<option value="${d}">${d}</option>`).join('');detSel.innerHTML=opts+'<option value="__custom__">✏️ 직접 입력</option>';dc.style.display='none';}
+function syncRowDetailCustom(rowId){const v=document.getElementById(`row-detail-${rowId}`)?.value;const el=document.getElementById(`row-detail-custom-${rowId}`);if(el)el.style.display=v==='__custom__'?'block':'none';}
+function getRowJobDetail(rowId){const js=document.getElementById(`row-job-${rowId}`)?.value||'';const job=js==='__custom__'?document.getElementById(`row-job-custom-${rowId}`).value.trim():js;const ds=document.getElementById(`row-detail-${rowId}`)?.value||'';const detail=ds==='__custom__'?document.getElementById(`row-detail-custom-${rowId}`).value.trim():ds;return {job,detail};}
+function addKosaRow(vals){
+  vals=vals||{};kosaRowCount++;const id=kosaRowCount;
   const gradeOpts=['특급','고급','중급','초급'].map(g=>`<option value="${g}" ${g===vals.grade?'selected':''}>${g}</option>`).join('');
-  return `<div id="kosa-row-${id}" style="display:grid;grid-template-columns:1fr 1fr 80px 130px 130px 1fr auto;gap:6px;align-items:start;padding:8px;background:var(--bg2);border-radius:var(--r);margin-bottom:6px">
-    ${makeJobDetailSelect(id,vals.job||'',vals.detail||'')}
-    <select id="row-grade-${id}" style="font-size:11px"><option value="">등급</option>${gradeOpts}</select>
-    <input type="date" id="row-start-${id}" value="${vals.startDate||''}" style="font-size:11px">
-    <input type="date" id="row-end-${id}" value="${vals.endDate||''}" style="font-size:11px">
-    <input type="text" id="row-memo-${id}" value="${vals.memo||''}" placeholder="비고(회사명 등)" style="font-size:11px">
-    <button class="btn btn-danger btn-sm" onclick="document.getElementById('kosa-row-${id}').remove()" style="margin-top:2px">✕</button>
-  </div>`;
+  const container=document.getElementById('kosa-add-rows');if(!container)return;
+  container.insertAdjacentHTML('beforeend',`<div id="kosa-row-${id}" style="display:grid;grid-template-columns:1fr 1fr 80px 130px 130px 1fr auto;gap:6px;align-items:start;padding:8px;background:var(--bg2);border-radius:var(--r);margin-bottom:6px">${makeJobDetailSelect(id,vals.job,vals.detail)}<select id="row-grade-${id}" style="font-size:11px"><option value="">등급</option>${gradeOpts}</select><input type="date" id="row-start-${id}" value="${vals.startDate||''}" style="font-size:11px"><input type="date" id="row-end-${id}" value="${vals.endDate||''}" style="font-size:11px"><input type="text" id="row-memo-${id}" value="${vals.memo||''}" placeholder="비고(회사명 등)" style="font-size:11px"><button class="btn btn-danger btn-sm" onclick="document.getElementById('kosa-row-${id}').remove()">✕</button></div>`);
 }
-function addKosaRow(vals={}){
-  kosaRowCount++;
-  const container=document.getElementById('kosa-add-rows');
-  if(!container)return;
-  container.insertAdjacentHTML('beforeend',makeKosaRowHtml(kosaRowCount,vals));
-}
-
-function toggleForm(id){
-  const el=document.getElementById(id);
-  if(!el)return;
-  el.classList.toggle('open');
-  // KOSA 추가 폼 열릴 때 초기화
-  if(id==='add-kosa-form'&&el.classList.contains('open'))initKosaAddForm();
-  // 자격증 추가 폼 열릴 때 초기화
-  if(id==='add-cert-form'&&el.classList.contains('open')){
-    document.getElementById('cert-add-rows').innerHTML='';
-    certRowCount=0;
-    addCertRow();
-  }
-}
-
-function initKosaAddForm(){
-  document.getElementById('kosa-add-rows').innerHTML='';
-  kosaRowCount=0;
-  addKosaRow();
-}
-
-// ── KOSA 일괄 저장 ──
+function initKosaAddForm(){document.getElementById('kosa-add-rows').innerHTML='';kosaRowCount=0;addKosaRow();}
 async function addKosaBatch(){
   const pid=parseInt(document.getElementById('nk-pid').value);
   if(!pid){alert('이름을 선택해주세요');return;}
-  const rows=document.querySelectorAll('[id^="kosa-row-"]');
-  if(!rows.length){alert('추가할 경력을 입력해주세요');return;}
+  const rows=document.querySelectorAll('[id^="kosa-row-"]');if(!rows.length){alert('추가할 경력을 입력해주세요');return;}
   let saved=0;
-  for(const row of rows){
-    const rowId=row.id.replace('kosa-row-','');
-    const {job,detail}=getRowJobDetail(rowId);
-    if(!job)continue;
-    const grade=document.getElementById(`row-grade-${rowId}`)?.value||'';
-    const startDate=document.getElementById(`row-start-${rowId}`)?.value||'';
-    const endDate=document.getElementById(`row-end-${rowId}`)?.value||'';
-    const memo=document.getElementById(`row-memo-${rowId}`)?.value.trim()||'';
-    const res=await apiPost({action:'addKosa',pid,job,detail,startDate,endDate,memo,grade});
-    if(res.id){S.kosaList.push({id:res.id,pid,job,detail,startDate,endDate,memo,grade});saved++;}
-  }
-  if(saved){document.getElementById('kosa-add-rows').innerHTML='';kosaRowCount=0;addKosaRow();renderKosaList();alert(`${saved}건 저장됐습니다.`);}
-  else alert('직종을 입력한 행이 없습니다.');
+  for(const row of rows){const rowId=row.id.replace('kosa-row-','');const {job,detail}=getRowJobDetail(rowId);if(!job)continue;const grade=document.getElementById(`row-grade-${rowId}`)?.value||'';const startDate=document.getElementById(`row-start-${rowId}`)?.value||'';const endDate=document.getElementById(`row-end-${rowId}`)?.value||'';const memo=document.getElementById(`row-memo-${rowId}`)?.value.trim()||'';const res=await apiPost({action:'addKosa',pid,job,detail,startDate,endDate,memo,grade});if(res.id){S.kosaList.push({id:res.id,pid,job,detail,startDate,endDate,memo,grade});saved++;}}
+  if(saved){document.getElementById('kosa-add-rows').innerHTML='';kosaRowCount=0;addKosaRow();renderKosaList();alert(`${saved}건 저장됐습니다.`);}else alert('직종을 입력한 행이 없습니다.');
 }
-
-// ── 인원별 관리 모드 ──
-function openKosaManage(pid){
-  const form=document.getElementById('manage-kosa-form');
-  if(form&&!form.classList.contains('open'))toggleForm('manage-kosa-form');
-  document.getElementById('manage-kosa-pid').value=pid;
-  renderKosaManage();
-  form.scrollIntoView({behavior:'smooth',block:'start'});
-}
+function openKosaManage(pid){const form=document.getElementById('manage-kosa-form');if(form&&!form.classList.contains('open'))toggleForm('manage-kosa-form');document.getElementById('manage-kosa-pid').value=pid;renderKosaManage();form.scrollIntoView({behavior:'smooth',block:'start'});}
 let manageNewRowCount=0;
 function renderKosaManage(){
-  const pid=parseInt(document.getElementById('manage-kosa-pid').value);
-  const body=document.getElementById('manage-kosa-body');
-  const countEl=document.getElementById('manage-kosa-count');
+  const pid=parseInt(document.getElementById('manage-kosa-pid').value);const body=document.getElementById('manage-kosa-body');const countEl=document.getElementById('manage-kosa-count');
   if(!pid){body.innerHTML='';if(countEl)countEl.textContent='';return;}
-  const items=S.kosaList.filter(k=>k.pid===pid);
-  if(countEl)countEl.textContent=`현재 ${items.length}건`;
-  let html=items.length?items.map(k=>{
-    const gradeOpts=['특급','고급','중급','초급'].map(g=>`<option value="${g}" ${g===k.grade?'selected':''}>${g}</option>`).join('');
-    return `<div id="manage-row-${k.id}" style="display:grid;grid-template-columns:1fr 1fr 80px 130px 130px 1fr auto;gap:6px;align-items:start;padding:8px;background:var(--bg2);border-radius:var(--r);margin-bottom:6px">
-      ${makeJobDetailSelect('m'+k.id,k.job||k.field||'',k.detail||'')}
-      <select id="row-grade-m${k.id}" style="font-size:11px"><option value="">등급</option>${gradeOpts}</select>
-      <input type="date" id="row-start-m${k.id}" value="${fmtDate(k.startDate||k.regDate||'')}" style="font-size:11px">
-      <input type="date" id="row-end-m${k.id}" value="${fmtDate(k.endDate||k.expDate||'')}" style="font-size:11px">
-      <input type="text" id="row-memo-m${k.id}" value="${k.memo||''}" placeholder="비고" style="font-size:11px">
-      <div style="display:flex;gap:3px;flex-direction:column">
-        <button class="btn btn-sm" style="background:var(--blue-bg);color:var(--blue-text);font-size:10px" onclick="saveKosaRow(${k.id})">저장</button>
-        <button class="btn btn-danger btn-sm" style="font-size:10px" onclick="deleteKosaManage(${k.id})">삭제</button>
-      </div>
-    </div>`;
-  }).join(''):`<div style="color:var(--text3);font-size:12px;padding:8px 0">등록된 경력이 없습니다.</div>`;
-  html+=`<div style="border-top:1px dashed var(--border);padding-top:10px;margin-top:8px">
-    <div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:6px">+ 새 경력 추가</div>
-    <div id="manage-new-rows"></div>
-    <div style="display:flex;gap:6px;margin-top:6px">
-      <button class="btn btn-sm" onclick="addManageNewRow()">+ 행 추가</button>
-      <button class="btn btn-primary btn-sm" onclick="saveManageNewRows(${pid})">저장</button>
-    </div>
-  </div>`;
-  body.innerHTML=html;
-  manageNewRowCount=0;
-  addManageNewRow();
+  const items=S.kosaList.filter(k=>k.pid===pid);if(countEl)countEl.textContent=`현재 ${items.length}건`;
+  let html=items.length?items.map(k=>{const gradeOpts=['특급','고급','중급','초급'].map(g=>`<option value="${g}" ${g===k.grade?'selected':''}>${g}</option>`).join('');return `<div id="manage-row-${k.id}" style="display:grid;grid-template-columns:1fr 1fr 80px 130px 130px 1fr auto;gap:6px;align-items:start;padding:8px;background:var(--bg2);border-radius:var(--r);margin-bottom:6px">${makeJobDetailSelect('m'+k.id,k.job||k.field,k.detail)}<select id="row-grade-m${k.id}" style="font-size:11px"><option value="">등급</option>${gradeOpts}</select><input type="date" id="row-start-m${k.id}" value="${fmtDate(k.startDate||k.regDate||'')}" style="font-size:11px"><input type="date" id="row-end-m${k.id}" value="${fmtDate(k.endDate||k.expDate||'')}" style="font-size:11px"><input type="text" id="row-memo-m${k.id}" value="${k.memo||''}" placeholder="비고" style="font-size:11px"><div style="display:flex;gap:3px;flex-direction:column"><button class="btn btn-sm" style="background:var(--blue-bg);color:var(--blue-text);font-size:10px" onclick="saveKosaRow(${k.id})">저장</button><button class="btn btn-danger btn-sm" style="font-size:10px" onclick="deleteKosaManage(${k.id})">삭제</button></div></div>`;}).join(''):`<div style="color:var(--text3);font-size:12px;padding:8px 0">등록된 경력이 없습니다.</div>`;
+  html+=`<div style="border-top:1px dashed var(--border);padding-top:10px;margin-top:8px"><div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:6px">+ 새 경력 추가</div><div id="manage-new-rows"></div><div style="display:flex;gap:6px;margin-top:6px"><button class="btn btn-sm" onclick="addManageNewRow()">+ 행 추가</button><button class="btn btn-primary btn-sm" onclick="saveManageNewRows(${pid})">저장</button></div></div>`;
+  body.innerHTML=html;manageNewRowCount=0;addManageNewRow();
 }
-function addManageNewRow(){
-  manageNewRowCount++;
-  const id='mn'+manageNewRowCount;
-  const container=document.getElementById('manage-new-rows');
-  if(!container)return;
-  const gradeOpts=['특급','고급','중급','초급'].map(g=>`<option value="${g}">${g}</option>`).join('');
-  container.insertAdjacentHTML('beforeend',`<div id="manage-new-row-${id}" style="display:grid;grid-template-columns:1fr 1fr 80px 130px 130px 1fr auto;gap:6px;align-items:start;padding:8px;background:var(--surface);border-radius:var(--r);margin-bottom:6px;border:1px solid var(--border)">
-    ${makeJobDetailSelect(id)}
-    <select id="row-grade-${id}" style="font-size:11px"><option value="">등급</option>${gradeOpts}</select>
-    <input type="date" id="row-start-${id}" style="font-size:11px">
-    <input type="date" id="row-end-${id}" style="font-size:11px">
-    <input type="text" id="row-memo-${id}" placeholder="비고" style="font-size:11px">
-    <button class="btn btn-danger btn-sm" onclick="this.closest('[id^=manage-new-row-]').remove()" style="margin-top:2px">✕</button>
-  </div>`);
-}
-async function saveManageNewRows(pid){
-  const rows=document.querySelectorAll('[id^="manage-new-row-"]');
-  let saved=0;
-  for(const row of rows){
-    const rowId=row.id.replace('manage-new-row-','');
-    const {job,detail}=getRowJobDetail(rowId);
-    if(!job)continue;
-    const grade=document.getElementById(`row-grade-${rowId}`)?.value||'';
-    const startDate=document.getElementById(`row-start-${rowId}`)?.value||'';
-    const endDate=document.getElementById(`row-end-${rowId}`)?.value||'';
-    const memo=document.getElementById(`row-memo-${rowId}`)?.value.trim()||'';
-    const res=await apiPost({action:'addKosa',pid,job,detail,startDate,endDate,memo,grade});
-    if(res.id){S.kosaList.push({id:res.id,pid,job,detail,startDate,endDate,memo,grade});saved++;}
-  }
-  if(saved){renderKosaManage();renderKosaList();alert(`${saved}건 추가됐습니다.`);}
-  else alert('직종을 입력한 행이 없습니다.');
-}
-async function saveKosaRow(id){
-  const rowId='m'+id;
-  const {job,detail}=getRowJobDetail(rowId);
-  if(!job){alert('직종을 입력해주세요');return;}
-  const grade=document.getElementById(`row-grade-${rowId}`)?.value||'';
-  const startDate=document.getElementById(`row-start-${rowId}`)?.value||'';
-  const endDate=document.getElementById(`row-end-${rowId}`)?.value||'';
-  const memo=document.getElementById(`row-memo-${rowId}`)?.value.trim()||'';
-  const k=S.kosaList.find(x=>x.id===id);
-  if(!k)return;
-  Object.assign(k,{job,detail,grade,startDate,endDate,memo});
-  renderKosaList();
-  await apiPost({action:'updateKosa',id,pid:k.pid,job,detail,startDate,endDate,memo,grade});
-  alert('수정됐습니다.');
-}
-async function deleteKosaManage(id){
-  if(!confirm('이 경력을 삭제하시겠습니까?'))return;
-  S.kosaList=S.kosaList.filter(k=>k.id!==id);
-  renderKosaManage();renderKosaList();
-  await apiPost({action:'deleteKosa',id});
-}
+function addManageNewRow(){manageNewRowCount++;const id='mn'+manageNewRowCount;const container=document.getElementById('manage-new-rows');if(!container)return;const gradeOpts=['특급','고급','중급','초급'].map(g=>`<option value="${g}">${g}</option>`).join('');container.insertAdjacentHTML('beforeend',`<div id="manage-new-row-${id}" style="display:grid;grid-template-columns:1fr 1fr 80px 130px 130px 1fr auto;gap:6px;align-items:start;padding:8px;background:var(--surface);border-radius:var(--r);margin-bottom:6px;border:1px solid var(--border)">${makeJobDetailSelect(id)}<select id="row-grade-${id}" style="font-size:11px"><option value="">등급</option>${gradeOpts}</select><input type="date" id="row-start-${id}" style="font-size:11px"><input type="date" id="row-end-${id}" style="font-size:11px"><input type="text" id="row-memo-${id}" placeholder="비고" style="font-size:11px"><button class="btn btn-danger btn-sm" onclick="this.closest('[id^=manage-new-row-]').remove()">✕</button></div>`);}
+async function saveManageNewRows(pid){const rows=document.querySelectorAll('[id^="manage-new-row-"]');let saved=0;for(const row of rows){const rowId=row.id.replace('manage-new-row-','');const {job,detail}=getRowJobDetail(rowId);if(!job)continue;const grade=document.getElementById(`row-grade-${rowId}`)?.value||'';const startDate=document.getElementById(`row-start-${rowId}`)?.value||'';const endDate=document.getElementById(`row-end-${rowId}`)?.value||'';const memo=document.getElementById(`row-memo-${rowId}`)?.value.trim()||'';const res=await apiPost({action:'addKosa',pid,job,detail,startDate,endDate,memo,grade});if(res.id){S.kosaList.push({id:res.id,pid,job,detail,startDate,endDate,memo,grade});saved++;}}if(saved){renderKosaManage();renderKosaList();alert(`${saved}건 추가됐습니다.`);}else alert('직종을 입력한 행이 없습니다.');}
+async function saveKosaRow(id){const rowId='m'+id;const {job,detail}=getRowJobDetail(rowId);if(!job){alert('직종을 입력해주세요');return;}const grade=document.getElementById(`row-grade-${rowId}`)?.value||'';const startDate=document.getElementById(`row-start-${rowId}`)?.value||'';const endDate=document.getElementById(`row-end-${rowId}`)?.value||'';const memo=document.getElementById(`row-memo-${rowId}`)?.value.trim()||'';const k=S.kosaList.find(x=>x.id===id);if(!k)return;Object.assign(k,{job,detail,grade,startDate,endDate,memo});renderKosaList();await apiPost({action:'updateKosa',id,pid:k.pid,job,detail,startDate,endDate,memo,grade});alert('수정됐습니다.');}
+async function deleteKosaManage(id){if(!confirm('이 경력을 삭제하시겠습니까?'))return;S.kosaList=S.kosaList.filter(k=>k.id!==id);renderKosaManage();renderKosaList();await apiPost({action:'deleteKosa',id});}
 async function deleteKosa(id){
   if(!confirm('KOSA 정보를 삭제하시겠습니까?'))return;
   S.kosaList=S.kosaList.filter(k=>k.id!==id);
   renderKosaList();
   await apiPost({action:'deleteKosa',id});
 }
-function renderKosaPlaceholder(){renderKosaList();}
+
+function renderKosaPlaceholder(){
+  renderKosaList();
+}
 function renderCertList(){
   const personOpts=S.people.map(p=>`<option value="${p.id}">${p.name}(${p.rank})</option>`).join('');
 
@@ -1095,35 +813,27 @@ function renderCertList(){
     <button class="btn" onclick="toggleForm('manage-cert-form')">✏️ 인원별 관리</button>
     <button class="btn btn-primary" onclick="toggleForm('add-cert-form')">+ 자격증 추가</button>
   </div>
-
-  <!-- 인원별 관리 -->
   <div class="add-form" id="manage-cert-form" style="margin-bottom:1rem">
-    <div class="form-title">인원별 자격증 관리 <span style="font-size:11px;font-weight:400;color:var(--text3)">— 인원 선택 시 전체 자격증을 한 화면에서 수정·삭제</span></div>
+    <div class="form-title">인원별 자격증 관리</div>
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px">
-      <select id="manage-cert-pid" onchange="renderCertManage()" style="flex:1;max-width:220px">
-        <option value="">인원 선택</option>${personOpts}
-      </select>
+      <select id="manage-cert-pid" onchange="renderCertManage()" style="flex:1;max-width:220px"><option value="">인원 선택</option>${personOpts}</select>
       <span style="font-size:11px;color:var(--text3)" id="manage-cert-count"></span>
     </div>
     <div id="manage-cert-body"></div>
   </div>
-
-  <!-- 추가 폼 -->
   <div class="add-form" id="add-cert-form">
-    <div class="form-title">자격증 추가 <span style="font-size:11px;font-weight:400;color:var(--text3)">— 행 추가 버튼으로 여러 건 한 번에 입력</span></div>
+    <div class="form-title">자격증 추가 <span style="font-size:11px;font-weight:400;color:var(--text3)">— 행 추가로 여러 건 한 번에 입력</span></div>
     <div class="form-row" style="max-width:220px;margin-bottom:10px"><label class="form-label">이름</label><select id="nc-pid">${personOpts}</select></div>
     <div id="cert-add-rows"></div>
     <div style="margin:8px 0 12px"><button class="btn btn-sm" onclick="addCertRow()">+ 행 추가</button></div>
-    <div class="form-actions">
-      <button class="btn" onclick="toggleForm('add-cert-form')">취소</button>
-      <button class="btn btn-primary" onclick="addCertBatch()">일괄 저장</button>
-    </div>
+    <div class="form-actions"><button class="btn" onclick="toggleForm('add-cert-form')">취소</button><button class="btn btn-primary" onclick="addCertBatch()">일괄 저장</button></div>
   </div>`;
 
-  // 자격증 종류별 현황
+  // 자격증 종류별 보유 현황
   const certNames=[...new Set(S.certList.map(c=>c.certName))].filter(Boolean);
   if(certNames.length){
-    html+=`<div class="card" style="margin-bottom:1rem"><div class="card-title">자격증 종류별 보유 현황</div><div style="display:flex;flex-wrap:wrap;gap:8px">`;
+    html+=`<div class="card" style="margin-bottom:1rem"><div class="card-title">자격증 종류별 보유 현황</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px">`;
     certNames.forEach(name=>{
       const holders=[...new Set(S.certList.filter(c=>c.certName===name).map(c=>c.pid))];
       const people=holders.map(pid=>{const p=S.people.find(x=>x.id===+pid);return p?p.name:''}).filter(Boolean);
@@ -1140,13 +850,16 @@ function renderCertList(){
   html+=`<div class="card" style="padding:0"><div class="tbl-wrap"><table><thead><tr>
     <th>이름</th><th>직급</th><th>자격증명</th><th>발급기관</th><th>자격증 번호</th><th>취득일</th><th>만료일</th><th>비고</th><th></th>
   </tr></thead><tbody>`;
+
   if(!S.certList.length){
     html+=`<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:2rem">등록된 자격증이 없습니다</td></tr>`;
   } else {
+    // 인원별 그룹화
     const byPid={};
     S.certList.forEach(c=>{if(!byPid[c.pid])byPid[c.pid]=[];byPid[c.pid].push(c);});
     Object.keys(byPid).forEach(pid=>{
-      const person=S.people.find(p=>p.id===+pid);if(!person)return;
+      const person=S.people.find(p=>p.id===+pid);
+      if(!person)return;
       byPid[pid].forEach((c,i)=>{
         const today=new Date();
         const expDate=c.expDate?new Date(c.expDate):null;
@@ -1159,7 +872,7 @@ function renderCertList(){
           <td style="font-size:11px;color:var(--text2)">${c.issuer||'-'}</td>
           <td style="font-size:11px;color:var(--text3)">${c.certNo||'-'}</td>
           <td style="font-size:11px">${c.issueDate||'-'}</td>
-          <td style="font-size:11px;color:${isExpired?'var(--red-text)':isNearExp?'var(--amber-text)':'var(--text)'}">${c.expDate||'영구'}${isExpired?' ⚠만료':isNearExp?' ⚡곧만료':''}</td>
+          <td style="font-size:11px;color:${isExpired?'var(--red-text)':isNearExp?'var(--amber-text)':'var(--text)'}">${c.expDate||'영구'||'-'}${isExpired?' ⚠만료':isNearExp?' ⚡곧만료':''}</td>
           <td style="font-size:11px;color:var(--text3)">${c.memo||''}</td>
           <td style="display:flex;gap:4px">
             <button class="btn btn-sm" onclick="openCertManage(${c.pid})">수정</button>
@@ -1173,141 +886,30 @@ function renderCertList(){
   document.getElementById('cert-content').innerHTML=html;
 }
 
-// ── 자격증 행 추가 ──
+// 자격증 CRUD
 let certRowCount=0;
-function makeCertRowHtml(id,vals={}){
-  return `<div id="cert-row-${id}" style="display:grid;grid-template-columns:1.5fr 1fr 1fr 110px 110px 1fr auto;gap:6px;align-items:center;padding:8px;background:var(--bg2);border-radius:var(--r);margin-bottom:6px">
-    <input type="text" id="cr-name-${id}" value="${vals.certName||''}" placeholder="자격증명 (PMP 등)" style="font-size:11px">
-    <input type="text" id="cr-issuer-${id}" value="${vals.issuer||''}" placeholder="발급기관" style="font-size:11px">
-    <input type="text" id="cr-no-${id}" value="${vals.certNo||''}" placeholder="자격증 번호(선택)" style="font-size:11px">
-    <input type="date" id="cr-issue-${id}" value="${vals.issueDate||''}" style="font-size:11px">
-    <input type="date" id="cr-exp-${id}" value="${vals.expDate||''}" style="font-size:11px">
-    <input type="text" id="cr-memo-${id}" value="${vals.memo||''}" placeholder="비고" style="font-size:11px">
-    <button class="btn btn-danger btn-sm" onclick="document.getElementById('cert-row-${id}').remove()">✕</button>
-  </div>`;
-}
-function addCertRow(vals={}){
-  certRowCount++;
-  const container=document.getElementById('cert-add-rows');
-  if(!container)return;
-  container.insertAdjacentHTML('beforeend',makeCertRowHtml(certRowCount,vals));
-}
+function makeCertRowHtml(id,vals){vals=vals||{};return `<div id="cert-row-${id}" style="display:grid;grid-template-columns:1.5fr 1fr 1fr 110px 110px 1fr auto;gap:6px;align-items:center;padding:8px;background:var(--bg2);border-radius:var(--r);margin-bottom:6px"><input type="text" id="cr-name-${id}" value="${vals.certName||''}" placeholder="자격증명 (PMP 등)" style="font-size:11px"><input type="text" id="cr-issuer-${id}" value="${vals.issuer||''}" placeholder="발급기관" style="font-size:11px"><input type="text" id="cr-no-${id}" value="${vals.certNo||''}" placeholder="자격증 번호(선택)" style="font-size:11px"><input type="date" id="cr-issue-${id}" value="${vals.issueDate||''}" style="font-size:11px"><input type="date" id="cr-exp-${id}" value="${vals.expDate||''}" style="font-size:11px"><input type="text" id="cr-memo-${id}" value="${vals.memo||''}" placeholder="비고" style="font-size:11px"><button class="btn btn-danger btn-sm" onclick="document.getElementById('cert-row-${id}').remove()">✕</button></div>`;}
+function addCertRow(vals){vals=vals||{};certRowCount++;const container=document.getElementById('cert-add-rows');if(!container)return;container.insertAdjacentHTML('beforeend',makeCertRowHtml(certRowCount,vals));}
 async function addCertBatch(){
-  const pid=parseInt(document.getElementById('nc-pid').value);
-  if(!pid){alert('이름을 선택해주세요');return;}
-  const rows=document.querySelectorAll('[id^="cert-row-"]');
-  if(!rows.length){alert('추가할 자격증을 입력해주세요');return;}
-  let saved=0;
-  for(const row of rows){
-    const rid=row.id.replace('cert-row-','');
-    const certName=document.getElementById(`cr-name-${rid}`)?.value.trim()||'';
-    if(!certName)continue;
-    const issuer=document.getElementById(`cr-issuer-${rid}`)?.value.trim()||'';
-    const certNo=document.getElementById(`cr-no-${rid}`)?.value.trim()||'';
-    const issueDate=document.getElementById(`cr-issue-${rid}`)?.value||'';
-    const expDate=document.getElementById(`cr-exp-${rid}`)?.value||'';
-    const memo=document.getElementById(`cr-memo-${rid}`)?.value.trim()||'';
-    const res=await apiPost({action:'addCert',pid,certName,issuer,certNo,issueDate,expDate,memo});
-    if(res.id){S.certList.push({id:res.id,pid,certName,issuer,certNo,issueDate,expDate,memo});saved++;}
-  }
-  if(saved){document.getElementById('cert-add-rows').innerHTML='';certRowCount=0;addCertRow();renderCertList();alert(`${saved}건 저장됐습니다.`);}
-  else alert('자격증명을 입력한 행이 없습니다.');
+  const pid=parseInt(document.getElementById('nc-pid').value);if(!pid){alert('이름을 선택해주세요');return;}
+  const rows=document.querySelectorAll('[id^="cert-row-"]');if(!rows.length){alert('추가할 자격증을 입력해주세요');return;}
+  let saved=0;for(const row of rows){const rid=row.id.replace('cert-row-','');const certName=document.getElementById(`cr-name-${rid}`)?.value.trim()||'';if(!certName)continue;const issuer=document.getElementById(`cr-issuer-${rid}`)?.value.trim()||'';const certNo=document.getElementById(`cr-no-${rid}`)?.value.trim()||'';const issueDate=document.getElementById(`cr-issue-${rid}`)?.value||'';const expDate=document.getElementById(`cr-exp-${rid}`)?.value||'';const memo=document.getElementById(`cr-memo-${rid}`)?.value.trim()||'';const res=await apiPost({action:'addCert',pid,certName,issuer,certNo,issueDate,expDate,memo});if(res.id){S.certList.push({id:res.id,pid,certName,issuer,certNo,issueDate,expDate,memo});saved++;}}
+  if(saved){document.getElementById('cert-add-rows').innerHTML='';certRowCount=0;addCertRow();renderCertList();alert(`${saved}건 저장됐습니다.`);}else alert('자격증명을 입력한 행이 없습니다.');
 }
-
-// ── 인원별 자격증 관리 ──
-function openCertManage(pid){
-  const form=document.getElementById('manage-cert-form');
-  if(form&&!form.classList.contains('open'))toggleForm('manage-cert-form');
-  document.getElementById('manage-cert-pid').value=pid;
-  renderCertManage();
-  form.scrollIntoView({behavior:'smooth',block:'start'});
-}
+function openCertManage(pid){const form=document.getElementById('manage-cert-form');if(form&&!form.classList.contains('open'))toggleForm('manage-cert-form');document.getElementById('manage-cert-pid').value=pid;renderCertManage();form.scrollIntoView({behavior:'smooth',block:'start'});}
 let certManageNewCount=0;
 function renderCertManage(){
-  const pid=parseInt(document.getElementById('manage-cert-pid').value);
-  const body=document.getElementById('manage-cert-body');
-  const countEl=document.getElementById('manage-cert-count');
+  const pid=parseInt(document.getElementById('manage-cert-pid').value);const body=document.getElementById('manage-cert-body');const countEl=document.getElementById('manage-cert-count');
   if(!pid){body.innerHTML='';if(countEl)countEl.textContent='';return;}
-  const items=S.certList.filter(c=>c.pid===pid);
-  if(countEl)countEl.textContent=`현재 ${items.length}건`;
-  let html=items.length?items.map(c=>`
-    <div id="cert-manage-row-${c.id}" style="display:grid;grid-template-columns:1.5fr 1fr 1fr 110px 110px 1fr auto;gap:6px;align-items:center;padding:8px;background:var(--bg2);border-radius:var(--r);margin-bottom:6px">
-      <input type="text" id="cm-name-${c.id}" value="${c.certName||''}" placeholder="자격증명" style="font-size:11px">
-      <input type="text" id="cm-issuer-${c.id}" value="${c.issuer||''}" placeholder="발급기관" style="font-size:11px">
-      <input type="text" id="cm-no-${c.id}" value="${c.certNo||''}" placeholder="자격증 번호" style="font-size:11px">
-      <input type="date" id="cm-issue-${c.id}" value="${c.issueDate||''}" style="font-size:11px">
-      <input type="date" id="cm-exp-${c.id}" value="${c.expDate||''}" style="font-size:11px">
-      <input type="text" id="cm-memo-${c.id}" value="${c.memo||''}" placeholder="비고" style="font-size:11px">
-      <div style="display:flex;gap:3px;flex-direction:column">
-        <button class="btn btn-sm" style="background:var(--blue-bg);color:var(--blue-text);font-size:10px" onclick="saveCertRow(${c.id})">저장</button>
-        <button class="btn btn-danger btn-sm" style="font-size:10px" onclick="deleteCertManage(${c.id})">삭제</button>
-      </div>
-    </div>`).join(''):`<div style="color:var(--text3);font-size:12px;padding:8px 0">등록된 자격증이 없습니다.</div>`;
-  html+=`<div style="border-top:1px dashed var(--border);padding-top:10px;margin-top:8px">
-    <div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:6px">+ 새 자격증 추가</div>
-    <div id="cert-manage-new-rows"></div>
-    <div style="display:flex;gap:6px;margin-top:6px">
-      <button class="btn btn-sm" onclick="addCertManageRow()">+ 행 추가</button>
-      <button class="btn btn-primary btn-sm" onclick="saveCertManageNewRows(${pid})">저장</button>
-    </div>
-  </div>`;
-  body.innerHTML=html;
-  certManageNewCount=0;addCertManageRow();
+  const items=S.certList.filter(c=>c.pid===pid);if(countEl)countEl.textContent=`현재 ${items.length}건`;
+  let html=items.length?items.map(c=>`<div id="cert-manage-row-${c.id}" style="display:grid;grid-template-columns:1.5fr 1fr 1fr 110px 110px 1fr auto;gap:6px;align-items:center;padding:8px;background:var(--bg2);border-radius:var(--r);margin-bottom:6px"><input type="text" id="cm-name-${c.id}" value="${c.certName||''}" placeholder="자격증명" style="font-size:11px"><input type="text" id="cm-issuer-${c.id}" value="${c.issuer||''}" placeholder="발급기관" style="font-size:11px"><input type="text" id="cm-no-${c.id}" value="${c.certNo||''}" placeholder="자격증 번호" style="font-size:11px"><input type="date" id="cm-issue-${c.id}" value="${c.issueDate||''}" style="font-size:11px"><input type="date" id="cm-exp-${c.id}" value="${c.expDate||''}" style="font-size:11px"><input type="text" id="cm-memo-${c.id}" value="${c.memo||''}" placeholder="비고" style="font-size:11px"><div style="display:flex;gap:3px;flex-direction:column"><button class="btn btn-sm" style="background:var(--blue-bg);color:var(--blue-text);font-size:10px" onclick="saveCertRow(${c.id})">저장</button><button class="btn btn-danger btn-sm" style="font-size:10px" onclick="deleteCertManage(${c.id})">삭제</button></div></div>`).join(''):`<div style="color:var(--text3);font-size:12px;padding:8px 0">등록된 자격증이 없습니다.</div>`;
+  html+=`<div style="border-top:1px dashed var(--border);padding-top:10px;margin-top:8px"><div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:6px">+ 새 자격증 추가</div><div id="cert-manage-new-rows"></div><div style="display:flex;gap:6px;margin-top:6px"><button class="btn btn-sm" onclick="addCertManageRow()">+ 행 추가</button><button class="btn btn-primary btn-sm" onclick="saveCertManageNewRows(${pid})">저장</button></div></div>`;
+  body.innerHTML=html;certManageNewCount=0;addCertManageRow();
 }
-function addCertManageRow(){
-  certManageNewCount++;
-  const id='cmn'+certManageNewCount;
-  const container=document.getElementById('cert-manage-new-rows');
-  if(!container)return;
-  container.insertAdjacentHTML('beforeend',`<div id="cert-manage-new-${id}" style="display:grid;grid-template-columns:1.5fr 1fr 1fr 110px 110px 1fr auto;gap:6px;align-items:center;padding:8px;background:var(--surface);border-radius:var(--r);margin-bottom:6px;border:1px solid var(--border)">
-    <input type="text" id="cmn-name-${id}" placeholder="자격증명" style="font-size:11px">
-    <input type="text" id="cmn-issuer-${id}" placeholder="발급기관" style="font-size:11px">
-    <input type="text" id="cmn-no-${id}" placeholder="자격증 번호" style="font-size:11px">
-    <input type="date" id="cmn-issue-${id}" style="font-size:11px">
-    <input type="date" id="cmn-exp-${id}" style="font-size:11px">
-    <input type="text" id="cmn-memo-${id}" placeholder="비고" style="font-size:11px">
-    <button class="btn btn-danger btn-sm" onclick="this.closest('[id^=cert-manage-new-]').remove()">✕</button>
-  </div>`);
-}
-async function saveCertManageNewRows(pid){
-  const rows=document.querySelectorAll('[id^="cert-manage-new-"]');
-  let saved=0;
-  for(const row of rows){
-    const rid=row.id.replace('cert-manage-new-','');
-    const certName=document.getElementById(`cmn-name-${rid}`)?.value.trim()||'';
-    if(!certName)continue;
-    const issuer=document.getElementById(`cmn-issuer-${rid}`)?.value.trim()||'';
-    const certNo=document.getElementById(`cmn-no-${rid}`)?.value.trim()||'';
-    const issueDate=document.getElementById(`cmn-issue-${rid}`)?.value||'';
-    const expDate=document.getElementById(`cmn-exp-${rid}`)?.value||'';
-    const memo=document.getElementById(`cmn-memo-${rid}`)?.value.trim()||'';
-    const res=await apiPost({action:'addCert',pid,certName,issuer,certNo,issueDate,expDate,memo});
-    if(res.id){S.certList.push({id:res.id,pid,certName,issuer,certNo,issueDate,expDate,memo});saved++;}
-  }
-  if(saved){renderCertManage();renderCertList();alert(`${saved}건 추가됐습니다.`);}
-  else alert('자격증명을 입력한 행이 없습니다.');
-}
-async function saveCertRow(id){
-  const certName=document.getElementById(`cm-name-${id}`)?.value.trim()||'';
-  if(!certName){alert('자격증명을 입력해주세요');return;}
-  const issuer=document.getElementById(`cm-issuer-${id}`)?.value.trim()||'';
-  const certNo=document.getElementById(`cm-no-${id}`)?.value.trim()||'';
-  const issueDate=document.getElementById(`cm-issue-${id}`)?.value||'';
-  const expDate=document.getElementById(`cm-exp-${id}`)?.value||'';
-  const memo=document.getElementById(`cm-memo-${id}`)?.value.trim()||'';
-  const c=S.certList.find(x=>x.id===id);
-  if(!c)return;
-  Object.assign(c,{certName,issuer,certNo,issueDate,expDate,memo});
-  renderCertList();
-  await apiPost({action:'updateCert',id,pid:c.pid,certName,certNo,issuer,issueDate,expDate,memo});
-  alert('수정됐습니다.');
-}
-async function deleteCertManage(id){
-  if(!confirm('자격증을 삭제하시겠습니까?'))return;
-  S.certList=S.certList.filter(c=>c.id!==id);
-  renderCertManage();renderCertList();
-  await apiPost({action:'deleteCert',id});
-}
+function addCertManageRow(){certManageNewCount++;const id='cmn'+certManageNewCount;const container=document.getElementById('cert-manage-new-rows');if(!container)return;container.insertAdjacentHTML('beforeend',`<div id="cert-manage-new-${id}" style="display:grid;grid-template-columns:1.5fr 1fr 1fr 110px 110px 1fr auto;gap:6px;align-items:center;padding:8px;background:var(--surface);border-radius:var(--r);margin-bottom:6px;border:1px solid var(--border)"><input type="text" id="cmn-name-${id}" placeholder="자격증명" style="font-size:11px"><input type="text" id="cmn-issuer-${id}" placeholder="발급기관" style="font-size:11px"><input type="text" id="cmn-no-${id}" placeholder="자격증 번호" style="font-size:11px"><input type="date" id="cmn-issue-${id}" style="font-size:11px"><input type="date" id="cmn-exp-${id}" style="font-size:11px"><input type="text" id="cmn-memo-${id}" placeholder="비고" style="font-size:11px"><button class="btn btn-danger btn-sm" onclick="this.closest('[id^=cert-manage-new-]').remove()">✕</button></div>`);}
+async function saveCertManageNewRows(pid){const rows=document.querySelectorAll('[id^="cert-manage-new-"]');let saved=0;for(const row of rows){const rid=row.id.replace('cert-manage-new-','');const certName=document.getElementById(`cmn-name-${rid}`)?.value.trim()||'';if(!certName)continue;const issuer=document.getElementById(`cmn-issuer-${rid}`)?.value.trim()||'';const certNo=document.getElementById(`cmn-no-${rid}`)?.value.trim()||'';const issueDate=document.getElementById(`cmn-issue-${rid}`)?.value||'';const expDate=document.getElementById(`cmn-exp-${rid}`)?.value||'';const memo=document.getElementById(`cmn-memo-${rid}`)?.value.trim()||'';const res=await apiPost({action:'addCert',pid,certName,issuer,certNo,issueDate,expDate,memo});if(res.id){S.certList.push({id:res.id,pid,certName,issuer,certNo,issueDate,expDate,memo});saved++;}}if(saved){renderCertManage();renderCertList();alert(`${saved}건 추가됐습니다.`);}else alert('자격증명을 입력한 행이 없습니다.');}
+async function saveCertRow(id){const certName=document.getElementById(`cm-name-${id}`)?.value.trim()||'';if(!certName){alert('자격증명을 입력해주세요');return;}const issuer=document.getElementById(`cm-issuer-${id}`)?.value.trim()||'';const certNo=document.getElementById(`cm-no-${id}`)?.value.trim()||'';const issueDate=document.getElementById(`cm-issue-${id}`)?.value||'';const expDate=document.getElementById(`cm-exp-${id}`)?.value||'';const memo=document.getElementById(`cm-memo-${id}`)?.value.trim()||'';const c=S.certList.find(x=>x.id===id);if(!c)return;Object.assign(c,{certName,issuer,certNo,issueDate,expDate,memo});renderCertList();await apiPost({action:'updateCert',id,pid:c.pid,certName,certNo,issuer,issueDate,expDate,memo});alert('수정됐습니다.');}
+async function deleteCertManage(id){if(!confirm('자격증을 삭제하시겠습니까?'))return;S.certList=S.certList.filter(c=>c.id!==id);renderCertManage();renderCertList();await apiPost({action:'deleteCert',id});}
 async function deleteCert(id){
   if(!confirm('자격증 정보를 삭제하시겠습니까?'))return;
   S.certList=S.certList.filter(c=>c.id!==id);
@@ -1315,7 +917,850 @@ async function deleteCert(id){
   await apiPost({action:'deleteCert',id});
 }
 
+function renderCertPlaceholder(){
+  renderCertList();
+}
+function toggleForm(id){const f=document.getElementById(id);f.style.display=f.style.display==='block'?'none':'block';}
 
+// 대시보드
+// 대시보드 필터 상태 전역 변수
+let dashYear=null; // null이면 자동으로 가장 빠른 연도로 설정
+let dashStatusChecks={수행중:true,협약중:true,평가중:false,계획중:false};
+let dashExclude6m=false;
+
+function toggleDashStatus(status){
+  dashStatusChecks[status]=!dashStatusChecks[status];
+  renderOverviewFiltered();
+}
+function setDashAll(val){
+  Object.keys(dashStatusChecks).forEach(k=>dashStatusChecks[k]=val);
+  renderOverviewFiltered();
+}
+
+function renderOverviewFiltered(){
+  const years=getYears();
+  const statuses=['수행중','협약중','평가중','계획중'];
+  const checkedCount=Object.values(dashStatusChecks).filter(Boolean).length;
+  const isAll=checkedCount===statuses.length;
+
+  const filterHtml=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:12px 16px;margin-bottom:1.2rem">
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+      <span style="font-size:11px;font-weight:600;color:var(--text2);min-width:28px">연도</span>
+      <div style="display:flex;gap:4px">
+        ${years.map(y=>`<button onclick="dashYear=${y};renderOverviewFiltered()" style="padding:4px 12px;font-size:11px;border-radius:var(--r);border:1px solid ${dashYear===y?'var(--blue)':'var(--border2)'};background:${dashYear===y?'var(--blue)':'var(--surface)'};color:${dashYear===y?'#fff':'var(--text2)'};cursor:pointer;font-family:inherit;font-weight:${dashYear===y?'600':'400'}">${y}년</button>`).join('')}
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+      <span style="font-size:11px;font-weight:600;color:var(--text2);min-width:28px">상태</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+        ${statuses.map(s=>{
+          const checked=dashStatusChecks[s];
+          const colors={수행중:['var(--green)','var(--green-bg)','var(--green-text)'],협약중:['var(--blue)','var(--blue-bg)','var(--blue-text)'],평가중:['var(--amber)','var(--amber-bg)','var(--amber-text)'],계획중:['var(--purple)','var(--purple-bg)','var(--purple-text)']};
+          const [bc,bg,tc]=colors[s]||['var(--text3)','var(--surface2)','var(--text2)'];
+          return `<label style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:var(--r);border:1.5px solid ${checked?bc:'var(--border2)'};background:${checked?bg:'var(--surface)'};cursor:pointer;font-size:11px;font-weight:${checked?'600':'400'};color:${checked?tc:'var(--text3)'}">
+            <input type="checkbox" ${checked?'checked':''} onchange="toggleDashStatus('${s}')" style="accent-color:${bc};width:13px;height:13px">${s}
+          </label>`;
+        }).join('')}
+        <div style="width:1px;height:18px;background:var(--border);margin:0 2px"></div>
+        <button onclick="setDashAll(true)" style="padding:3px 8px;font-size:10px;border:1px solid var(--border2);border-radius:var(--r);background:var(--surface);cursor:pointer;color:var(--text2);font-family:inherit">전체선택</button>
+        <button onclick="setDashAll(false)" style="padding:3px 8px;font-size:10px;border:1px solid var(--border2);border-radius:var(--r);background:var(--surface);cursor:pointer;color:var(--text2);font-family:inherit">전체해제</button>
+      </div>
+      ${isAll?'<span style="font-size:10px;color:var(--text3);margin-left:4px">(수행+협약+평가+계획 포함)</span>':''}
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;padding-top:8px;border-top:1px solid var(--border)">
+      <label style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);cursor:pointer">
+        <input type="checkbox" ${dashExclude6m?'checked':''} onchange="dashExclude6m=this.checked;renderOverviewFiltered()" style="width:13px;height:13px">
+        종료 6개월 이내 과제 제외
+      </label>
+      <span style="font-size:10px;color:var(--text3)">· 종료 과제는 항상 제외됩니다</span>
+    </div>
+  </div>`;
+  document.getElementById('overview-content').innerHTML=filterHtml+'<div id="overview-body"></div>';
+  renderOverview();
+}
+
+function renderOverview(){
+  const years=getYears();
+  // 연도 필터 동기화
+  if(!dashYear||!years.includes(dashYear))dashYear=years[0]||2026;
+  const refYear=dashYear;
+
+  // 상태 체크박스 필터 적용 (종료는 항상 제외)
+  const checkedStatuses=Object.keys(dashStatusChecks).filter(k=>dashStatusChecks[k]);
+  let filteredProjects=S.projects.filter(p=>p.status!=='종료'&&checkedStatuses.includes(p.status));
+
+  // 종료 6개월 이내 제외
+  if(dashExclude6m){
+    const today=new Date();
+    const sixMonthsLater=new Date(today.getFullYear(),today.getMonth()+6,today.getDate());
+    filteredProjects=filteredProjects.filter(p=>{
+      // 참여율 데이터의 마지막 연도 기준으로 종료 예측
+      const prYears=[...new Set(S.parts.filter(x=>x.projId===p.id).map(x=>x.year))];
+      if(!prYears.length)return true;
+      const lastYear=Math.max(...prYears);
+      const endDate=new Date(lastYear,11,31); // 해당 연도 말
+      return endDate>sixMonthsLater;
+    });
+  }
+
+  // 필터된 과제 기준으로 참여율 계산
+  const pTotFiltered=(pid,year)=>S.parts
+    .filter(p=>p.pid===pid&&p.year===year&&filteredProjects.some(pr=>pr.id===p.projId))
+    .reduce((s,p)=>s+p.rate,0);
+
+  const totals=S.people.map(p=>pTotFiltered(p.id,refYear));
+  const over=totals.filter(t=>t>100).length;
+  const warn=totals.filter(t=>t>=80&&t<=100).length;
+  const avg=totals.length?Math.round(totals.reduce((a,b)=>a+b,0)/totals.length):0;
+  const totalGov=filteredProjects.reduce((s,p)=>s+p.govAmt,0);
+  const totalSelf=filteredProjects.reduce((s,p)=>s+p.selfAmt,0);
+
+  // 배지 업데이트
+  const badge=document.getElementById('nav-over-badge');
+  if(over>0){badge.innerHTML=`<span class="nav-badge">${over}</span>`;}else{badge.innerHTML='';}
+
+  let html=`<div class="kpi-grid">
+    <div class="kpi blue"><div class="kpi-label">전체 인원</div><div class="kpi-value">${S.people.length}<span style="font-size:14px;font-weight:400">명</span></div><div class="kpi-sub">${filteredProjects.length}개 과제 (${checkedStatuses.join("+")||"없음"})</div></div>
+    <div class="kpi ${over>0?'red':'green'}"><div class="kpi-label">100% 초과 인원</div><div class="kpi-value" style="color:${over>0?'var(--red)':'var(--green)'}">${over}<span style="font-size:14px;font-weight:400">명</span></div><div class="kpi-sub">${over>0?'즉시 조정 필요':'전원 정상 범위'}</div></div>
+    <div class="kpi amber"><div class="kpi-label">평균 참여율 (${refYear}년)</div><div class="kpi-value">${avg}<span style="font-size:14px;font-weight:400">%</span></div><div class="kpi-sub">80%↑ 검토 ${warn}명</div></div>
+    <div class="kpi blue"><div class="kpi-label">총 자체분 (우리몫)</div><div class="kpi-value" style="font-size:17px">${(totalSelf/100000).toFixed(1)}<span style="font-size:13px;font-weight:400">억</span></div><div class="kpi-sub">정부지원 ${(totalGov/100000).toFixed(1)}억 기준</div></div>
+  </div>`;
+
+  // 인원별 바 차트
+  const sorted=[...S.people].sort((a,b)=>pTotFiltered(b.id,refYear)-pTotFiltered(a.id,refYear));
+  html+=`<div class="card"><div class="card-title">인원별 참여율 <span class="card-title-sub">${refYear}년 기준</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:0 1.5rem">`;
+  sorted.forEach((p,i)=>{
+    const t=pTotY(p.id,refYear);const st=stOf(t);const w=Math.min(t,100);
+    html+=`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)">
+      <span style="width:48px;font-size:12px;font-weight:600">${p.name}</span>
+      <span style="width:38px;font-size:10px;color:var(--text3)">${p.rank}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${w}%;background:${bc(t)}"></div></div>
+      <span class="bar-val" style="color:${bc(t)}">${t}%</span>
+      <span class="badge ${st.c}" style="min-width:30px;justify-content:center">${st.l}</span>
+    </div>`;
+  });
+  html+=`</div></div>`;
+
+  // 연도별 참여율 매트릭스
+  html+=`<div class="card" style="margin-top:1rem"><div class="card-title">인원별 연도별 참여율 현황 <span class="card-title-sub">여유율 = 100% - 해당연도 합계</span></div>`;
+  html+=`<div class="tbl-wrap"><table><thead><tr><th>이름</th><th>직급</th>`;
+  years.forEach(y=>html+=`<th style="text-align:center;min-width:70px">${y}년</th>`);
+  html+=`<th style="text-align:center;min-width:70px;background:var(--blue-bg);color:var(--blue-text)">여유(최소)</th></tr></thead><tbody>`;
+  S.people.forEach(p=>{
+    const tots=years.map(y=>pTotY(p.id,y));
+    const minRemain=Math.min(...tots.map(t=>100-t));
+    const anyOver=tots.some(t=>t>100);
+    html+=`<tr ${anyOver?'style="background:var(--red-bg)"':''}>
+      <td style="font-weight:600">${p.name}</td>
+      <td style="color:var(--text3)">${p.rank}</td>`;
+    years.forEach((y,i)=>{
+      const t=tots[i];
+      const bg=t>100?'var(--red-bg)':t>=80?'var(--amber-bg)':t>=20?'var(--green-bg)':'var(--surface2)';
+      const col=t>100?'var(--red-text)':t>=80?'var(--amber-text)':t>=20?'var(--green-text)':'var(--text3)';
+      html+=`<td style="text-align:center;background:${bg};color:${col};font-weight:600">${t?t+'%':'-'}</td>`;
+    });
+    const remColor=minRemain<0?'var(--red-text)':minRemain<20?'var(--amber-text)':'var(--green-text)';
+    html+=`<td style="text-align:center;background:var(--blue-bg);color:${remColor};font-weight:700">${minRemain}%p</td></tr>`;
+  });
+  // 연도별 평균행
+  html+=`<tr style="background:var(--surface2);border-top:2px solid var(--border2)"><td colspan="2" style="font-weight:600;color:var(--text2)">전체 평균</td>`;
+  years.forEach(y=>{
+    const avg=Math.round(S.people.reduce((s,p)=>s+pTotFiltered(p.id,y),0)/S.people.length);
+    const col=avg>100?'var(--red-text)':avg>=80?'var(--amber-text)':avg>=20?'var(--green-text)':'var(--text3)';
+    html+=`<td style="text-align:center;font-weight:700;color:${col}">${avg}%</td>`;
+  });
+  const avgMinRemain=Math.round(100-Math.max(...years.map(y=>Math.round(S.people.reduce((s,p)=>s+pTotY(p.id,y),0)/S.people.length))));
+  html+=`<td style="text-align:center;background:var(--blue-bg);font-weight:700;color:var(--blue-text)">${avgMinRemain}%p</td></tr>`;
+  html+=`</tbody></table></div></div>`;
+
+  // 인력 해방 타임라인
+  html+=`<div class="card" style="margin-top:1rem"><div class="card-title">과제 종료 후 인력 해방 타임라인 <span class="card-title-sub">과제가 끝나면 해당 인원의 참여율이 풀립니다</span></div>`;
+  const endYears=[...new Set(S.projects.map(p=>{
+    const startY=Math.min(...(S.parts.filter(x=>x.projId===p.id).map(x=>x.year)||[2026]));
+    return startY+Math.ceil(p.months/12);
+  }))].sort();
+  if(S.projects.length){
+    html+=`<div class="tbl-wrap"><table><thead><tr><th>과제명</th><th>종료 예정</th><th>해방 인원</th><th>해방되는 참여율</th></tr></thead><tbody>`;
+    filteredProjects.forEach(pr=>{
+      const prYears=[...new Set(S.parts.filter(p=>p.projId===pr.id).map(p=>p.year))];
+      if(!prYears.length)return;
+      const lastYear=Math.max(...prYears);
+      const endYear=lastYear+1;
+      const prParts=S.parts.filter(p=>p.projId===pr.id&&p.year===lastYear);
+      if(!prParts.length)return;
+      const people=prParts.map(p=>{
+        const person=S.people.find(x=>x.id===p.pid);
+        return person?`<span class="tag">${person.name} <strong style="color:var(--green-text)">+${p.rate}%</strong></span>`:'';
+      }).filter(Boolean).join('');
+      const totalRelease=prParts.reduce((s,p)=>s+p.rate,0);
+      html+=`<tr>
+        <td style="font-weight:600">${pr.name}</td>
+        <td><span class="badge b-blue">${endYear}년 ~</span></td>
+        <td>${prParts.length}명</td>
+        <td>${people} <span style="font-size:10px;color:var(--text3);margin-left:4px">합계 ${totalRelease}%p 해방</span></td>
+      </tr>`;
+    });
+    html+=`</tbody></table></div>`;
+  }
+  html+=`</div>`;
+
+  // 과제 포트폴리오
+  html+=`<div class="card"><div class="card-title">과제 포트폴리오</div><div class="tbl-wrap"><table><thead><tr><th>과제명</th><th>발주기관</th><th>상태</th><th>정부지원금</th><th>자체분</th><th>지분율</th><th>기간</th><th>시작일</th><th>종료일</th>`;
+  years.forEach(y=>html+=`<th style="text-align:center">${y}년 인원</th>`);
+  html+=`</tr></thead><tbody>`;
+  S.projects.forEach(pr=>{
+    html+=`<tr><td style="font-weight:600">${pr.name}</td><td style="color:var(--text2)">${pr.client}</td><td><span class="badge ${stMap(pr.status)}">${pr.status}</span></td><td>${fmtW(pr.govAmt*1000)}</td><td style="color:var(--green);font-weight:600">${fmtW(pr.selfAmt*1000)}</td><td>${pr.shareRate}%</td><td>${pr.months}개월</td><td style="font-size:11px">${pr.startDate||'-'}</td><td style="font-size:11px">${pr.endDate||'-'}</td>`;
+    years.forEach(y=>{const cnt=[...new Set(S.parts.filter(p=>p.projId===pr.id&&p.year===y).map(p=>p.pid))].length;html+=`<td style="text-align:center">${cnt?cnt+'명':'-'}</td>`;});
+    html+=`</tr>`;
+  });
+  html+=`</tbody></table></div></div>`;
+  const overviewBody=document.getElementById('overview-body')||document.getElementById('overview-content');
+  overviewBody.innerHTML=html;
+}
+
+// 현황 세부 (엑셀 스타일 매트릭스)
+function renderDetail(){
+  const years=getYears();
+  let html=`<div class="info-box">각 셀은 해당 연도의 참여율(%)입니다. 합계는 해당 연도의 전체 과제 참여율 합산입니다.</div>`;
+
+  S.projects.forEach(pr=>{
+    const prParts=S.parts.filter(p=>p.projId===pr.id);
+    const pids=[...new Set(prParts.map(p=>p.pid))];
+    if(!pids.length)return;
+
+    html+=`<div class="card" style="margin-bottom:1.2rem"><div class="card-title">${pr.name} <span class="badge ${stMap(pr.status)}">${pr.status}</span> <span class="card-title-sub">${pr.client} · ${pr.months}개월</span></div>`;
+    html+=`<div class="tbl-wrap"><table class="detail-table"><thead><tr>
+      <th class="name-col">이름</th><th class="rank-col">직급</th>`;
+    years.forEach(y=>html+=`<th style="text-align:center;min-width:60px">${y}년</th>`);
+    html+=`<th style="text-align:center;min-width:70px;background:var(--surface3)">합계</th>`;
+    html+=`</tr></thead><tbody>`;
+
+    pids.forEach(pid=>{
+      const person=S.people.find(x=>x.id===pid);if(!person)return;
+      html+=`<tr><td class="name-col">${person.name}</td><td class="rank-col">${person.rank}</td>`;
+      years.forEach(y=>{
+        const part=S.parts.find(p=>p.pid===pid&&p.projId===pr.id&&p.year===y);
+        const rate=part?part.rate:0;
+        const bg=rate>=80?'var(--amber-bg)':rate>=50?'var(--green-bg)':rate>0?'':'';
+        const color=rate>=80?'var(--amber-text)':rate>=50?'var(--green-text)':rate>0?'var(--text)':'var(--text3)';
+        html+=`<td class="rate-cell" style="text-align:center;color:${color};background:${bg}">${rate?rate+'%':'-'}</td>`;
+      });
+      // 해당 인원의 전체 연도별 합계 (이 과제 포함 모든 과제)
+      const totalAll=years.map(y=>pTotY(pid,y));
+      const maxTotal=Math.max(...totalAll);
+      const totalColor=maxTotal>100?'var(--red-text)':maxTotal>=80?'var(--amber-text)':'var(--green-text)';
+      html+=`<td style="text-align:center;background:var(--surface3);font-size:10px">`;
+      years.forEach((y,i)=>{
+        const t=pTotY(pid,y);
+        const tc=t>100?'var(--red-text)':t>=80?'var(--amber-text)':'var(--green-text)';
+        html+=`<span style="color:${tc};font-weight:600">${t}%</span>`;
+        if(i<years.length-1)html+=`<span style="color:var(--text3)"> / </span>`;
+      });
+      html+=`</td></tr>`;
+    });
+
+    // 연도별 참여 인원 수 합계행
+    html+=`<tr style="background:var(--surface2);font-weight:700"><td colspan="2" style="color:var(--text2);font-size:11px">참여 인원</td>`;
+    years.forEach(y=>{
+      const cnt=[...new Set(S.parts.filter(p=>p.projId===pr.id&&p.year===y&&p.rate>0).map(p=>p.pid))].length;
+      html+=`<td style="text-align:center;color:var(--blue-text)">${cnt}명</td>`;
+    });
+    html+=`<td></td></tr></tbody></table></div></div>`;
+  });
+
+  // 인원별 연도별 합계 매트릭스
+  html+=`<div class="card"><div class="card-title">인원별 연도별 참여율 합계 매트릭스</div><div class="tbl-wrap"><table class="detail-table"><thead><tr>
+    <th class="name-col">이름</th><th>직급</th><th>소속</th>`;
+  years.forEach(y=>html+=`<th style="text-align:center">${y}년 합계</th>`);
+  html+=`</tr></thead><tbody>`;
+  S.people.forEach(p=>{
+    const rowTotals=years.map(y=>pTotY(p.id,y));
+    const anyOver=rowTotals.some(t=>t>100);
+    html+=`<tr ${anyOver?'style="background:var(--red-bg)"':''}><td class="name-col">${p.name}</td><td style="color:var(--text3)">${p.rank}</td><td style="color:var(--text2);font-size:11px">${p.field}</td>`;
+    years.forEach((y,i)=>{
+      const t=rowTotals[i];const st=stOf(t);
+      html+=`<td style="text-align:center"><span class="badge ${st.c}">${t}%</span></td>`;
+    });
+    html+=`</tr>`;
+  });
+  html+=`</tbody></table></div></div>`;
+  document.getElementById('detail-content').innerHTML=html;
+}
+
+// 연차별 투입인력
+function renderYearly(){
+  const years=getYears();
+  let html='';
+  S.projects.forEach(pr=>{
+    const prParts=S.parts.filter(p=>p.projId===pr.id);
+    const pids=[...new Set(prParts.map(p=>p.pid))];
+    html+=`<div class="yearly-proj"><div class="yearly-proj-head">
+      <span style="font-size:13px;font-weight:600">${pr.name}</span>
+      <span class="badge ${stMap(pr.status)}">${pr.status}</span>
+      <span style="font-size:11px;color:var(--text3);margin-left:4px">${pr.client} · ${pr.months}개월 · ${pids.length}명 참여</span>
+    </div><div style="padding:1rem 1.2rem"><div class="tbl-wrap"><table><thead><tr>
+      <th style="min-width:60px">이름</th><th style="min-width:44px">직급</th>`;
+    years.forEach(y=>html+=`<th style="text-align:center;min-width:110px">${y}년<div style="font-size:9px;font-weight:400;color:var(--text3)">참여율 / 단가(천원)</div></th>`);
+    html+=`<th></th></tr></thead><tbody>`;
+    pids.forEach(pid=>{
+      const person=S.people.find(x=>x.id===pid);if(!person)return;
+      html+=`<tr><td style="font-weight:600">${person.name}</td><td style="color:var(--text3)">${person.rank}</td>`;
+      years.forEach(y=>{
+        const part=S.parts.find(p=>p.pid===pid&&p.projId===pr.id&&p.year===y);
+        if(part){
+          html+=`<td style="text-align:center"><div style="display:flex;flex-direction:column;gap:3px;align-items:center">
+            <input type="number" class="rate-input" value="${part.rate}" min="0" max="100" step="5" onchange="updatePartY(${pid},${pr.id},${y},this.value,'rate',null,this)">
+            <input type="number" class="salary-input" value="${part.salary||person.salary||''}" step="100" placeholder="단가" onchange="updatePartY(${pid},${pr.id},${y},null,'salary',this.value,this)">
+          </div></td>`;
+        }else{
+          html+=`<td style="text-align:center"><button class="btn btn-sm" onclick="addPartY(${pid},${pr.id},${y})">+ 추가</button></td>`;
+        }
+      });
+      html+=`<td><button class="btn btn-danger btn-sm" onclick="rmPersonProj(${pid},${pr.id})">삭제</button></td></tr>`;
+    });
+    html+=`</tbody></table></div>`;
+    const retiredIds=(S.retiredList||[]).map(r=>r.id);
+    const addOpts=S.people.filter(p=>!pids.includes(p.id)&&!retiredIds.includes(p.id)).map(p=>`<option value="${p.id}">${p.name}(${p.rank})</option>`).join('');
+    html+=`<div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--border)">
+      <select id="yadd-p-${pr.id}" style="flex:1;min-width:140px;font-size:11px">${addOpts}</select>
+      <select id="yadd-y-${pr.id}" style="width:75px;font-size:11px">${years.map(y=>`<option value="${y}">${y}년</option>`).join('')}</select>
+      <input type="number" id="yadd-r-${pr.id}" value="20" min="0" max="100" step="5" style="width:60px;font-size:11px" placeholder="%">
+      <button class="btn" onclick="addPartYNew(${pr.id})">+ 인원 추가</button>
+    </div></div></div>`;
+  });
+  document.getElementById('yearly-content').innerHTML=html||'<div style="text-align:center;color:var(--text3);padding:3rem">과제 없음</div>';
+}
+
+// 과제 관리 (가로 테이블)
+function renderProjects(){
+  const years=getYears();
+  let html=S.projects.map(pr=>{
+    const statusOpts=['수행중','협약중','평가중','계획중','종료'].map(s=>`<option value="${s}" ${pr.status===s?'selected':''}>${s}</option>`).join('');
+    const prParts=S.parts.filter(p=>p.projId===pr.id);
+    const pids=[...new Set(prParts.map(p=>p.pid))];
+
+    // 가로 테이블: 이름 | 연도별 참여율
+    let tableHtml=`<div class="tbl-wrap"><table><thead><tr><th>이름</th><th>직급</th>`;
+    years.forEach(y=>{
+      const totalL=prParts.filter(p=>p.year===y).reduce((s,p)=>{const sal=getSal(p.pid,pr.id,y);return s+(sal/12*pr.months*(p.rate/100));},0);
+      tableHtml+=`<th style="text-align:center">${y}년<br><span style="font-weight:400;color:var(--green)">${totalL?Math.round(totalL).toLocaleString()+'천':'-'}</span></th>`;
+    });
+    tableHtml+=`</tr></thead><tbody>`;
+    pids.forEach(pid=>{
+      const person=S.people.find(x=>x.id===pid);if(!person)return;
+      tableHtml+=`<tr><td style="font-weight:600">${person.name}</td><td style="color:var(--text3)">${person.rank}</td>`;
+      years.forEach(y=>{
+        const part=S.parts.find(p=>p.pid===pid&&p.projId===pr.id&&p.year===y);
+        const rate=part?part.rate:0;
+        const color=rate>=80?'var(--amber)':rate>=50?'var(--green)':rate>0?'var(--text)':'var(--text3)';
+        tableHtml+=`<td style="text-align:center;font-weight:${rate?'600':'400'};color:${color}">${rate?rate+'%':'-'}</td>`;
+      });
+      tableHtml+=`</tr>`;
+    });
+    tableHtml+=`</tbody></table></div>`;
+    tableHtml+=`<div style="margin-top:8px;font-size:11px;color:var(--text3)">※ 참여율 수정은 <strong>연차별 투입인력</strong> 탭에서 하세요</div>`;
+
+    return`<div class="proj-card">
+      <div class="proj-card-head">
+        <div style="flex:1;margin-right:12px">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <input type="text" value="${pr.name}" style="font-size:14px;font-weight:700;border:1px solid var(--border2);border-radius:var(--r);padding:4px 8px;flex:1;min-width:200px;letter-spacing:-.3px" onchange="updProj(${pr.id},'name',this.value)">
+            <select style="width:88px;padding:4px 7px;font-size:12px" onchange="updProj(${pr.id},'status',this.value)">${statusOpts}</select>
+          </div>
+        </div>
+        <button class="btn btn-danger btn-sm" onclick="delProject(${pr.id})">삭제</button>
+      </div>
+      <div class="proj-card-body">
+        <div class="proj-meta">
+          <div class="pm-item"><div class="pm-label">발주기관</div><input type="text" value="${pr.client}" onchange="updProj(${pr.id},'client',this.value)"></div>
+          <div class="pm-item"><div class="pm-label">기간(개월)</div><input type="number" value="${pr.months}" step="1" onchange="updProj(${pr.id},'months',+this.value)"></div>
+          <div class="pm-item"><div class="pm-label">시작일</div><input type="date" value="${pr.startDate||''}" onchange="updProj(${pr.id},'startDate',this.value)"></div>
+          <div class="pm-item"><div class="pm-label">종료일</div><input type="date" value="${pr.endDate||''}" onchange="updProj(${pr.id},'endDate',this.value)"></div>
+          <div class="pm-item"><div class="pm-label">지분율(%)</div><input type="number" value="${pr.shareRate}" step="1" onchange="updProjFinance(${pr.id},'shareRate',+this.value)"></div>
+          <div class="pm-item"><div class="pm-label">정부지원금(억원)</div><input type="number" value="${(pr.govAmt/100000).toFixed(2)}" step="0.1" placeholder="예: 6.6" onchange="updProjFinance(${pr.id},'govAmt',Math.round(this.value*100000))"><div class="pm-sub">${fmtW(pr.govAmt*1000)}</div></div>
+          <div class="pm-item"><div class="pm-label">자체분(자동)</div><input type="number" value="${(pr.selfAmt/100000).toFixed(2)}" readonly><div class="pm-sub">${fmtW(pr.selfAmt*1000)}</div></div>
+        </div>
+        <div class="form-row" style="margin-bottom:12px">
+          <label class="form-label">비고</label>
+          <textarea rows="2" style="font-size:12px;resize:vertical" placeholder="위탁비, 특이사항 등" onchange="updProj(${pr.id},'memo',this.value)">${pr.memo||''}</textarea>
+        </div>
+        <div class="card-title" style="margin-bottom:8px">연도별 참여 현황 <span class="card-title-sub">${pids.length}명 참여</span></div>
+        ${tableHtml}
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('projects-content').innerHTML=html||'<div style="text-align:center;color:var(--text3);padding:3rem">등록된 과제 없음</div>';
+}
+
+// 인원 관리
+async function updPersonField(id, field, val){
+  const person=S.people.find(p=>p.id===id);
+  if(!person)return;
+  person[field]=val;
+  // 구글 시트 저장
+  await apiPost({action:'updatePerson', id, name:person.name, rank:person.rank, field:person.field, salary:person.salary});
+}
+
+function toggleSalary(){
+  const cur=sessionStorage.getItem('show_salary')==='1';
+  sessionStorage.setItem('show_salary',cur?'0':'1');
+  const btn=document.getElementById('salary-toggle-btn');
+  if(btn)btn.textContent=cur?'🔒 단가 보기':'🔓 단가 숨기기';
+  renderPeople();
+}
+function renderPeople(){
+  const years=getYears();
+  document.getElementById('people-ytabs').innerHTML=years.map(y=>`<button class="ytab ${y===curPeopleYear?'active':''}" onclick="curPeopleYear=${y};renderPeople()">${y}년</button>`).join('');
+  const year=curPeopleYear;
+  const showSal=sessionStorage.getItem('show_salary')==='1';
+  let html=`<div class="card" style="padding:0"><div class="tbl-wrap"><table><thead><tr><th>이름</th><th>직급</th><th>소속</th><th>참여 과제</th><th style="min-width:140px">참여율</th><th>여유율</th><th>상태</th>${showSal?'<th style="color:var(--red-text)">단가(천원)</th>':''}<th></th></tr></thead><tbody>`;
+  S.people.forEach(p=>{
+    const t=pTotY(p.id,year);const rem=100-t;const st=stOf(t);const w=Math.min(t,100);
+    const tags=S.parts.filter(x=>x.pid===p.id&&x.year===year).map(x=>{const pr=S.projects.find(r=>r.id===x.projId);return pr?`<span class="tag">${pr.name} ${x.rate}%</span>`:''}).join('')||'<span style="font-size:10px;color:var(--text3)">없음</span>';
+    const showSal2=sessionStorage.getItem('show_salary')==='1';
+    html+=`<tr>
+      <td style="font-weight:600">${p.name}</td>
+      <td>
+        <select style="font-size:11px;padding:2px 5px;border:1px solid var(--border2);border-radius:4px;background:var(--surface)" onchange="updPersonField(${p.id},'rank',this.value)">
+          ${['대표','부사장','본부장','이사','부장','차장','과장','대리','위원','PM'].map(r=>`<option value="${r}" ${p.rank===r?'selected':''}>${r}</option>`).join('')}
+        </select>
+      </td>
+      <td>
+        <input type="text" value="${p.field}" style="font-size:11px;padding:2px 6px;border:1px solid var(--border2);border-radius:4px;width:90px" onchange="updPersonField(${p.id},'field',this.value)">
+      </td>
+      <td>${tags}</td>
+      <td><div class="bar-wrap"><div class="bar-track"><div class="bar-fill" style="width:${w}%;background:${bc(t)}"></div></div><span class="bar-val" style="color:${bc(t)}">${t}%</span></div></td>
+      <td style="font-weight:600;color:${rem<0?'var(--red)':rem<20?'var(--amber)':'var(--green)'}">${rem}%p</td>
+      <td><span class="badge ${st.c}">${st.l}</span></td>
+      ${showSal2?`<td style="color:var(--red-text);font-size:11px">${p.salary.toLocaleString()}</td>`:''}
+      <td style="display:flex;gap:4px;align-items:center">
+        <button class="btn btn-sm" style="background:var(--amber-bg);color:var(--amber-text);border:1px solid var(--border)" 
+          onclick="retirePerson(${p.id})" title="퇴사 처리 — 퇴사자 명단으로 이동">퇴사</button>
+        <button class="btn btn-danger btn-sm" onclick="delPerson(${p.id})" title="완전 삭제 — 연동 데이터 모두 삭제됨">삭제</button>
+      </td>
+    </tr>`;
+  });
+  html+=`</tbody></table></div></div>`;
+  document.getElementById('people-content').innerHTML=html;
+}
+
+// 시뮬레이션
+function renderSim(){
+  const simYear=parseInt(document.getElementById('sim-year').value)||2026;
+  document.getElementById('sim-people-list').innerHTML=S.people.map(p=>{
+    const t=pTotY(p.id,simYear);const rem=Math.max(0,100-t);const color=rem>20?'var(--text)':rem>0?'var(--amber)':'var(--text3)';
+    return`<div class="chk-row"><input type="checkbox" id="sc-${p.id}" ${rem===0?'disabled':''} onchange="simUpdate()">
+      <span class="chk-name">${p.name}</span><span class="chk-rank">${p.rank}</span><span class="chk-field">${p.field}</span>
+      <span class="chk-avail" style="color:${color}">현재 ${t}% / 여유 ${rem}%p</span>
+      <div style="display:flex;align-items:center;gap:4px">
+        <span style="font-size:10px;color:var(--text3)">참여율</span>
+        <input type="number" id="sr-${p.id}" value="${Math.min(20,rem)}" min="0" max="${rem}" step="5" style="width:58px;font-size:11px" onchange="simUpdate()">
+        <span style="font-size:10px;color:var(--text3)">%</span>
+      </div>
+      <span class="chk-labor" id="sl-${p.id}"></span>
+    </div>`;
+  }).join('');
+  simUpdate();
+}
+function simCalc(){
+  const gov=parseFloat(document.getElementById('sim-gov').value)||0;
+  const share=parseFloat(document.getElementById('sim-share').value)||0;
+  const laborPct=parseFloat(document.getElementById('sim-labor-pct').value)||40;
+  const simYear=parseInt(document.getElementById('sim-year').value)||2026;
+  const months=parseInt(document.getElementById('sim-months')?document.getElementById('sim-months').value:24)||24;
+  const self=gov*(share/100);
+  document.getElementById('sim-self').value=self.toFixed(2);
+
+  if(gov&&share){
+    const lt=self*(laborPct/100); // 인건비 총액(억원)
+    const an=lt/(months/12);
+    const avg=S.people.length?S.people.reduce((s,p)=>s+p.salary,0)/S.people.length:60000;
+    const eh=Math.round((lt*100000)/(avg/12*months));
+    document.getElementById('sr-labor').textContent=lt.toFixed(2)+'억원';
+    document.getElementById('sr-annual').textContent=an.toFixed(2)+'억원/년';
+    document.getElementById('sr-heads').textContent=eh+'명 수준';
+    document.getElementById('sr-hint').textContent='평균단가 '+Math.round(avg/1000)+'백만원 기준';
+    document.getElementById('sim-budget-box').style.display='block';
+
+    // ── 유사 과제 분석 ──
+    const refBox=document.getElementById('sim-ref-box');
+    const refProjs=document.getElementById('sim-ref-projects');
+    const guideContent=document.getElementById('sim-guide-content');
+
+    // 기존 과제별 실제 투입 현황 분석
+    const projStats=S.projects.map(pr=>{
+      const selfAmt=pr.selfAmt/100000; // 억원
+      if(selfAmt<=0)return null;
+      const years=getYears();
+      // 가장 데이터가 많은 연도 기준
+      let bestYear=simYear;let maxCnt=0;
+      years.forEach(y=>{
+        const cnt=[...new Set(S.parts.filter(p=>p.projId===pr.id&&p.year===y&&p.rate>0).map(p=>p.pid))].length;
+        if(cnt>maxCnt){maxCnt=cnt;bestYear=y;}
+      });
+      const prParts=S.parts.filter(p=>p.projId===pr.id&&p.year===bestYear&&p.rate>0);
+      const cnt=[...new Set(prParts.map(p=>p.pid))].length;
+      if(cnt===0)return null;
+      const avgRate=Math.round(prParts.reduce((s,p)=>s+p.rate,0)/prParts.length);
+      const laborTotal=prParts.reduce((s,p)=>{
+        const sal=getSal(p.pid,pr.id,bestYear);
+        return s+(sal/12*pr.months*(p.rate/100));
+      },0)/10000; // 억원
+      return {name:pr.name,client:pr.client,selfAmt,cnt,avgRate,laborTotal,months:pr.months,year:bestYear};
+    }).filter(Boolean);
+
+    if(projStats.length===0){
+      refBox.style.display='none';
+    } else {
+      refBox.style.display='block';
+
+      // 유사 규모 과제 찾기 (자체분 기준 50%~200% 범위)
+      const similar=projStats.filter(p=>p.selfAmt>0&&Math.abs(p.selfAmt-self)/Math.max(p.selfAmt,self)<0.7)
+        .sort((a,b)=>Math.abs(a.selfAmt-self)-Math.abs(b.selfAmt-self));
+
+      // 전체 과제 표시
+      refProjs.innerHTML=projStats.map(p=>{
+        const isSimilar=similar.includes(p);
+        const bar=Math.min(Math.round(p.selfAmt/Math.max(...projStats.map(x=>x.selfAmt))*100),100);
+        return`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);${isSimilar?'background:var(--amber-bg);margin:0 -4px;padding:5px 4px;border-radius:var(--r)':''}">
+          <span style="width:130px;font-size:11px;font-weight:${isSimilar?'600':'400'};overflow:hidden;white-space:nowrap;text-overflow:ellipsis" title="${p.name}">${p.name}</span>
+          <span style="width:44px;font-size:10px;color:var(--text3)">${p.client}</span>
+          <div style="flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden">
+            <div style="width:${bar}%;height:100%;background:${isSimilar?'var(--amber)':'var(--border2)'};border-radius:3px"></div>
+          </div>
+          <span style="font-size:10px;color:var(--text2);min-width:30px;text-align:right">${p.selfAmt.toFixed(1)}억</span>
+          <span style="font-size:10px;color:var(--green-text);min-width:28px;text-align:right">${p.cnt}명</span>
+          <span style="font-size:10px;color:var(--blue-text);min-width:34px;text-align:right">평균 ${p.avgRate}%</span>
+          ${isSimilar?'<span style="font-size:9px;background:var(--amber);color:#fff;padding:1px 5px;border-radius:10px">유사</span>':''}
+        </div>`;
+      }).join('');
+
+      // 가이드 계산
+      let guideHtml='';
+      if(similar.length>0){
+        const avgCnt=Math.round(similar.reduce((s,p)=>s+p.cnt,0)/similar.length);
+        const avgRate=Math.round(similar.reduce((s,p)=>s+p.avgRate,0)/similar.length);
+        const minCnt=Math.min(...similar.map(p=>p.cnt));
+        const maxCnt=Math.max(...similar.map(p=>p.cnt));
+        guideHtml+=`<div style="margin-bottom:4px">유사 규모 과제(${similar.length}건) 평균: <strong>${avgCnt}명</strong> 투입, 1인당 평균 <strong>${avgRate}%</strong> 참여</div>`;
+        guideHtml+=`<div style="margin-bottom:4px">투입 인원 범위: <strong>${minCnt}~${maxCnt}명</strong> (유사 과제 기준)</div>`;
+        guideHtml+=`<div style="margin-bottom:4px">이론 계산: <strong>${eh}명</strong> 수준 (평균단가 기준)</div>`;
+        guideHtml+=`<div style="color:var(--blue-text);font-weight:600;margin-top:6px;padding-top:6px;border-top:1px solid var(--blue-bg)">`;
+        const recMin=Math.max(Math.min(minCnt,eh)-1,2);
+        const recMax=Math.max(maxCnt,eh)+1;
+        guideHtml+=`→ 권장 투입 인원: <strong>${recMin}~${recMax}명</strong>, 1인당 참여율 <strong>${Math.round(lt*10000/recMin/avg*12/months*100)}~${Math.round(lt*10000/Math.max(recMin-1,1)/avg*12/months*100)}%</strong> 수준</div>`;
+      } else {
+        guideHtml+=`<div style="margin-bottom:4px">유사 규모 과제 데이터 없음 — 이론값 기준으로 추정</div>`;
+        guideHtml+=`<div>이론 계산: <strong>${eh}명</strong> 수준 (평균단가 ${Math.round(avg/1000)}백만원 기준)</div>`;
+        const recRate=Math.round(lt*10000/eh/avg*12/months*100);
+        guideHtml+=`<div style="color:var(--blue-text);font-weight:600;margin-top:6px;padding-top:6px;border-top:1px solid var(--blue-bg)">→ 권장 투입 인원: <strong>${Math.max(eh-1,2)}~${eh+1}명</strong>, 1인당 참여율 <strong>${recRate}%</strong> 수준</div>`;
+      }
+      guideContent.innerHTML=guideHtml;
+    }
+  }
+  simUpdate();
+}
+function simUpdate(){
+  const sy=parseInt(document.getElementById('sim-year').value)||2026;
+  const gov=parseFloat(document.getElementById('sim-gov').value)||0;
+  const share=parseFloat(document.getElementById('sim-share').value)||0;
+  const laborPct=parseFloat(document.getElementById('sim-labor-pct').value)||40;
+  const months=24;const target=gov*(share/100)*(laborPct/100)*10000;
+  let tL=0,cnt=0,oc=0,on=[];
+  S.people.forEach(p=>{
+    const chk=document.getElementById('sc-'+p.id);const rEl=document.getElementById('sr-'+p.id);const lEl=document.getElementById('sl-'+p.id);
+    if(!chk||!rEl||!lEl)return;
+    const rate=parseFloat(rEl.value)||0;const labor=p.salary/12*months*(rate/100);
+    if(chk.checked){lEl.textContent='→ '+labor.toLocaleString()+'천원';lEl.style.color='var(--green)';tL+=labor;cnt++;if(pTotY(p.id,sy)+rate>100){oc++;on.push(p.name);}}else{lEl.textContent='';}
+  });
+  const pct=target>0?Math.round(tL/target*100):0;
+  document.getElementById('sp-count').textContent=cnt+'명';
+  document.getElementById('sp-labor').textContent=tL.toLocaleString()+'천원';
+  document.getElementById('sp-vs').textContent=target>0?pct+'%':'-';
+  document.getElementById('sp-vs').style.color=pct>110?'var(--red)':pct>=80?'var(--green)':'var(--amber)';
+  document.getElementById('sp-over').textContent=oc+'명';
+  document.getElementById('sim-summary').style.display=cnt>0?'block':'none';
+  document.getElementById('sp-warn').innerHTML=on.length>0?`<div class="warn-box">⚠ ${sy}년 기준 100% 초과 예정: ${on.join(', ')}</div>`:'';
+}
+let simSaved={A:null,B:null};
+
+function printSim(){
+  window.print();
+}
+
+function saveSimAs(label){
+  const html=document.getElementById('sim-result-content').innerHTML;
+  if(!html)return alert('먼저 시뮬레이션을 실행해주세요');
+  simSaved[label]=html;
+  const btn=document.getElementById('save-'+label.toLowerCase()+'-btn');
+  if(btn){btn.style.background='var(--green)';btn.style.color='#fff';btn.style.borderColor='var(--green)';btn.textContent='✓ '+label+'안 저장됨';}
+  if(simSaved.A&&simSaved.B) renderCompare();
+}
+
+function renderCompare(){
+  document.getElementById('sim-compare-card').style.display='block';
+  document.getElementById('sim-compare-content').innerHTML=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--blue-text);margin-bottom:8px;padding:6px 10px;background:var(--blue-bg);border-radius:var(--r)">A안</div>
+        <div style="font-size:12px">${simSaved.A}</div>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--green-text);margin-bottom:8px;padding:6px 10px;background:var(--green-bg);border-radius:var(--r)">B안</div>
+        <div style="font-size:12px">${simSaved.B}</div>
+      </div>
+    </div>`;
+}
+
+function clearCompare(){
+  simSaved={A:null,B:null};
+  document.getElementById('sim-compare-card').style.display='none';
+  document.getElementById('sim-compare-content').innerHTML='';
+  ['a','b'].forEach(l=>{
+    const btn=document.getElementById('save-'+l+'-btn');
+    if(btn){btn.style.background='';btn.style.color='';btn.style.borderColor='';btn.textContent='💾 '+l.toUpperCase()+'안으로 저장';}
+  });
+}
+
+function resetSim(){
+  // 체크박스 전부 해제
+  S.people.forEach(p=>{
+    const chk=document.getElementById('sc-'+p.id);
+    if(chk)chk.checked=false;
+  });
+  // 입력값 초기화
+  document.getElementById('sim-name').value='';
+  document.getElementById('sim-client').value='';
+  document.getElementById('sim-gov').value='';
+  document.getElementById('sim-share').value='';
+  document.getElementById('sim-self').value='';
+  document.getElementById('sim-labor-pct').value='40';
+  document.getElementById('sim-budget-box').style.display='none';
+  document.getElementById('sim-result-card').style.display='none';
+  document.getElementById('sim-result-content').innerHTML='';
+  document.getElementById('sim-summary').style.display='none';
+  document.getElementById('sp-warn').innerHTML='';
+  // 참여율 기본값 복원
+  S.people.forEach(p=>{
+    const simYear=parseInt(document.getElementById('sim-year').value)||2026;
+    const rem=Math.max(0,100-pTotY(p.id,simYear));
+    const rEl=document.getElementById('sr-'+p.id);
+    const lEl=document.getElementById('sl-'+p.id);
+    if(rEl)rEl.value=Math.min(20,rem);
+    if(lEl)lEl.textContent='';
+  });
+}
+function runSim(){
+  const sy=parseInt(document.getElementById('sim-year').value)||2026;
+  const name=document.getElementById('sim-name').value||'신규과제';
+  const client=document.getElementById('sim-client').value||'';
+  const gov=parseFloat(document.getElementById('sim-gov').value)||0;
+  const share=parseFloat(document.getElementById('sim-share').value)||0;
+  const laborPct=parseFloat(document.getElementById('sim-labor-pct').value)||40;
+  const months=24;
+  const target=gov*(share/100)*(laborPct/100);
+  const sel=[];
+  S.people.forEach(p=>{
+    const chk=document.getElementById('sc-'+p.id);
+    const rEl=document.getElementById('sr-'+p.id);
+    if(chk&&chk.checked&&rEl)sel.push({person:p,rate:parseFloat(rEl.value)||0,cur:pTotY(p.id,sy)});
+  });
+  const tL=sel.reduce((s,r)=>s+r.person.salary/12*months*(r.rate/100),0);
+  const overs=sel.filter(r=>r.cur+r.rate>100).map(r=>r.person.name);
+  const gap=target*10000-tL;
+  const years=getYears();
+
+  let html='';
+  if(overs.length>0)html+=`<div class="err-box">⚠ ${sy}년 기준 100% 초과: ${overs.join(', ')}</div>`;
+
+  // 요약 정보
+  html+=`<div style="background:var(--surface2);border-radius:var(--r);padding:10px 12px;margin-bottom:14px">
+    <div style="font-size:13px;font-weight:700;margin-bottom:4px">${name}${client?' · '+client:''}</div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:11px;color:var(--text2)">
+      <span>정부지원 <strong>${gov}억</strong></span>
+      <span>지분 <strong>${share}%</strong></span>
+      <span>자체분 <strong>${(gov*share/100).toFixed(1)}억</strong></span>
+      <span>인건비 목표 <strong>${target.toFixed(2)}억</strong></span>
+      <span>기준연도 <strong>${sy}년</strong></span>
+    </div>
+  </div>`;
+
+  // 핵심: 인원별 기존 과제 + 신규 추가 비교 테이블
+  html+=`<div style="font-size:12px;font-weight:600;margin-bottom:8px;color:var(--text)">참여율 비교표 <span style="font-size:10px;font-weight:400;color:var(--text3)">(기존 과제별 참여율 + 신규 추가 = 합계)</span></div>`;
+  html+=`<div class="tbl-wrap"><table><thead><tr>
+    <th>이름</th><th>직급</th>`;
+
+  // 기존 과제 컬럼 (sy년 기준으로 참여중인 과제들)
+  const activeProjIds=[...new Set(S.parts.filter(p=>p.year===sy&&sel.map(r=>r.person.id).includes(p.pid)).map(p=>p.projId))];
+  const selPids=sel.map(r=>r.person.id);
+  // 전체 참여자의 과제 포함
+  const allActiveProjIds=[...new Set(S.parts.filter(p=>p.year===sy).map(p=>p.projId))];
+
+  allActiveProjIds.forEach(projId=>{
+    const pr=S.projects.find(x=>x.id===projId);
+    if(pr)html+=`<th style="text-align:center;max-width:80px;white-space:normal;line-height:1.3;font-size:10px">${pr.name.length>10?pr.name.substring(0,10)+'..':pr.name}</th>`;
+  });
+  html+=`<th style="text-align:center;background:var(--blue-bg);color:var(--blue-text)">신규<br>(${name.length>6?name.substring(0,6)+'..':name})</th>
+    <th style="text-align:center;background:var(--amber-bg);color:var(--amber-text);font-weight:700">합계</th>
+    <th style="text-align:center">여유율</th>
+    <th style="text-align:center">인건비 기여</th>
+  </tr></thead><tbody>`;
+
+  // 전체 인원 표시 (선택된 인원 + 기존 과제 참여자)
+  const displayPids=[...new Set([...selPids,...S.parts.filter(p=>p.year===sy&&allActiveProjIds.includes(p.projId)).map(p=>p.pid)])];
+  const displayPeople=S.people.filter(p=>displayPids.includes(p.id)).sort((a,b)=>{
+    const aNew=selPids.includes(a.id)?1:0;
+    const bNew=selPids.includes(b.id)?1:0;
+    return bNew-aNew;
+  });
+
+  displayPeople.forEach(p=>{
+    const simEntry=sel.find(r=>r.person.id===p.id);
+    const newRate=simEntry?simEntry.rate:0;
+    const existTotal=pTotY(p.id,sy);
+    const newTotal=existTotal+newRate;
+    const isOver=newTotal>100;
+    const isNew=selPids.includes(p.id);
+    const labor=simEntry?p.salary/12*months*(newRate/100):0;
+
+    html+=`<tr style="${isOver?'background:var(--red-bg)':isNew?'background:var(--blue-bg)':''} ">
+      <td style="font-weight:600">${p.name}</td>
+      <td style="color:var(--text3);font-size:11px">${p.rank}</td>`;
+
+    allActiveProjIds.forEach(projId=>{
+      const part=S.parts.find(x=>x.pid===p.id&&x.projId===projId&&x.year===sy);
+      const r=part?part.rate:0;
+      html+=`<td style="text-align:center;font-size:11px;color:${r>=80?'var(--amber-text)':r>=50?'var(--green-text)':r>0?'var(--text)':'var(--text3)'};font-weight:${r?'600':'400'}">${r?r+'%':'-'}</td>`;
+    });
+
+    const newColor=newRate>0?'var(--blue-text)':'var(--text3)';
+    html+=`<td style="text-align:center;font-weight:700;color:${newColor};background:${newRate?'var(--blue-bg)':'transparent'}">${newRate?'+'+newRate+'%':'-'}</td>`;
+
+    const totalColor=newTotal>100?'var(--red-text)':newTotal>=80?'var(--amber-text)':'var(--green-text)';
+    html+=`<td style="text-align:center;font-weight:700;color:${totalColor};background:var(--amber-bg)">${newTotal}%</td>`;
+    html+=`<td style="text-align:center;font-size:11px;color:${(100-newTotal)<0?'var(--red-text)':'var(--text2)'}">${100-newTotal}%p</td>`;
+    html+=`<td style="text-align:center;font-size:11px;color:var(--green-text);font-weight:600">${labor?labor.toLocaleString()+'천원':'-'}</td>`;
+    html+=`</tr>`;
+  });
+
+  // 합계행
+  html+=`<tr style="background:var(--surface2);border-top:2px solid var(--border2)"><td colspan="2" style="font-weight:700;font-size:11px">전체 평균</td>`;
+  allActiveProjIds.forEach(projId=>{
+    const avg=Math.round(S.parts.filter(p=>p.projId===projId&&p.year===sy).reduce((s,p)=>s+p.rate,0)/Math.max(1,[...new Set(S.parts.filter(p=>p.projId===projId&&p.year===sy).map(p=>p.pid))].length));
+    html+=`<td style="text-align:center;font-size:11px;font-weight:600">${avg||'-'}${avg?'%':''}</td>`;
+  });
+  const avgNew=Math.round(sel.reduce((s,r)=>s+r.rate,0)/Math.max(1,sel.length));
+  const avgTotal=Math.round(displayPeople.reduce((s,p)=>s+pTotY(p.id,sy)+(sel.find(r=>r.person.id===p.id)?sel.find(r=>r.person.id===p.id).rate:0),0)/Math.max(1,displayPeople.length));
+  html+=`<td style="text-align:center;font-weight:700;color:var(--blue-text)">${avgNew?'+'+avgNew+'%':'-'}</td>`;
+  html+=`<td style="text-align:center;font-weight:700;background:var(--amber-bg)">${avgTotal}%</td>`;
+  html+=`<td colspan="2"></td></tr>`;
+  html+=`</tbody></table></div>`;
+
+  // 인건비 요약
+  html+=`<div class="result-grid" style="margin-top:14px">
+    <div class="result-item"><div class="rl">인건비 목표</div><div class="rv">${target.toFixed(2)}억원</div></div>
+    <div class="result-item"><div class="rl">기여 합계</div><div class="rv" style="color:var(--green)">${(tL/10000).toFixed(2)}억원</div></div>
+    <div class="result-item"><div class="rl">차이</div>
+      <div class="rv" style="color:${gap>0?'var(--amber)':'var(--green)'}">${gap>0?'부족 ':'충족 '}${Math.abs(gap/10000).toFixed(2)}억원</div>
+      <div style="font-size:10px;color:var(--text3);margin-top:2px">${gap>0?'인원 추가 또는 참여율 조정 필요':'인건비 목표 달성'}</div>
+    </div>
+  </div>`;
+
+  document.getElementById('sim-result-card').style.display='block';
+  document.getElementById('sim-result-content').innerHTML=html;
+}
+
+// CRUD
+async function updatePartY(pid,projId,year,rate,field,salVal,inputEl){
+  const idx=S.parts.findIndex(p=>p.pid===pid&&p.projId===projId&&p.year===year);if(idx<0)return;
+  if(field==='rate')S.parts[idx].rate=parseInt(rate)||0;
+  if(field==='salary')S.parts[idx].salary=parseInt(salVal)||null;
+  // 저장 피드백
+  if(inputEl){
+    inputEl.style.borderColor='var(--amber)';
+    inputEl.title='저장 중...';
+  }
+  renderOverview();renderPeople();renderDetail();
+  await apiPost({action:'updatePart',pid,projId,year,rate:S.parts[idx].rate,salary:S.parts[idx].salary});
+  if(inputEl){
+    inputEl.style.borderColor='var(--green)';
+    inputEl.title='저장됨 ✓';
+    setTimeout(()=>{inputEl.style.borderColor='';inputEl.title='';},2000);
+  }
+}
+async function addPartY(pid,projId,year){
+  if(S.parts.find(p=>p.pid===pid&&p.projId===projId&&p.year===year))return;
+  S.parts.push({pid,projId,year,rate:20,salary:null});renderAll();
+  await apiPost({action:'addPart',pid,projId,year,rate:20,salary:''});
+}
+async function addPartYNew(projId){
+  const pid=parseInt(document.getElementById(`yadd-p-${projId}`).value);
+  const year=parseInt(document.getElementById(`yadd-y-${projId}`).value);
+  const rate=parseInt(document.getElementById(`yadd-r-${projId}`).value)||20;
+  if(S.parts.find(p=>p.pid===pid&&p.projId===projId&&p.year===year))return alert('이미 등록된 인원/연도예요');
+  S.parts.push({pid,projId,year,rate,salary:null});renderAll();
+  await apiPost({action:'addPart',pid,projId,year,rate,salary:''});
+}
+async function rmPersonProj(pid,projId){
+  if(!confirm('이 인원을 해당 과제에서 제외하시겠습니까?\n(등록된 모든 연도의 참여율 데이터가 삭제됩니다)'))return;
+  const toDel=S.parts.filter(p=>p.pid===pid&&p.projId===projId);
+  S.parts=S.parts.filter(p=>!(p.pid===pid&&p.projId===projId));
+  renderAll();for(const d of toDel)await apiPost({action:'removePart',pid,projId,year:d.year});
+}
+function addYearCol(){
+  const y=parseInt(document.getElementById('new-year-input').value);
+  if(!y||y<2000||y>2050)return alert('올바른 연도를 입력해주세요');
+  if(getYears().includes(y))return alert('이미 있는 연도예요');
+  S.parts.push({pid:-1,projId:-1,year:y,rate:0,salary:null});
+  document.getElementById('yearly-content').innerHTML='';renderAll();
+}
+async function updProj(id,key,val){
+  const pr=S.projects.find(p=>p.id===id);if(!pr)return;
+  pr[key]=val;renderOverview();renderProjects();
+  await apiPost({action:'updateProject',id:pr.id,name:pr.name,client:pr.client,status:pr.status,govAmt:pr.govAmt,shareRate:pr.shareRate,months:pr.months,memo:pr.memo||'',startDate:pr.startDate||'',endDate:pr.endDate||''});
+}
+async function updProjFinance(id,key,val){
+  const pr=S.projects.find(p=>p.id===id);if(!pr)return;
+  pr[key]=val;pr.selfAmt=Math.round(pr.govAmt*(pr.shareRate/100));
+  renderOverview();renderProjects();
+  await apiPost({action:'updateProject',...pr});
+}
+async function delProject(id){
+  if(!confirm('과제를 삭제하시겠습니까?'))return;
+  S.projects=S.projects.filter(p=>p.id!==id);S.parts=S.parts.filter(p=>p.projId!==id);
+  renderAll();await apiPost({action:'deleteProject',id});
+}
+function calcSelf(){
+  const g=parseFloat(document.getElementById('npr-gov').value)||0; // 억원
+  const s=parseFloat(document.getElementById('npr-share').value)||0;
+  const gKr=Math.round(g*100000); // 천원 단위로 변환
+  document.getElementById('npr-self').value=(gKr*(s/100)/100000).toFixed(2); // 억원으로 표시
+}
+async function addProject(){
+  const name=document.getElementById('npr-name').value.trim();if(!name)return;
+  const gov=parseFloat(document.getElementById('npr-gov').value)||0;
+  const share=parseFloat(document.getElementById('npr-share').value)||0;
+  const memo=document.getElementById('npr-memo').value.trim();
+  const govKr=Math.round(gov*100000); // 억원→천원
+  const startDate=document.getElementById('npr-startdate').value;
+  const endDate=document.getElementById('npr-enddate').value;
+  const res=await apiPost({action:'addProject',name,client:document.getElementById('npr-client').value.trim(),status:document.getElementById('npr-status').value,govAmt:govKr,shareRate:share,months:parseInt(document.getElementById('npr-months').value)||24,memo,startDate,endDate});
+  if(res.id){S.projects.push({id:res.id,name,client:document.getElementById('npr-client').value.trim(),status:document.getElementById('npr-status').value,govAmt:gov,shareRate:share,selfAmt:Math.round(gov*(share/100)),months:parseInt(document.getElementById('npr-months').value)||24,memo});toggleForm('add-proj-form');renderAll();}
+}
+async function addPerson(){
+  const name=document.getElementById('np-name').value.trim();if(!name)return;
+  const rank=document.getElementById('np-rank').value;const field=document.getElementById('np-field').value.trim();const salary=parseInt(document.getElementById('np-salary').value)||50000;
+  const res=await apiPost({action:'addPerson',name,rank,field,salary});
+  if(res.id){S.people.push({id:res.id,name,rank,field,salary});toggleForm('add-person-form');renderAll();}
+}
+async function delPerson(id){
+  const p=S.people.find(x=>x.id===id);
+  const msg=`⚠️ [${p?p.name:''}] 인원을 완전 삭제합니다.\n\n참여율·용역참여 데이터가 모두 함께 삭제됩니다.\n이 작업은 되돌릴 수 없습니다.\n\n퇴사자 보존이 필요하면 [취소] 후 [퇴사] 버튼을 이용하세요.`;
+  if(!confirm(msg))return;
+  S.people=S.people.filter(x=>x.id!==id);S.parts=S.parts.filter(x=>x.pid!==id);
+  S.svcParts=S.svcParts.filter(x=>x.pid!==id);
+  renderAll();await apiPost({action:'deletePerson',id});
+}
 
 // ── 퇴사 처리 ──
 async function retirePerson(id){
@@ -1785,311 +2230,6 @@ function renderAll(){
   if(document.getElementById('tab-svc-agency')?.classList.contains('active'))renderSvcAgency();
 }
 loadData();
-
-
-// ══════════════════════════════════
-// 모바일 전용 로직
-// ══════════════════════════════════
-const IS_MOBILE = window.innerWidth <= 768;
-
-// 로그인 후 모바일/PC 분기
-const _origCheckLogin = checkLogin;
-function checkLogin(){
-  const pw = document.getElementById('login-pw').value;
-  if(pw === PW){
-    document.getElementById('login-wrap').style.display='none';
-    sessionStorage.setItem('sp_auth','ok');
-    if(IS_MOBILE){
-      document.getElementById('mobile-app').style.display='block';
-      mLoadData();
-    } else {
-      loadData();
-    }
-  } else {
-    document.getElementById('login-err').style.display='block';
-    document.getElementById('login-pw').value='';
-    document.getElementById('login-pw').focus();
-  }
-}
-
-// DOMContentLoaded 세션복원은 기존 로직에서 처리
-
-// 모바일 데이터 로드
-let MS = {}; // 모바일 전용 상태
-let mCurYear = new Date().getFullYear();
-let mProjFilterVal = '전체';
-let mPeopleFilterVal = '전체';
-let mSvcFilterVal = '전체';
-
-async function mLoadData(){
-  try{
-    const d = await api({action:'getData'});
-    MS = d;
-    MS.services = MS.services||[];
-    MS.svcParts = MS.svcParts||[];
-    MS.kosaList = MS.kosaList||[];
-    MS.certList = MS.certList||[];
-    MS.retiredList = MS.retiredList||[];
-    MS.people.forEach(p=>{p.id=+p.id;p.salary=+p.salary;});
-    MS.projects.forEach(p=>{p.id=+p.id;p.govAmt=+p.govAmt;p.shareRate=+p.shareRate;p.selfAmt=+p.selfAmt;p.months=+p.months;});
-    MS.parts.forEach(p=>{p.pid=+p.pid;p.projId=+p.projId;p.year=+p.year;p.rate=+p.rate;});
-    MS.svcParts.forEach(p=>{p.pid=+p.pid;p.svcId=+p.svcId;p.year=+p.year;p.manmonth=+p.manmonth;});
-    // 연도 기준: 가장 최근 연도
-    const years=[...new Set(MS.parts.map(p=>p.year))].sort();
-    mCurYear = years.length ? years[years.length-1] : new Date().getFullYear();
-    mRenderAll();
-  } catch(e){
-    document.getElementById('m-home-content').innerHTML=`<div class="m-empty">데이터 로드 실패<br><small>${e}</small></div>`;
-  }
-}
-
-function mRefresh(){ mLoadData(); }
-
-function mRenderAll(){
-  mRenderHome();
-  mRenderProjects();
-  mRenderPeople();
-  mRenderService();
-}
-
-// ── 탭 전환 ──
-function mSw(tab, el){
-  document.querySelectorAll('.m-tab').forEach(t=>t.classList.remove('on'));
-  document.querySelectorAll('.m-section').forEach(s=>s.classList.remove('on'));
-  el.classList.add('on');
-  document.getElementById('m-'+tab).classList.add('on');
-}
-
-// ── 상태 헬퍼 ──
-function mStOf(t){
-  if(t>100)return{l:'초과',c:'over'};
-  if(t>=80)return{l:'검토',c:'warn'};
-  if(t>=10)return{l:'적정',c:'ok'};
-  return{l:'활용',c:'idle'};
-}
-function mBc(t){return t>100?'#dc2626':t>=80?'#d97706':t>=10?'#16a34a':'#9ca3af';}
-function mPTot(pid){return MS.parts.filter(p=>p.pid===pid&&p.year===mCurYear).reduce((s,p)=>s+p.rate,0);}
-function mStColor(st){
-  const m={'수행중':'on-green','협약중':'on-blue','계획중':'on-purple','평가중':'on-amber','종료':'on-gray'};
-  return m[st]||'on-gray';
-}
-
-// ── 홈 ──
-function mRenderHome(){
-  const total=MS.people.length;
-  const active=MS.projects.filter(p=>p.status==='수행중').length;
-  const colab=MS.projects.filter(p=>p.status==='협약중').length;
-  const plan=MS.projects.filter(p=>p.status==='계획중').length;
-  const over=MS.people.filter(p=>mPTot(p.id)>100).length;
-  const svcActive=MS.services.filter(s=>s.status==='수행중').length;
-  const years=[...new Set(MS.parts.map(p=>p.year))].sort();
-
-  let html=`
-  <div class="m-kpi-row">
-    <div class="m-kpi"><div class="m-kpi-label">전체 인원</div><div class="m-kpi-value">${total}<span class="m-kpi-unit">명</span></div></div>
-    <div class="m-kpi"><div class="m-kpi-label">수행중 과제</div><div class="m-kpi-value">${active}<span class="m-kpi-unit">건</span></div></div>
-    <div class="m-kpi" style="background:${over>0?'#fee2e2':'#dcfce7'}"><div class="m-kpi-label" style="color:${over>0?'#dc2626':'#16a34a'}">100% 초과</div><div class="m-kpi-value" style="color:${over>0?'#dc2626':'#16a34a'}">${over}<span class="m-kpi-unit">명</span></div></div>
-    <div class="m-kpi"><div class="m-kpi-label">수행중 용역</div><div class="m-kpi-value">${svcActive}<span class="m-kpi-unit">건</span></div></div>
-  </div>
-
-  <div class="m-card">
-    <div class="m-card-title">과제 현황</div>
-    <div class="m-filter-row">
-      <span class="m-chip on-green" style="cursor:default">수행중 ${active}</span>
-      <span class="m-chip on-blue" style="cursor:default">협약중 ${colab}</span>
-      <span class="m-chip on-purple" style="cursor:default">계획중 ${plan}</span>
-      <span class="m-chip on-gray" style="cursor:default">종료 ${MS.projects.filter(p=>p.status==='종료').length}</span>
-    </div>
-  </div>
-
-  <div class="m-card">
-    <div class="m-card-title">${mCurYear}년 기준 인원 참여율 현황</div>`;
-
-  // 초과 인원 먼저
-  const overPeople=MS.people.filter(p=>mPTot(p.id)>100);
-  if(overPeople.length){
-    html+=`<div style="background:#fee2e2;border-radius:8px;padding:8px 12px;margin-bottom:8px;font-size:12px;color:#dc2626;font-weight:600">⚠ ${mCurYear}년 참여율 초과 인원: ${overPeople.map(p=>p.name).join(', ')}</div>`;
-  }
-
-  // 전체 평균
-  const rates=MS.people.map(p=>mPTot(p.id));
-  const avg=rates.length?Math.round(rates.reduce((a,b)=>a+b,0)/rates.length):0;
-  html+=`<div style="font-size:11px;color:#999;margin-bottom:4px">전체 평균 참여율</div>
-    <div style="height:8px;background:#f0f0f0;border-radius:99px;overflow:hidden;margin-bottom:6px">
-      <div style="height:100%;width:${Math.min(avg,100)}%;background:${mBc(avg)};border-radius:99px"></div>
-    </div>
-    <div style="font-size:13px;font-weight:700;color:${mBc(avg)};margin-bottom:4px">${avg}%</div>
-  </div>`;
-
-  document.getElementById('m-home-content').innerHTML=html;
-}
-
-// ── 연구과제 ──
-let mProjCur='전체';
-function mProjFilter(val, el){
-  mProjCur=val;
-  document.querySelectorAll('#m-proj-filter .m-chip').forEach(c=>c.classList.remove('on','on-green','on-blue','on-purple','on-amber','on-gray'));
-  const colorMap={'수행중':'on-green','협약중':'on-blue','계획중':'on-purple','평가중':'on-amber','종료':'on-gray','전체':'on'};
-  el.classList.add(colorMap[val]||'on');
-  mRenderProjects();
-}
-
-function mRenderProjects(){
-  const list=mProjCur==='전체'?MS.projects:MS.projects.filter(p=>p.status===mProjCur);
-  if(!list.length){
-    document.getElementById('m-proj-content').innerHTML=`<div class="m-empty">해당 상태의 과제가 없습니다</div>`;
-    return;
-  }
-  let html='';
-  list.forEach(pr=>{
-    const prParts=MS.parts.filter(p=>p.projId===pr.id&&p.year===mCurYear);
-    const pids=[...new Set(prParts.map(p=>p.pid))];
-    const totalRate=prParts.reduce((s,p)=>s+p.rate,0);
-    const avgRate=pids.length?Math.round(totalRate/pids.length):0;
-    const maxRate=prParts.length?Math.max(...prParts.map(p=>p.rate)):0;
-    const stColorMap={'수행중':'#16a34a','협약중':'#2563eb','계획중':'#7c3aed','평가중':'#d97706','종료':'#9ca3af'};
-    const badgeMap={'수행중':'m-badge-ok','협약중':'m-badge-blue','계획중':'m-badge-purple','평가중':'m-badge-warn','종료':'m-badge-gray'};
-
-    html+=`<div class="m-proj-card st-${pr.status}">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
-        <div class="m-proj-name" style="flex:1;padding-right:8px">${pr.name}</div>
-        <span class="m-badge ${badgeMap[pr.status]||'m-badge-gray'}">${pr.status}</span>
-      </div>
-      <div class="m-proj-meta">${pr.client} · ${pr.months}개월 · 자체분 ${pr.selfAmt?Math.round(pr.selfAmt/100000)+'억':'미정'}</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <div style="background:#f5f5f3;border-radius:8px;padding:6px 10px;flex:1;text-align:center">
-          <div style="font-size:10px;color:#999;margin-bottom:2px">참여 인원</div>
-          <div style="font-size:16px;font-weight:700;color:#1a1a2e">${pids.length}<span style="font-size:11px;font-weight:400;color:#999">명</span></div>
-        </div>
-        <div style="background:#f5f5f3;border-radius:8px;padding:6px 10px;flex:1;text-align:center">
-          <div style="font-size:10px;color:#999;margin-bottom:2px">평균 참여율</div>
-          <div style="font-size:16px;font-weight:700;color:${mBc(avgRate)}">${avgRate}<span style="font-size:11px;font-weight:400;color:#999">%</span></div>
-        </div>
-        <div style="background:#f5f5f3;border-radius:8px;padding:6px 10px;flex:1;text-align:center">
-          <div style="font-size:10px;color:#999;margin-bottom:2px">최고 참여율</div>
-          <div style="font-size:16px;font-weight:700;color:${mBc(maxRate)}">${maxRate}<span style="font-size:11px;font-weight:400;color:#999">%</span></div>
-        </div>
-      </div>
-      ${pids.length?`<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px">
-        ${pids.map(pid=>{
-          const p=MS.people.find(x=>x.id===pid);
-          const r=MS.parts.find(x=>x.pid===pid&&x.projId===pr.id&&x.year===mCurYear);
-          return p?`<span style="font-size:10px;background:#f0f0f0;border-radius:6px;padding:2px 7px;color:#555">${p.name} ${r?r.rate+'%':''}</span>`:'';
-        }).join('')}
-      </div>`:''}
-    </div>`;
-  });
-  document.getElementById('m-proj-content').innerHTML=html;
-}
-
-// ── 인원 참여율 ──
-let mPeopleCur='전체';
-function mPeopleFilter(val,el){
-  mPeopleCur=val;
-  document.querySelectorAll('#m-people-filter .m-chip').forEach(c=>c.classList.remove('on','on-green','on-blue','on-purple','on-amber','on-gray'));
-  el.classList.add('on');
-  mRenderPeople();
-}
-
-function mRenderPeople(){
-  let list=MS.people.map(p=>({...p,rate:mPTot(p.id)}));
-  if(mPeopleCur!=='전체'){
-    list=list.filter(p=>{
-      const st=mStOf(p.rate);
-      return st.l===mPeopleCur;
-    });
-  }
-  list.sort((a,b)=>b.rate-a.rate);
-
-  if(!list.length){document.getElementById('m-people-content').innerHTML=`<div class="m-empty">해당 상태의 인원이 없습니다</div>`;return;}
-
-  let html=`<div style="font-size:11px;color:#999;margin-bottom:8px">${mCurYear}년 기준 · ${list.length}명</div>`;
-  list.forEach(p=>{
-    const st=mStOf(p.rate);
-    const badgeMap={ok:'m-badge-ok',over:'m-badge-over',warn:'m-badge-warn',idle:'m-badge-idle'};
-    const projs=MS.parts.filter(x=>x.pid===p.id&&x.year===mCurYear);
-    const projNames=projs.map(x=>{const pr=MS.projects.find(r=>r.id===x.projId);return pr?`${pr.name.length>12?pr.name.substring(0,12)+'..':pr.name} ${x.rate}%`:''}).filter(Boolean);
-    html+=`<div class="m-person-row">
-      <div class="m-avatar">${p.name[0]}</div>
-      <div class="m-person-info">
-        <div class="m-person-name">${p.name} <span class="m-badge ${badgeMap[st.c]}">${st.l}</span></div>
-        <div class="m-person-rank">${p.rank} · ${p.field}</div>
-        ${projNames.length?`<div style="font-size:10px;color:#aaa;margin-top:2px">${projNames.join(' / ')}</div>`:'<div style="font-size:10px;color:#ccc;margin-top:2px">참여 과제 없음</div>'}
-      </div>
-      <div class="m-person-rate">
-        <div class="m-rate-num" style="color:${mBc(p.rate)}">${p.rate}%</div>
-        <div class="m-rate-bar"><div class="m-rate-fill" style="width:${Math.min(p.rate,100)}%;background:${mBc(p.rate)}"></div></div>
-        <div style="font-size:10px;color:#bbb;margin-top:2px">여유 ${Math.max(0,100-p.rate)}%p</div>
-      </div>
-    </div>`;
-  });
-  document.getElementById('m-people-content').innerHTML=html;
-}
-
-// ── 용역 맨먼스 ──
-let mSvcCur='전체';
-function mSvcFilter(val,el){
-  mSvcCur=val;
-  document.querySelectorAll('#m-svc-filter .m-chip').forEach(c=>c.classList.remove('on','on-green','on-blue','on-purple','on-amber','on-gray'));
-  const colorMap={'수행중':'on-green','협약중':'on-blue','계획중':'on-purple','전체':'on'};
-  el.classList.add(colorMap[val]||'on');
-  mRenderService();
-}
-
-function mRenderService(){
-  const list=mSvcCur==='전체'?MS.services:MS.services.filter(s=>s.status===mSvcCur);
-  if(!list.length){document.getElementById('m-svc-content').innerHTML=`<div class="m-empty">해당 상태의 용역이 없습니다</div>`;return;}
-  const svcYears=[...new Set(MS.svcParts.map(p=>p.year))].filter(y=>y>0).sort();
-
-  let html='';
-  list.forEach(svc=>{
-    const svcParts=MS.svcParts.filter(p=>p.svcId===svc.id);
-    const pids=[...new Set(svcParts.map(p=>p.pid))];
-    const totalMM=svcParts.reduce((s,p)=>s+p.manmonth,0);
-    const badgeMap={'수행중':'m-badge-ok','협약중':'m-badge-blue','계획중':'m-badge-purple','종료':'m-badge-gray'};
-
-    html+=`<div class="m-svc-card">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:2px">
-        <div class="m-svc-name">${svc.name}</div>
-        <span class="m-badge ${badgeMap[svc.status]||'m-badge-gray'}">${svc.status}</span>
-      </div>
-      <div class="m-svc-meta">${svc.client} · ${svc.months}개월</div>
-      <div style="display:flex;gap:8px;margin-bottom:10px">
-        <div style="background:#f5f5f3;border-radius:8px;padding:6px 10px;flex:1;text-align:center">
-          <div style="font-size:10px;color:#999;margin-bottom:2px">투입 인원</div>
-          <div style="font-size:16px;font-weight:700;color:#1a1a2e">${pids.length}<span style="font-size:11px;font-weight:400;color:#999">명</span></div>
-        </div>
-        <div style="background:#f5f5f3;border-radius:8px;padding:6px 10px;flex:1;text-align:center">
-          <div style="font-size:10px;color:#999;margin-bottom:2px">기간합산 MM</div>
-          <div style="font-size:16px;font-weight:700;color:#1a1a2e">${totalMM.toFixed(1)}<span style="font-size:11px;font-weight:400;color:#999">MM</span></div>
-        </div>
-      </div>`;
-
-    // 인원별 연도별 맨먼스
-    if(pids.length&&svcYears.length){
-      html+=`<div style="font-size:10px;color:#999;margin-bottom:6px;font-weight:600">인원별 맨먼스</div>`;
-      pids.forEach(pid=>{
-        const person=MS.people.find(x=>x.id===pid);
-        if(!person)return;
-        const personMM=svcParts.filter(p=>p.pid===pid);
-        const personTotal=personMM.reduce((s,p)=>s+p.manmonth,0);
-        html+=`<div class="m-mm-row">
-          <div class="m-mm-name">${person.name}</div>
-          <div class="m-mm-bars">
-            ${svcYears.filter(y=>{const pt=svcParts.find(p=>p.pid===pid&&p.year===y);return pt&&pt.manmonth>0;}).map(y=>{
-              const pt=svcParts.find(p=>p.pid===pid&&p.year===y);
-              return `<span class="m-mm-year">${y}년 ${pt.manmonth}MM</span>`;
-            }).join('')}
-          </div>
-          <div style="font-size:11px;font-weight:700;color:#1a1a2e;flex-shrink:0">${personTotal.toFixed(1)}MM</div>
-        </div>`;
-      });
-    }
-    html+=`</div>`;
-  });
-  document.getElementById('m-svc-content').innerHTML=html;
-}
-
 </script>
 </body>
 </html>
