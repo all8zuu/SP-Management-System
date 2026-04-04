@@ -634,9 +634,20 @@ const ITSQF = {
 // 날짜 포맷 헬퍼 (ISO 문자열 → YYYY-MM-DD)
 function fmtDate(d){
   if(!d)return '';
-  const s=String(d);
-  // ISO 형식(T 포함) 처리
+  const s=String(d).trim();
+  if(!s||s==='-'||s==='null'||s==='undefined')return '';
+  // ISO 형식(T 포함): 2023-04-30T15:00:00.000Z → 2023-04-30
   if(s.includes('T'))return s.split('T')[0];
+  // 이미 YYYY-MM-DD 형식
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;
+  // Date 객체로 파싱 시도
+  const dt=new Date(d);
+  if(!isNaN(dt.getTime())){
+    const y=dt.getUTCFullYear();
+    const m=String(dt.getUTCMonth()+1).padStart(2,'0');
+    const day=String(dt.getUTCDate()).padStart(2,'0');
+    return y+'-'+m+'-'+day;
+  }
   return s;
 }
 function calcKosaGrade(edu, eduCareer, cert, certCareer) {
@@ -800,17 +811,24 @@ function renderKosaList(){
     <div class="g3" style="margin-bottom:10px">
       <div class="form-row"><label class="form-label">이름</label><select id="nk-pid">${personOpts}</select></div>
       <div class="form-row"><label class="form-label">직종</label>
-        <select id="nk-job" onchange="updateDetailJob()">
-          <option value="">직종 선택</option>${jobOpts}
-        </select>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <select id="nk-job" onchange="updateDetailJob()">
+            <option value="">직종 선택</option>${jobOpts}
+            <option value="__custom__">✏️ 직접 입력</option>
+          </select>
+          <input type="text" id="nk-job-custom" placeholder="직종 직접 입력" style="display:none;font-size:12px;padding:5px 8px">
+        </div>
       </div>
       <div class="form-row"><label class="form-label">상세직무</label>
-        <select id="nk-detail"><option value="">직종 먼저 선택</option></select>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <select id="nk-detail" onchange="onDetailChange()"><option value="">직종 먼저 선택</option></select>
+          <input type="text" id="nk-detail-custom" placeholder="상세직무 직접 입력" style="display:none;font-size:12px;padding:5px 8px">
+        </div>
       </div>
     </div>
     <div class="g3" style="margin-bottom:10px">
-      <div class="form-row"><label class="form-label">근무기간 시작</label><input type="date" id="nk-start"></div>
-      <div class="form-row"><label class="form-label">근무기간 종료</label><input type="date" id="nk-end"></div>
+      <div class="form-row"><label class="form-label">근무/수행기간 시작</label><input type="date" id="nk-start"></div>
+      <div class="form-row"><label class="form-label">근무/수행기간 종료</label><input type="date" id="nk-end"></div>
       <div class="form-row"><label class="form-label">비고 (회사명 등)</label><input type="text" id="nk-memo" placeholder="(주)ABC / 특이사항"></div>
     </div>
     <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;margin-bottom:10px">
@@ -866,7 +884,7 @@ function renderKosaList(){
 
   // 인원별 경력 테이블
   html+=`<div class="card" style="padding:0"><div class="tbl-wrap"><table><thead><tr>
-    <th>이름</th><th>직급</th><th>직종</th><th>상세직무</th><th>등급</th><th>근무기간</th><th>비고</th><th></th>
+    <th>이름</th><th>직급</th><th>등급</th><th>직종</th><th>상세직무</th><th>근무/수행기간</th><th>비고</th><th></th>
   </tr></thead><tbody>`;
 
   if(!S.kosaList.length){
@@ -879,13 +897,15 @@ function renderKosaList(){
       if(!person)return;
       byPid[pid].forEach((k,i)=>{
         const gc=k.grade==='특급'?'b-over':k.grade==='고급'?'b-blue':k.grade==='중급'?'b-ok':'b-gray';
-        const period=(k.startDate||k.regDate)?(k.endDate||k.expDate)?(k.startDate||k.regDate)+' ~ '+(k.endDate||k.expDate):(k.startDate||k.regDate)+' ~ 재직중':'-';
+        const _sd=fmtDate(k.startDate||k.regDate);
+        const _ed=fmtDate(k.endDate||k.expDate);
+        const period=_sd?(_ed?_sd+' ~ '+_ed:_sd+' ~ 재직중'):'-';
         html+=`<tr>
           <td style="font-weight:600">${i===0?person.name:''}</td>
           <td style="color:var(--text3)">${i===0?person.rank:''}</td>
+          <td>${k.grade&&k.grade!=='—'?`<span class="badge ${gc}">${k.grade}</span>`:'<span style="color:var(--text3);font-size:10px">-</span>'}</td>
           <td><span class="badge b-amber" style="background:var(--amber-bg);color:var(--amber-text);white-space:nowrap">${k.job||k.field||'-'}</span></td>
           <td style="font-size:11px;color:var(--text2)">${k.detail||'-'}</td>
-          <td>${k.grade&&k.grade!=='—'?`<span class="badge ${gc}">${k.grade}</span>`:'<span style="color:var(--text3);font-size:10px">-</span>'}</td>
           <td style="font-size:11px;white-space:nowrap">${period}</td>
           <td style="font-size:11px;color:var(--text3)">${k.memo||''}</td>
           <td><button class="btn btn-danger btn-sm" onclick="deleteKosa(${k.id})">삭제</button></td>
@@ -900,9 +920,28 @@ function renderKosaList(){
 function updateDetailJob(){
   const job=document.getElementById('nk-job').value;
   const sel=document.getElementById('nk-detail');
-  if(!job){sel.innerHTML='<option value="">직종 먼저 선택</option>';return;}
+  const customJob=document.getElementById('nk-job-custom');
+  const customDetail=document.getElementById('nk-detail-custom');
+  // 직접입력 선택 시
+  if(job==='__custom__'){
+    customJob.style.display='block';
+    sel.innerHTML='<option value="__custom__">✏️ 직접 입력</option>';
+    customDetail.style.display='block';
+    return;
+  }
+  customJob.style.display='none';
+  if(!job){sel.innerHTML='<option value="">직종 먼저 선택</option>';customDetail.style.display='none';return;}
   const details=ITSQF[job]||[];
   sel.innerHTML=details.map(d=>`<option value="${d}">${d}</option>`).join('');
+  sel.innerHTML+=`<option value="__custom__">✏️ 직접 입력</option>`;
+  customDetail.style.display='none';
+}
+
+function onDetailChange(){
+  const sel=document.getElementById('nk-detail');
+  const customDetail=document.getElementById('nk-detail-custom');
+  if(sel.value==='__custom__'){customDetail.style.display='block';}
+  else{customDetail.style.display='none';}
 }
 
 function autoCalcGrade(){
@@ -923,8 +962,10 @@ function autoCalcGrade(){
 // KOSA CRUD
 async function addKosa(){
   const pid=parseInt(document.getElementById('nk-pid').value);
-  const job=document.getElementById('nk-job').value;
-  const detail=document.getElementById('nk-detail').value;
+  const _jobSel=document.getElementById('nk-job').value;
+  const job=_jobSel==='__custom__'?document.getElementById('nk-job-custom').value.trim():_jobSel;
+  const _detSel=document.getElementById('nk-detail').value;
+  const detail=_detSel==='__custom__'?document.getElementById('nk-detail-custom').value.trim():_detSel;
   const startDate=document.getElementById('nk-start').value.trim();
   const endDate=document.getElementById('nk-end').value.trim();
   const memo=document.getElementById('nk-memo').value.trim();
@@ -2117,14 +2158,14 @@ function renderSvcOverview(){
       const total=svcMmTotal(p.id,y);
       const color=total>12?'var(--red-text)':total>0?'var(--text)':'var(--text3)';
       const bg=total>12?'var(--red-bg)':'';
-      html+=`<td style="text-align:center;font-weight:${total?'700':'400'};color:${color};background:${bg}">${total?total+'MM':'-'}</td>`;
+      html+=`<td style="text-align:center;font-weight:${total?'700':'400'};color:${color};background:${bg}">${total?parseFloat(total).toFixed(2)+'MM':'-'}</td>`;
     });
     clients.forEach(client=>{
       years.forEach(y=>{
         const mm=svcMmByYear(p.id,client,y);
         const color=mm>12?'var(--red-text)':mm>0?'var(--green-text)':'var(--text3)';
         const bg=mm>12?'var(--red-bg)':mm>0?'var(--green-bg)':'';
-        html+=`<td style="text-align:center;font-size:11px;color:${color};background:${bg}">${mm?mm+'MM':'-'}</td>`;
+        html+=`<td style="text-align:center;font-size:11px;color:${color};background:${bg}">${mm?parseFloat(mm).toFixed(2)+'MM':'-'}</td>`;
       });
     });
     html+=`</tr>`;
@@ -2251,7 +2292,7 @@ function renderSvcAgency(){
       html+=`<tr ${maxMm>12?'style="background:var(--red-bg)"':''}><td style="font-weight:600">${p.name}</td><td style="color:var(--text3)">${p.rank}</td>`;
       mms.forEach(mm=>{
         const color=mm>12?'var(--red-text)':mm>0?'var(--green-text)':'var(--text3)';
-        html+=`<td style="text-align:center;font-weight:${mm?'700':'400'};color:${color}">${mm?mm+'MM':'-'}</td>`;
+        html+=`<td style="text-align:center;font-weight:${mm?'700':'400'};color:${color}">${mm?parseFloat(mm).toFixed(2)+'MM':'-'}</td>`;
       });
       html+=`<td style="text-align:center"><span class="badge ${maxMm>12?'b-over':maxMm>0?'b-ok':'b-gray'}">${maxMm}MM</span></td></tr>`;
     });
