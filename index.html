@@ -155,10 +155,11 @@ hr{border:none;border-top:1px solid var(--border);margin:12px 0}
 
 /* 현황세부 테이블 */
 .detail-table th{text-align:center;background:var(--surface2);padding:8px}
-.detail-table th.name-col{text-align:left}
+.detail-table th.name-col{text-align:left;width:60px}
+.detail-table th.rank-col{text-align:left;width:50px}
 .detail-table td{text-align:center;vertical-align:middle;padding:8px;white-space:nowrap}
-.detail-table td.name-col{text-align:left;font-weight:600;padding:8px 12px}
-.detail-table td.rank-col{text-align:left;color:var(--text3);padding:8px 12px}
+.detail-table td.name-col{text-align:left;font-weight:600;padding:8px;width:60px}
+.detail-table td.rank-col{text-align:left;color:var(--text3);padding:8px;width:50px}
 .rate-cell{font-weight:600}
 .total-col{background:var(--blue-bg)!important;font-weight:700;color:var(--blue-text)!important}
 .proj-header{background:var(--surface3)!important;font-size:10px;color:var(--text2)!important;text-align:center}
@@ -1138,7 +1139,7 @@ function renderDetail(){
     if(!pids.length)return;
 
     html+=`<div class="card" style="margin-bottom:1.2rem"><div class="card-title">${pr.name} <span class="badge ${stMap(pr.status)}">${pr.status}</span> <span class="card-title-sub">${pr.client} · ${pr.months}개월</span></div>`;
-    html+=`<div class="tbl-wrap"><table class="detail-table" style="table-layout:auto"><thead><tr>
+    html+=`<div class="tbl-wrap"><table class="detail-table" style="table-layout:fixed;width:100%"><thead><tr>
       <th class="name-col">이름</th><th class="rank-col">직급</th>`;
     years.forEach(y=>html+=`<th style="text-align:center;min-width:60px">${y}년</th>`);
     html+=`<th style="text-align:center;min-width:70px;background:var(--surface3)">합계</th>`;
