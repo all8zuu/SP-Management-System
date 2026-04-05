@@ -1014,11 +1014,15 @@ function renderOverview(){
     <div class="kpi blue"><div class="kpi-label">총 자체분 (우리몫)</div><div class="kpi-value" style="font-size:17px">${(totalSelf/100000).toFixed(1)}<span style="font-size:13px;font-weight:400">억</span></div><div class="kpi-sub">정부지원 ${(totalGov/100000).toFixed(1)}억 기준</div></div>
   </div>`;
 
-  // 인원별 바 차트
+  // 인원별 바 차트 (필터 적용)
   const sorted=[...S.people].sort((a,b)=>pTotFiltered(b.id,refYear)-pTotFiltered(a.id,refYear));
+  if(!checkedStatuses.length){
+    html+=`<div class="info-box" style="margin-top:1rem">상태 필터를 선택하면 참여율 현황이 표시됩니다.</div>`;
+    document.getElementById('overview-body').innerHTML=html;return;
+  }
   html+=`<div class="card"><div class="card-title">인원별 참여율 <span class="card-title-sub">${refYear}년 기준</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:0 1.5rem">`;
   sorted.forEach((p,i)=>{
-    const t=pTotY(p.id,refYear);const st=stOf(t);const w=Math.min(t,100);
+    const t=pTotFiltered(p.id,refYear);const st=stOf(t);const w=Math.min(t,100);
     html+=`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)">
       <span style="width:48px;font-size:12px;font-weight:600">${p.name}</span>
       <span style="width:38px;font-size:10px;color:var(--text3)">${p.rank}</span>
@@ -1133,18 +1137,10 @@ function renderDetail(){
         const color=rate>=80?'var(--amber-text)':rate>=50?'var(--green-text)':rate>0?'var(--text)':'var(--text3)';
         html+=`<td class="rate-cell" style="text-align:center;color:${color};background:${bg}">${rate?rate+'%':'-'}</td>`;
       });
-      // 해당 인원의 전체 연도별 합계 (이 과제 포함 모든 과제)
-      const totalAll=years.map(y=>pTotY(pid,y));
-      const maxTotal=Math.max(...totalAll);
-      const totalColor=maxTotal>100?'var(--red-text)':maxTotal>=80?'var(--amber-text)':'var(--green-text)';
-      html+=`<td style="text-align:center;background:var(--surface3);font-size:10px">`;
-      years.forEach((y,i)=>{
-        const t=pTotY(pid,y);
-        const tc=t>100?'var(--red-text)':t>=80?'var(--amber-text)':'var(--green-text)';
-        html+=`<span style="color:${tc};font-weight:600">${t}%</span>`;
-        if(i<years.length-1)html+=`<span style="color:var(--text3)"> / </span>`;
-      });
-      html+=`</td></tr>`;
+      // 이 인원의 이 과제 전 연도 참여율 합계
+      const projTotal=years.reduce((sum,y)=>{const part=S.parts.find(p=>p.pid===pid&&p.projId===pr.id&&p.year===y);return sum+(part?part.rate:0);},0);
+      const ptColor=projTotal>=100?'var(--red-text)':projTotal>=50?'var(--amber-text)':'var(--green-text)';
+      html+=`<td style="text-align:center;background:var(--surface3);font-weight:700;color:${ptColor}">${projTotal?projTotal+'%':'-'}</td></tr>`;
     });
 
     // 연도별 참여 인원 수 합계행
@@ -2113,7 +2109,7 @@ function renderSvcAgency(){
         const color=mm>12?'var(--red-text)':mm>0?'var(--green-text)':'var(--text3)';
         html+=`<td style="text-align:center;font-weight:${mm?'700':'400'};color:${color}">${mm?parseFloat(mm).toFixed(2)+'MM':'-'}</td>`;
       });
-      html+=`<td style="text-align:center"><span class="badge ${maxMm>12?'b-over':maxMm>0?'b-ok':'b-gray'}">${maxMm}MM</span></td></tr>`;
+      html+=`<td style="text-align:center"><span class="badge ${maxMm>12?'b-over':maxMm>0?'b-ok':'b-gray'}">${parseFloat(maxMm).toFixed(2)}MM</span></td></tr>`;
     });
     html+=`</tbody></table></div></div>`;
   });
