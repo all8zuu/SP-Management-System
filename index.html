@@ -1146,14 +1146,14 @@ function renderDetail(){
 
     pids.forEach(pid=>{
       const person=S.people.find(x=>x.id===pid);if(!person)return;
-      html+=`<tr><td class="name-col">${person.name}</td><td class="rank-col">${person.rank}</td>`;
+      html+=`<tr style="vertical-align:middle"><td class="name-col">${person.name}</td><td class="rank-col">${person.rank}</td>`;
       years.forEach(y=>{
         const part=S.parts.find(p=>p.pid===pid&&p.projId===pr.id&&p.year===y);
         const rate=part?part.rate:0;
         const bg=rate>=80?'var(--amber-bg)':rate>=50?'var(--green-bg)':rate>0?'':'';
         const color=rate>=80?'var(--amber-text)':rate>=50?'var(--green-text)':rate>0?'var(--text)':'var(--text3)';
-        const roleTag=part&&part.role?`<br><span style="font-size:9px;font-weight:700;color:var(--blue-text);background:var(--blue-bg);border-radius:3px;padding:1px 4px">${part.role}</span>`:'';
-        html+=`<td class="rate-cell" style="text-align:center;color:${color};background:${bg};height:36px;line-height:1.2">${rate?rate+'%':'-'}${roleTag}</td>`;
+        const roleTag=part&&part.role?` <span style="font-size:9px;font-weight:700;color:var(--blue-text);background:var(--blue-bg);border-radius:3px;padding:1px 3px">${part.role}</span>`:'';
+        html+=`<td class="rate-cell" style="text-align:center;color:${color};background:${bg}">${rate?rate+'%':'-'}${roleTag}</td>`;
       });
       // 이 인원의 이 과제 전 연도 참여율 합계
       const projTotal=years.reduce((sum,y)=>{const part=S.parts.find(p=>p.pid===pid&&p.projId===pr.id&&p.year===y);return sum+(part?part.rate:0);},0);
