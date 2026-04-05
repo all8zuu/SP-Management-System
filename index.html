@@ -235,8 +235,7 @@ hr{border:none;border-top:1px solid var(--border);margin:12px 0}
     <div class="nav-children open" id="mod-research">
       <div class="nav-item active" onclick="sw('overview','research')"><span class="nav-icon">◼</span>대시보드<span id="nav-over-badge"></span></div>
       <div class="nav-item" onclick="sw('detail','research')"><span class="nav-icon">◈</span>과제 세부 현황</div>
-      <div class="nav-item" onclick="sw('yearly','research')"><span class="nav-icon">◷</span>연차별 참여율 입력</div>
-      <div class="nav-item" onclick="sw('projects','research')"><span class="nav-icon">◧</span>과제 관리</div>
+      <div class="nav-item" onclick="sw('yearly','research')"><span class="nav-icon">◷</span>과제별 참여율 관리</div>
       <div class="nav-item" onclick="sw('sim','research')"><span class="nav-icon">◉</span>시뮬레이션</div>
     </div>
     <!-- 용역 관리 -->
@@ -246,8 +245,8 @@ hr{border:none;border-top:1px solid var(--border);margin:12px 0}
     </div>
     <div class="nav-children" id="mod-service">
       <div class="nav-item" onclick="sw('svc-overview','service')"><span class="nav-icon">◼</span>대시보드</div>
-      <div class="nav-item" onclick="sw('svc-manmonth','service')"><span class="nav-icon">◈</span>연차별 맨먼스 입력</div>
-      <div class="nav-item" onclick="sw('svc-agency','service')"><span class="nav-icon">◧</span>용역 세부 현황</div>
+      <div class="nav-item" onclick="sw('svc-agency','service')"><span class="nav-icon">◈</span>용역 세부 현황</div>
+      <div class="nav-item" onclick="sw('svc-manmonth','service')"><span class="nav-icon">◷</span>용역별 맨먼스 관리</div>
       <div class="nav-item" onclick="sw('svc-sim','service')"><span class="nav-icon">◉</span>시뮬레이션</div>
     </div>
     <!-- 인력 관리 -->
@@ -285,7 +284,7 @@ hr{border:none;border-top:1px solid var(--border);margin:12px 0}
     <!-- 연차별 투입인력 -->
     <div id="tab-yearly" class="section">
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:center">
-        <div><div class="page-title">연차별 참여율 입력</div><div class="page-sub">과제별 연도별 참여율 입력·수정 (저장 자동)</div></div>
+        <div><div class="page-title">과제별 참여율 관리</div><div class="page-sub">과제 추가·수정·삭제 및 인원별 연도별 참여율 입력</div></div>
         <div style="display:flex;gap:8px;align-items:center">
           <input type="number" id="new-year-input" value="2024" min="2000" max="2050" style="width:75px;font-size:11px;padding:5px 8px">
           <button class="btn btn-primary" onclick="addYearCol()">+ 연도 추가</button>
@@ -425,7 +424,7 @@ hr{border:none;border-top:1px solid var(--border);margin:12px 0}
       <div id="svc-overview-content"><div class="loading"><div class="spinner"></div><span style="font-size:12px;color:var(--text3)">준비 중...</span></div></div>
     </div>
     <div id="tab-svc-manmonth" class="section">
-      <div class="page-header"><div class="page-title">연차별 맨먼스 입력</div><div class="page-sub">인원별 연도별 맨먼스 입력 및 12 맨먼스 초과 경고</div></div>
+      <div class="page-header"><div class="page-title">용역별 맨먼스 관리</div><div class="page-sub">인원별 연도별 맨먼스 입력 및 12 맨먼스 초과 경고</div></div>
       <div id="svc-manmonth-content"><div class="loading"><div class="spinner"></div><span style="font-size:12px;color:var(--text3)">준비 중...</span></div></div>
     </div>
     <div id="tab-svc-agency" class="section">
@@ -1191,19 +1190,72 @@ function renderDetail(){
 
 // 연차별 투입인력
 function renderYearly(){
-  const years=getYears();
-  let html='';
+  // 상단: 과제 추가 폼
+  const personOpts=S.people.map(p=>`<option value="${p.id}">${p.name}(${p.rank})</option>`).join('');
+  const statusOptsList=['수행중','협약중','평가중','계획중','종료'];
+
+  let html=`<div style="display:flex;justify-content:flex-end;margin-bottom:1rem">
+    <button class="btn btn-primary" onclick="toggleForm('add-proj-form2')">+ 과제 추가</button>
+  </div>
+  <div class="add-form" id="add-proj-form2">
+    <div class="form-title">새 과제 등록</div>
+    <div class="g3" style="margin-bottom:10px">
+      <div class="form-row"><label class="form-label">과제명</label><input type="text" id="np2-name" placeholder="과제명 입력"></div>
+      <div class="form-row"><label class="form-label">발주기관</label><input type="text" id="np2-client" placeholder="중기부"></div>
+      <div class="form-row"><label class="form-label">상태</label>
+        <select id="np2-status">${statusOptsList.map(s=>`<option value="${s}">${s}</option>`).join('')}</select>
+      </div>
+    </div>
+    <div class="g4">
+      <div class="form-row"><label class="form-label">정부지원금(억원)</label><input type="number" id="np2-gov" placeholder="예) 6.6" step="0.1"></div>
+      <div class="form-row"><label class="form-label">지분율(%)</label><input type="number" id="np2-share" placeholder="예) 40" step="1"></div>
+      <div class="form-row"><label class="form-label">기간(개월)</label><input type="number" id="np2-months" placeholder="24" step="1"></div>
+      <div class="form-row"><label class="form-label">비고</label><input type="text" id="np2-memo" placeholder="특이사항"></div>
+    </div>
+    <div class="g3" style="margin-top:8px">
+      <div class="form-row"><label class="form-label">시작일</label><input type="date" id="np2-startdate"></div>
+      <div class="form-row"><label class="form-label">종료일</label><input type="date" id="np2-enddate"></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn" onclick="toggleForm('add-proj-form2')">취소</button>
+      <button class="btn btn-primary" onclick="addProjectFromYearly()">등록</button>
+    </div>
+  </div>`;
+
   S.projects.forEach(pr=>{
     const prParts=S.parts.filter(p=>p.projId===pr.id);
     const pids=[...new Set(prParts.map(p=>p.pid))];
-    html+=`<div class="yearly-proj"><div class="yearly-proj-head">
-      <span style="font-size:13px;font-weight:600">${pr.name}</span>
-      <span class="badge ${stMap(pr.status)}">${pr.status}</span>
-      <span style="font-size:11px;color:var(--text3);margin-left:4px">${pr.client} · ${pr.months}개월 · ${pids.length}명 참여</span>
-    </div><div style="padding:1rem 1.2rem"><div class="tbl-wrap"><table><thead><tr>
+    // 이 과제에 사용된 연도만 + getYears() 합집합
+    const prYears=[...new Set([...getYears(),...S.parts.filter(p=>p.projId===pr.id).map(p=>p.year)])].sort();
+    const statusOpts=statusOptsList.map(s=>`<option value="${s}" ${pr.status===s?'selected':''}>${s}</option>`).join('');
+
+    html+=`<div class="yearly-proj">
+      <!-- 과제 헤더: 수정 가능 -->
+      <div class="yearly-proj-head" style="flex-wrap:wrap;gap:6px">
+        <input type="text" value="${pr.name}" style="font-size:13px;font-weight:700;border:1px solid var(--border2);border-radius:var(--r);padding:3px 8px;flex:1;min-width:200px" onchange="updProj(${pr.id},'name',this.value)">
+        <select style="font-size:11px;padding:3px 6px" onchange="updProj(${pr.id},'status',this.value)">${statusOpts}</select>
+        <span style="font-size:11px;color:var(--text3)">${pr.client} · ${pr.months}개월</span>
+        <div style="margin-left:auto;display:flex;gap:6px">
+          <button class="btn btn-sm" onclick="toggleProjMeta(${pr.id})">⚙ 과제 정보</button>
+          <button class="btn btn-danger btn-sm" onclick="delProject(${pr.id})">삭제</button>
+        </div>
+      </div>
+      <!-- 과제 메타 정보 (접기/펼치기) -->
+      <div id="proj-meta-${pr.id}" style="display:none;padding:10px 1.2rem;background:var(--bg2);border-bottom:1px solid var(--border)">
+        <div class="g4">
+          <div class="form-row"><label class="form-label">발주기관</label><input type="text" value="${pr.client}" onchange="updProj(${pr.id},'client',this.value)"></div>
+          <div class="form-row"><label class="form-label">정부지원금(억원)</label><input type="number" value="${(pr.govAmt/100000).toFixed(2)}" step="0.1" onchange="updProjFinance(${pr.id},'govAmt',Math.round(this.value*100000))"></div>
+          <div class="form-row"><label class="form-label">지분율(%)</label><input type="number" value="${pr.shareRate}" step="1" onchange="updProjFinance(${pr.id},'shareRate',+this.value)"></div>
+          <div class="form-row"><label class="form-label">기간(개월)</label><input type="number" value="${pr.months}" step="1" onchange="updProj(${pr.id},'months',+this.value)"></div>
+          <div class="form-row"><label class="form-label">시작일</label><input type="date" value="${pr.startDate||''}" onchange="updProj(${pr.id},'startDate',this.value)"></div>
+          <div class="form-row"><label class="form-label">종료일</label><input type="date" value="${pr.endDate||''}" onchange="updProj(${pr.id},'endDate',this.value)"></div>
+        </div>
+        <div style="font-size:11px;color:var(--green-text);margin-top:4px">자체분: ${pr.selfAmt?(pr.selfAmt/100000).toFixed(2)+'억원':'-'}</div>
+      </div>
+      <div style="padding:1rem 1.2rem"><div class="tbl-wrap"><table><thead><tr>
       <th style="min-width:60px">이름</th><th style="min-width:44px">직급</th>`;
     html+=`<th style="text-align:center;min-width:70px">역할</th>`;
-    years.forEach(y=>html+=`<th style="text-align:center;min-width:110px">${y}년<div style="font-size:9px;font-weight:400;color:var(--text3)">참여율 / 단가(천원)</div></th>`);
+    prYears.forEach(y=>html+=`<th style="text-align:center;min-width:110px">${y}년<div style="font-size:9px;font-weight:400;color:var(--text3)">참여율 / 단가(천원)</div></th>`);
     html+=`<th></th></tr></thead><tbody>`;
     pids.forEach(pid=>{
       const person=S.people.find(x=>x.id===pid);if(!person)return;
@@ -1218,7 +1270,7 @@ function renderYearly(){
             <option value="참여" ${curRole==='참여'?'selected':''}>참여</option>
           </select>
         </td>`;
-      years.forEach(y=>{
+      prYears.forEach(y=>{
         const part=S.parts.find(p=>p.pid===pid&&p.projId===pr.id&&p.year===y);
         if(part){
           html+=`<td style="text-align:center"><div style="display:flex;flex-direction:column;gap:3px;align-items:center">
@@ -1234,11 +1286,19 @@ function renderYearly(){
     html+=`</tbody></table></div>`;
     const retiredIds=(S.retiredList||[]).map(r=>r.id);
     const addOpts=S.people.filter(p=>!pids.includes(p.id)&&!retiredIds.includes(p.id)).map(p=>`<option value="${p.id}">${p.name}(${p.rank})</option>`).join('');
-    html+=`<div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--border)">
-      <select id="yadd-p-${pr.id}" style="flex:1;min-width:140px;font-size:11px">${addOpts}</select>
-      <select id="yadd-y-${pr.id}" style="width:75px;font-size:11px">${years.map(y=>`<option value="${y}">${y}년</option>`).join('')}</select>
-      <input type="number" id="yadd-r-${pr.id}" value="20" min="0" max="100" step="5" style="width:60px;font-size:11px" placeholder="%">
-      <button class="btn" onclick="addPartYNew(${pr.id})">+ 인원 추가</button>
+    html+=`<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border)">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px">
+        <span style="font-size:11px;font-weight:600;color:var(--text3)">인원 추가</span>
+        <select id="yadd-p-${pr.id}" style="flex:1;min-width:140px;font-size:11px">${addOpts}</select>
+        <select id="yadd-y-${pr.id}" style="width:75px;font-size:11px">${prYears.map(y=>`<option value="${y}">${y}년</option>`).join('')}</select>
+        <input type="number" id="yadd-r-${pr.id}" value="20" min="0" max="100" step="5" style="width:60px;font-size:11px" placeholder="%">
+        <button class="btn" onclick="addPartYNew(${pr.id})">+ 추가</button>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <span style="font-size:11px;font-weight:600;color:var(--text3)">연도 추가</span>
+        <input type="number" id="yadd-yr-${pr.id}" placeholder="예) 2028" style="width:90px;font-size:11px">
+        <button class="btn" onclick="addYearToProj(${pr.id})">+ 연도 추가</button>
+      </div>
     </div></div></div>`;
   });
   document.getElementById('yearly-content').innerHTML=html||'<div style="text-align:center;color:var(--text3);padding:3rem">과제 없음</div>';
@@ -1740,6 +1800,43 @@ function addYearCol(){
   S.parts.push({pid:-1,projId:-1,year:y,rate:0,salary:null});
   document.getElementById('yearly-content').innerHTML='';renderAll();
 }
+function toggleProjMeta(projId){
+  const el=document.getElementById('proj-meta-'+projId);
+  if(el)el.style.display=el.style.display==='none'?'block':'none';
+}
+
+async function addProjectFromYearly(){
+  const name=document.getElementById('np2-name').value.trim();
+  if(!name)return alert('과제명을 입력해주세요');
+  const client=document.getElementById('np2-client').value.trim();
+  const status=document.getElementById('np2-status').value;
+  const govKr=Math.round((parseFloat(document.getElementById('np2-gov').value)||0)*100000);
+  const share=parseFloat(document.getElementById('np2-share').value)||0;
+  const months=parseInt(document.getElementById('np2-months').value)||24;
+  const memo=document.getElementById('np2-memo').value.trim();
+  const startDate=document.getElementById('np2-startdate').value;
+  const endDate=document.getElementById('np2-enddate').value;
+  const res=await apiPost({action:'addProject',name,client,status,govAmt:govKr,shareRate:share,months,memo,startDate,endDate});
+  if(res.id){
+    const self=Math.round(govKr*(share/100));
+    S.projects.push({id:res.id,name,client,status,govAmt:govKr,shareRate:share,selfAmt:self,months,memo,startDate,endDate});
+    toggleForm('add-proj-form2');
+    renderYearly();
+  }
+}
+
+function addYearToProj(projId){
+  const yr=parseInt(document.getElementById('yadd-yr-'+projId)?.value);
+  if(!yr||yr<2000||yr>2050)return alert('올바른 연도를 입력해주세요');
+  // 이미 이 과제에 해당 연도 데이터가 있으면 경고
+  const exists=S.parts.some(p=>p.projId===projId&&p.year===yr);
+  if(exists)return alert('이미 있는 연도예요');
+  // 더미 파트 추가로 연도 열 생성 (실제 저장은 인원 추가 시)
+  // getYears()에 반영되도록 전역 연도 목록에 추가
+  S.parts.push({pid:-1,projId:projId,year:yr,rate:0,salary:null,role:''});
+  renderYearly();
+}
+
 async function updProj(id,key,val){
   const pr=S.projects.find(p=>p.id===id);if(!pr)return;
   pr[key]=val;renderOverview();renderProjects();
