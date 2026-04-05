@@ -232,8 +232,8 @@ hr{border:none;border-top:1px solid var(--border);margin:12px 0}
     </div>
     <div class="nav-children open" id="mod-research">
       <div class="nav-item active" onclick="sw('overview','research')"><span class="nav-icon">◼</span>대시보드<span id="nav-over-badge"></span></div>
-      <div class="nav-item" onclick="sw('detail','research')"><span class="nav-icon">◈</span>현황 세부</div>
-      <div class="nav-item" onclick="sw('yearly','research')"><span class="nav-icon">◷</span>연차별 투입인력</div>
+      <div class="nav-item" onclick="sw('detail','research')"><span class="nav-icon">◈</span>과제 세부 현황</div>
+      <div class="nav-item" onclick="sw('yearly','research')"><span class="nav-icon">◷</span>연차별 참여율 입력</div>
       <div class="nav-item" onclick="sw('projects','research')"><span class="nav-icon">◧</span>과제 관리</div>
       <div class="nav-item" onclick="sw('people','research')"><span class="nav-icon">◎</span>인원 관리</div>
       <div class="nav-item" onclick="sw('sim','research')"><span class="nav-icon">◉</span>시뮬레이션</div>
@@ -245,8 +245,8 @@ hr{border:none;border-top:1px solid var(--border);margin:12px 0}
     </div>
     <div class="nav-children" id="mod-service">
       <div class="nav-item" onclick="sw('svc-overview','service')"><span class="nav-icon">◼</span>대시보드</div>
-      <div class="nav-item" onclick="sw('svc-manmonth','service')"><span class="nav-icon">◈</span>맨먼스 관리</div>
-      <div class="nav-item" onclick="sw('svc-agency','service')"><span class="nav-icon">◧</span>기관별 현황</div>
+      <div class="nav-item" onclick="sw('svc-manmonth','service')"><span class="nav-icon">◈</span>연차별 맨먼스 입력</div>
+      <div class="nav-item" onclick="sw('svc-agency','service')"><span class="nav-icon">◧</span>용역 세부 현황</div>
       <div class="nav-item" onclick="sw('svc-sim','service')"><span class="nav-icon">◉</span>시뮬레이션</div>
     </div>
     <!-- KOSA 관리 -->
@@ -288,7 +288,7 @@ hr{border:none;border-top:1px solid var(--border);margin:12px 0}
     <!-- 현황 세부 -->
     <div id="tab-detail" class="section">
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:flex-start">
-        <div><div class="page-title">현황 세부</div><div class="page-sub">과제×인원×연도별 참여율 매트릭스</div></div>
+        <div><div class="page-title">과제 세부 현황</div><div class="page-sub">과제×인원×연도별 참여율 매트릭스</div></div>
       </div>
       <div id="detail-content"><div class="loading"><div class="spinner"></div></div></div>
     </div>
@@ -296,7 +296,7 @@ hr{border:none;border-top:1px solid var(--border);margin:12px 0}
     <!-- 연차별 투입인력 -->
     <div id="tab-yearly" class="section">
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:center">
-        <div><div class="page-title">연차별 투입인력 참여율</div><div class="page-sub">과제별 연도별 참여율 입력·수정 (저장 자동)</div></div>
+        <div><div class="page-title">연차별 참여율 입력</div><div class="page-sub">과제별 연도별 참여율 입력·수정 (저장 자동)</div></div>
         <div style="display:flex;gap:8px;align-items:center">
           <input type="number" id="new-year-input" value="2024" min="2000" max="2050" style="width:75px;font-size:11px;padding:5px 8px">
           <button class="btn btn-primary" onclick="addYearCol()">+ 연도 추가</button>
@@ -436,11 +436,11 @@ hr{border:none;border-top:1px solid var(--border);margin:12px 0}
       <div id="svc-overview-content"><div class="loading"><div class="spinner"></div><span style="font-size:12px;color:var(--text3)">준비 중...</span></div></div>
     </div>
     <div id="tab-svc-manmonth" class="section">
-      <div class="page-header"><div class="page-title">맨먼스 관리</div><div class="page-sub">인원별 연도별 맨먼스 입력 및 12 맨먼스 초과 경고</div></div>
+      <div class="page-header"><div class="page-title">연차별 맨먼스 입력</div><div class="page-sub">인원별 연도별 맨먼스 입력 및 12 맨먼스 초과 경고</div></div>
       <div id="svc-manmonth-content"><div class="loading"><div class="spinner"></div><span style="font-size:12px;color:var(--text3)">준비 중...</span></div></div>
     </div>
     <div id="tab-svc-agency" class="section">
-      <div class="page-header"><div class="page-title">기관별 현황</div><div class="page-sub">발주기관별 맨먼스 합산 현황</div></div>
+      <div class="page-header"><div class="page-title">용역 세부 현황</div><div class="page-sub">발주기관별 맨먼스 합산 현황</div></div>
       <div id="svc-agency-content"><div class="loading"><div class="spinner"></div><span style="font-size:12px;color:var(--text3)">준비 중...</span></div></div>
     </div>
     <div id="tab-svc-sim" class="section">
@@ -1258,7 +1258,7 @@ function renderProjects(){
       tableHtml+=`</tr>`;
     });
     tableHtml+=`</tbody></table></div>`;
-    tableHtml+=`<div style="margin-top:8px;font-size:11px;color:var(--text3)">※ 참여율 수정은 <strong>연차별 투입인력</strong> 탭에서 하세요</div>`;
+    tableHtml+=`<div style="margin-top:8px;font-size:11px;color:var(--text3)">※ 참여율 수정은 <strong>연차별 참여율 입력</strong> 탭에서 하세요</div>`;
 
     return`<div class="proj-card">
       <div class="proj-card-head">
@@ -1939,7 +1939,7 @@ function renderSvcOverview(){
   const years=getSvcYears();
   if(!S.services.length){
     document.getElementById('svc-overview-content').innerHTML=`
-      <div class="info-box">등록된 용역이 없습니다. 맨먼스 관리 탭에서 용역을 추가해주세요.</div>`;
+      <div class="info-box">등록된 용역이 없습니다. 연차별 맨먼스 입력 탭에서 용역을 추가해주세요.</div>`;
     return;
   }
   // 기관별 맨먼스 집계
