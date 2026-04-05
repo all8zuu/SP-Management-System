@@ -1007,12 +1007,29 @@ function renderOverview(){
   const badge=document.getElementById('nav-over-badge');
   if(over>0){badge.innerHTML=`<span class="nav-badge">${over}</span>`;}else{badge.innerHTML='';}
 
+  // 3책5공 계산 (수행중+협약중+평가중 기준)
+  const activeProjs=S.projects.filter(p=>['수행중','협약중','평가중'].includes(p.status));
+  const책초과=S.people.filter(p=>{
+    const pmplCount=activeProjs.filter(pr=>S.parts.some(x=>x.pid===p.id&&x.projId===pr.id&&(x.role==='PM'||x.role==='PL'))).length;
+    return pmplCount>3;
+  }).length;
+  const공초과=S.people.filter(p=>{
+    const partCount=activeProjs.filter(pr=>S.parts.some(x=>x.pid===p.id&&x.projId===pr.id&&x.rate>0)).length;
+    return partCount>5;
+  }).length;
+  const책공초과=책초과>0||공초과>0;
+
   let html=`<div class="kpi-grid">
     <div class="kpi blue"><div class="kpi-label">전체 인원</div><div class="kpi-value">${S.people.length}<span style="font-size:14px;font-weight:400">명</span></div><div class="kpi-sub">${filteredProjects.length}개 과제 (${checkedStatuses.join("+")||"없음"})</div></div>
     <div class="kpi ${over>0?'red':'green'}"><div class="kpi-label">100% 초과 인원</div><div class="kpi-value" style="color:${over>0?'var(--red)':'var(--green)'}">${over}<span style="font-size:14px;font-weight:400">명</span></div><div class="kpi-sub">${over>0?'즉시 조정 필요':'전원 정상 범위'}</div></div>
     <div class="kpi amber"><div class="kpi-label">평균 참여율 (${refYear}년)</div><div class="kpi-value">${avg}<span style="font-size:14px;font-weight:400">%</span></div><div class="kpi-sub">80%↑ 검토 ${warn}명</div></div>
-    <div class="kpi blue"><div class="kpi-label">총 자체분 (우리몫)</div><div class="kpi-value" style="font-size:17px">${(totalSelf/100000).toFixed(1)}<span style="font-size:13px;font-weight:400">억</span></div><div class="kpi-sub">정부지원 ${(totalGov/100000).toFixed(1)}억 기준</div></div>
-  </div>`;
+    <div class="kpi ${책공초과?'red':'green'}"><div class="kpi-label">3책5공 현황</div><div class="kpi-value" style="color:${책공초과?'var(--red)':'var(--green)'}"><span style="font-size:14px">책 </span>${책초과}<span style="font-size:12px;font-weight:400">명 초과</span></div><div class="kpi-sub">공 ${공초과}명 초과 · 수행중+협약중+평가중 기준</div></div>
+  </div>
+  ${책공초과?`<div style="background:var(--red-bg);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;margin-bottom:1rem;font-size:12px;color:var(--red-text)">
+    ⚠️ <strong>3책5공 초과 인원 있음</strong> —
+    ${S.people.filter(p=>activeProjs.filter(pr=>S.parts.some(x=>x.pid===p.id&&x.projId===pr.id&&(x.role==='PM'||x.role==='PL'))).length>3).map(p=>p.name+'(책 '+activeProjs.filter(pr=>S.parts.some(x=>x.pid===p.id&&x.projId===pr.id&&(x.role==='PM'||x.role==='PL'))).length+'개)').join(', ')||''}
+    ${S.people.filter(p=>activeProjs.filter(pr=>S.parts.some(x=>x.pid===p.id&&x.projId===pr.id&&x.rate>0)).length>5).map(p=>p.name+'(공 '+activeProjs.filter(pr=>S.parts.some(x=>x.pid===p.id&&x.projId===pr.id&&x.rate>0)).length+'개)').join(', ')||''}
+  </div>`:''}`;
 
   // 인원별 바 차트 (필터 적용)
   const sorted=[...S.people].sort((a,b)=>pTotFiltered(b.id,refYear)-pTotFiltered(a.id,refYear));
@@ -1135,7 +1152,8 @@ function renderDetail(){
         const rate=part?part.rate:0;
         const bg=rate>=80?'var(--amber-bg)':rate>=50?'var(--green-bg)':rate>0?'':'';
         const color=rate>=80?'var(--amber-text)':rate>=50?'var(--green-text)':rate>0?'var(--text)':'var(--text3)';
-        html+=`<td class="rate-cell" style="text-align:center;color:${color};background:${bg}">${rate?rate+'%':'-'}</td>`;
+        const roleTag=part&&part.role?`<span style="font-size:9px;font-weight:700;color:var(--blue-text);background:var(--blue-bg);border-radius:3px;padding:1px 4px;display:block;margin-top:2px">${part.role}</span>`:'';
+        html+=`<td class="rate-cell" style="text-align:center;color:${color};background:${bg}">${rate?rate+'%':'-'}${roleTag}</td>`;
       });
       // 이 인원의 이 과제 전 연도 참여율 합계
       const projTotal=years.reduce((sum,y)=>{const part=S.parts.find(p=>p.pid===pid&&p.projId===pr.id&&p.year===y);return sum+(part?part.rate:0);},0);
@@ -1184,11 +1202,22 @@ function renderYearly(){
       <span style="font-size:11px;color:var(--text3);margin-left:4px">${pr.client} · ${pr.months}개월 · ${pids.length}명 참여</span>
     </div><div style="padding:1rem 1.2rem"><div class="tbl-wrap"><table><thead><tr>
       <th style="min-width:60px">이름</th><th style="min-width:44px">직급</th>`;
+    html+=`<th style="text-align:center;min-width:70px">역할</th>`;
     years.forEach(y=>html+=`<th style="text-align:center;min-width:110px">${y}년<div style="font-size:9px;font-weight:400;color:var(--text3)">참여율 / 단가(천원)</div></th>`);
     html+=`<th></th></tr></thead><tbody>`;
     pids.forEach(pid=>{
       const person=S.people.find(x=>x.id===pid);if(!person)return;
-      html+=`<tr><td style="font-weight:600">${person.name}</td><td style="color:var(--text3)">${person.rank}</td>`;
+      const anyPartThisProj=S.parts.find(p=>p.pid===pid&&p.projId===pr.id);
+      const curRole=anyPartThisProj?anyPartThisProj.role||'':'';
+      html+=`<tr><td style="font-weight:600">${person.name}</td><td style="color:var(--text3)">${person.rank}</td>
+        <td style="text-align:center">
+          <select style="font-size:10px;padding:2px 4px;border:1px solid var(--border2);border-radius:4px;background:var(--surface)" onchange="updatePartRole(${pid},${pr.id},this.value)">
+            <option value="" ${curRole===''?'selected':''}>-</option>
+            <option value="PM" ${curRole==='PM'?'selected':''}>PM</option>
+            <option value="PL" ${curRole==='PL'?'selected':''}>PL</option>
+            <option value="참여" ${curRole==='참여'?'selected':''}>참여</option>
+          </select>
+        </td>`;
       years.forEach(y=>{
         const part=S.parts.find(p=>p.pid===pid&&p.projId===pr.id&&p.year===y);
         if(part){
@@ -1657,6 +1686,17 @@ function runSim(){
 }
 
 // CRUD
+async function updatePartRole(pid, projId, role){
+  // 해당 인원의 이 과제 모든 연도 rows에 role 업데이트
+  S.parts.filter(p=>p.pid===pid&&p.projId===projId).forEach(p=>p.role=role);
+  renderYearly();
+  // 서버: 대표 연도(첫 번째 행)만 업데이트해도 되지만 안전하게 전체 업데이트
+  const rows=S.parts.filter(p=>p.pid===pid&&p.projId===projId);
+  for(const r of rows){
+    await apiPost({action:'updateRole',pid,projId,year:r.year,role});
+  }
+}
+
 async function updatePartY(pid,projId,year,rate,field,salVal,inputEl){
   const idx=S.parts.findIndex(p=>p.pid===pid&&p.projId===projId&&p.year===year);if(idx<0)return;
   if(field==='rate')S.parts[idx].rate=parseInt(rate)||0;
