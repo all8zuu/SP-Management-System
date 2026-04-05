@@ -60,6 +60,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 .nmh-kosa{background:var(--amber-bg);color:var(--amber-text)}
 .nmh-cert{background:var(--purple-bg);color:var(--purple-text)}
 .nmh-retire{background:var(--bg2);color:var(--text2);border:1px solid var(--border)}
+.nmh-people{background:var(--blue-bg);color:var(--blue-text)}
 .nav-children{overflow:hidden;max-height:0;transition:max-height .25s ease}
 .nav-children.open{max-height:600px}
 .nav-item{display:flex;align-items:center;gap:9px;padding:7px 10px 7px 26px;font-size:12px;color:var(--text2);cursor:pointer;border-radius:var(--r);transition:all .12s;margin:1px 8px;border-left:2px solid transparent}
@@ -235,7 +236,6 @@ hr{border:none;border-top:1px solid var(--border);margin:12px 0}
       <div class="nav-item" onclick="sw('detail','research')"><span class="nav-icon">◈</span>과제 세부 현황</div>
       <div class="nav-item" onclick="sw('yearly','research')"><span class="nav-icon">◷</span>연차별 참여율 입력</div>
       <div class="nav-item" onclick="sw('projects','research')"><span class="nav-icon">◧</span>과제 관리</div>
-      <div class="nav-item" onclick="sw('people','research')"><span class="nav-icon">◎</span>인원 관리</div>
       <div class="nav-item" onclick="sw('sim','research')"><span class="nav-icon">◉</span>시뮬레이션</div>
     </div>
     <!-- 용역 관리 -->
@@ -249,28 +249,16 @@ hr{border:none;border-top:1px solid var(--border);margin:12px 0}
       <div class="nav-item" onclick="sw('svc-agency','service')"><span class="nav-icon">◧</span>용역 세부 현황</div>
       <div class="nav-item" onclick="sw('svc-sim','service')"><span class="nav-icon">◉</span>시뮬레이션</div>
     </div>
-    <!-- KOSA 관리 -->
-    <div class="nav-module-header nmh-kosa" onclick="toggleModule(this)" style="margin-top:6px">
-      <div class="nmh-left"><span>📋</span>KOSA 관리</div>
+    <!-- 인력 관리 -->
+    <div class="nav-module-header nmh-people" onclick="toggleModule(this)" style="margin-top:6px">
+      <div class="nmh-left"><span>👥</span>인력 관리</div>
       <span class="nmh-arrow">▶</span>
     </div>
-    <div class="nav-children" id="mod-kosa">
-      <div class="nav-item" onclick="sw('kosa-list','kosa')"><span class="nav-icon">◎</span>개인별 KOSA 정보</div>
-    </div>
-    <!-- 자격증 관리 -->
-    <div class="nav-module-header nmh-cert" onclick="toggleModule(this)" style="margin-top:6px">
-      <div class="nmh-left"><span>🏆</span>자격증 관리</div>
-      <span class="nmh-arrow">▶</span>
-    </div>
-    <div class="nav-children" id="mod-cert">
-      <div class="nav-item" onclick="sw('cert-list','cert')"><span class="nav-icon">◎</span>개인별 자격증</div>
-    </div>
-    <div class="nav-module-header nmh-retire" onclick="toggleModule(this)" style="margin-top:6px">
-      <div class="nmh-left"><span>📁</span>퇴사자 명단</div>
-      <span class="nmh-arrow">▶</span>
-    </div>
-    <div class="nav-children" id="mod-retire">
-      <div class="nav-item" onclick="sw('retire-list','retire')"><span class="nav-icon">◎</span>퇴사자 현황</div>
+    <div class="nav-children" id="mod-people">
+      <div class="nav-item" onclick="sw('people','people')"><span class="nav-icon">◼</span>인력 현황</div>
+      <div class="nav-item" onclick="sw('retire-list','people')"><span class="nav-icon">◈</span>퇴사자 현황</div>
+      <div class="nav-item" onclick="sw('kosa-list','people')"><span class="nav-icon">◷</span>KOSA 정보</div>
+      <div class="nav-item" onclick="sw('cert-list','people')"><span class="nav-icon">◧</span>자격증 정보</div>
     </div>
   </div>
 
@@ -337,7 +325,7 @@ hr{border:none;border-top:1px solid var(--border);margin:12px 0}
     <!-- 인원 관리 -->
     <div id="tab-people" class="section">
       <div class="page-header" style="display:flex;justify-content:space-between;align-items:center">
-        <div><div class="page-title">인원 관리</div><div class="page-sub">기준 연도별 참여율 및 여유율 확인</div></div>
+        <div><div class="page-title">인력 현황</div><div class="page-sub">인원별 연구과제 참여율 · 용역 맨먼스 통합 현황</div></div>
         <button class="btn btn-primary" onclick="toggleForm('add-person-form')">+ 인원 추가</button>
       </div>
       <div class="add-form" id="add-person-form">
@@ -601,7 +589,7 @@ function sw(tab, module){
   // 모든 section 숨기기
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   // 클릭된 nav-item 활성화
-  const activeClass = module==='service'?'active-green':module==='kosa'?'active-amber':module==='cert'?'active-purple':module==='retire'?'active':'active';
+  const activeClass = module==='service'?'active-green':module==='kosa'?'active-amber':module==='cert'?'active-purple':module==='people'?'active-blue':'active';
   event.currentTarget.classList.add(activeClass);
   // 해당 섹션 표시
   const el=document.getElementById('tab-'+tab);
@@ -1313,10 +1301,11 @@ function renderPeople(){
   document.getElementById('people-ytabs').innerHTML=years.map(y=>`<button class="ytab ${y===curPeopleYear?'active':''}" onclick="curPeopleYear=${y};renderPeople()">${y}년</button>`).join('');
   const year=curPeopleYear;
   const showSal=sessionStorage.getItem('show_salary')==='1';
-  let html=`<div class="card" style="padding:0"><div class="tbl-wrap"><table><thead><tr><th>이름</th><th>직급</th><th>소속</th><th>참여 과제</th><th style="min-width:140px">참여율</th><th>여유율</th><th>상태</th>${showSal?'<th style="color:var(--red-text)">단가(천원)</th>':''}<th></th></tr></thead><tbody>`;
+  let html=`<div class="card" style="padding:0"><div class="tbl-wrap"><table><thead><tr><th>이름</th><th>직급</th><th>소속</th><th>참여 과제</th><th style="min-width:140px">참여율</th><th>여유율</th><th style="text-align:center">용역MM</th><th>상태</th>${showSal?'<th style="color:var(--red-text)">단가(천원)</th>':''}<th></th></tr></thead><tbody>`;
   S.people.forEach(p=>{
     const t=pTotY(p.id,year);const rem=100-t;const st=stOf(t);const w=Math.min(t,100);
     const tags=S.parts.filter(x=>x.pid===p.id&&x.year===year).map(x=>{const pr=S.projects.find(r=>r.id===x.projId);return pr?`<span class="tag">${pr.name} ${x.rate}%</span>`:''}).join('')||'<span style="font-size:10px;color:var(--text3)">없음</span>';
+    const svcMM=S.svcParts.filter(x=>x.pid===p.id&&x.year===year).reduce((s,x)=>s+x.manmonth,0);
     const showSal2=sessionStorage.getItem('show_salary')==='1';
     html+=`<tr>
       <td style="font-weight:600">${p.name}</td>
@@ -1331,6 +1320,7 @@ function renderPeople(){
       <td>${tags}</td>
       <td><div class="bar-wrap"><div class="bar-track"><div class="bar-fill" style="width:${w}%;background:${bc(t)}"></div></div><span class="bar-val" style="color:${bc(t)}">${t}%</span></div></td>
       <td style="font-weight:600;color:${rem<0?'var(--red)':rem<20?'var(--amber)':'var(--green)'}">${rem}%p</td>
+      <td style="text-align:center;font-size:11px;font-weight:600;color:${svcMM>0?'var(--green-text)':'var(--text3)'}">${svcMM?svcMM.toFixed(1)+'MM':'-'}</td>
       <td><span class="badge ${st.c}">${st.l}</span></td>
       ${showSal2?`<td style="color:var(--red-text);font-size:11px">${p.salary.toLocaleString()}</td>`:''}
       <td style="display:flex;gap:4px;align-items:center">
