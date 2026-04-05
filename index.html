@@ -1009,23 +1009,23 @@ function renderOverview(){
 
   // 3책5공 계산 (수행중+협약중+평가중 기준)
   const activeProjs=S.projects.filter(p=>['수행중','협약중','평가중'].includes(p.status));
-  const책초과=S.people.filter(p=>{
+  const cntBook=S.people.filter(p=>{
     const pmplCount=activeProjs.filter(pr=>S.parts.some(x=>x.pid===p.id&&x.projId===pr.id&&(x.role==='PM'||x.role==='PL'))).length;
     return pmplCount>3;
   }).length;
-  const공초과=S.people.filter(p=>{
+  const cntGong=S.people.filter(p=>{
     const partCount=activeProjs.filter(pr=>S.parts.some(x=>x.pid===p.id&&x.projId===pr.id&&x.rate>0)).length;
     return partCount>5;
   }).length;
-  const책공초과=책초과>0||공초과>0;
+  const cntOver=cntBook>0||cntGong>0;
 
   let html=`<div class="kpi-grid">
     <div class="kpi blue"><div class="kpi-label">전체 인원</div><div class="kpi-value">${S.people.length}<span style="font-size:14px;font-weight:400">명</span></div><div class="kpi-sub">${filteredProjects.length}개 과제 (${checkedStatuses.join("+")||"없음"})</div></div>
     <div class="kpi ${over>0?'red':'green'}"><div class="kpi-label">100% 초과 인원</div><div class="kpi-value" style="color:${over>0?'var(--red)':'var(--green)'}">${over}<span style="font-size:14px;font-weight:400">명</span></div><div class="kpi-sub">${over>0?'즉시 조정 필요':'전원 정상 범위'}</div></div>
     <div class="kpi amber"><div class="kpi-label">평균 참여율 (${refYear}년)</div><div class="kpi-value">${avg}<span style="font-size:14px;font-weight:400">%</span></div><div class="kpi-sub">80%↑ 검토 ${warn}명</div></div>
-    <div class="kpi ${책공초과?'red':'green'}"><div class="kpi-label">3책5공 현황</div><div class="kpi-value" style="color:${책공초과?'var(--red)':'var(--green)'}"><span style="font-size:14px">책 </span>${책초과}<span style="font-size:12px;font-weight:400">명 초과</span></div><div class="kpi-sub">공 ${공초과}명 초과 · 수행중+협약중+평가중 기준</div></div>
+    <div class="kpi ${cntOver?'red':'green'}"><div class="kpi-label">3책5공 현황</div><div class="kpi-value" style="color:${cntOver?'var(--red)':'var(--green)'}"><span style="font-size:14px">책 </span>${cntBook}<span style="font-size:12px;font-weight:400">명 초과</span></div><div class="kpi-sub">공 ${cntGong}명 초과 · 수행중+협약중+평가중 기준</div></div>
   </div>
-  ${책공초과?`<div style="background:var(--red-bg);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;margin-bottom:1rem;font-size:12px;color:var(--red-text)">
+  ${cntOver?`<div style="background:var(--red-bg);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;margin-bottom:1rem;font-size:12px;color:var(--red-text)">
     ⚠️ <strong>3책5공 초과 인원 있음</strong> —
     ${S.people.filter(p=>activeProjs.filter(pr=>S.parts.some(x=>x.pid===p.id&&x.projId===pr.id&&(x.role==='PM'||x.role==='PL'))).length>3).map(p=>p.name+'(책 '+activeProjs.filter(pr=>S.parts.some(x=>x.pid===p.id&&x.projId===pr.id&&(x.role==='PM'||x.role==='PL'))).length+'개)').join(', ')||''}
     ${S.people.filter(p=>activeProjs.filter(pr=>S.parts.some(x=>x.pid===p.id&&x.projId===pr.id&&x.rate>0)).length>5).map(p=>p.name+'(공 '+activeProjs.filter(pr=>S.parts.some(x=>x.pid===p.id&&x.projId===pr.id&&x.rate>0)).length+'개)').join(', ')||''}
