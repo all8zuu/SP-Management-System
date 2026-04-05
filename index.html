@@ -2158,41 +2158,183 @@ function renderSvcAgency(){
 
 // ── 용역 시뮬 ──
 function renderSvcSim(){
+  const svcYears=getSvcYears();
+  const curYear=new Date().getFullYear();
+  const yearOpts=[...new Set([...svcYears, curYear, curYear+1, curYear+2])].sort()
+    .map(y=>`<option value="${y}">${y}년</option>`).join('');
+
   document.getElementById('svc-sim-content').innerHTML=`
-    <div class="card">
-      <div class="card-title">신규 용역 맨먼스 시뮬레이션</div>
-      <div class="g3" style="margin-bottom:12px">
-        <div class="form-row"><label class="form-label">발주기관</label><input type="text" id="ssim-client" placeholder="한수원" oninput="renderSvcSimResult()"></div>
-        <div class="form-row"><label class="form-label">기준 연도</label><input type="number" id="ssim-year" value="${new Date().getFullYear()}" oninput="renderSvcSimResult()"></div>
-        <div class="form-row"><label class="form-label">신규 투입 MM</label><input type="number" id="ssim-mm" value="3" step="0.5" oninput="renderSvcSimResult()"></div>
+  <div class="card" style="margin-bottom:1rem">
+    <div class="card-title">① 신규 용역 기본 정보</div>
+    <div class="g4">
+      <div class="form-row"><label class="form-label">발주기관</label>
+        <input type="text" id="ss-client" placeholder="예) 한수원" oninput="svcSimUpdate()"></div>
+      <div class="form-row"><label class="form-label">용역명</label>
+        <input type="text" id="ss-name" placeholder="예) 빅데이터 구축" oninput="svcSimUpdate()"></div>
+      <div class="form-row"><label class="form-label">기간(개월)</label>
+        <input type="number" id="ss-months" value="12" min="1" max="60" oninput="svcSimUpdate()"></div>
+      <div class="form-row"><label class="form-label">총 인건비(억원)</label>
+        <input type="number" id="ss-budget" placeholder="예) 3.5" step="0.1" oninput="svcSimUpdate()"></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:1rem">
+    <div class="card-title">② 인원별 연도별 투입 MM 입력
+      <span class="card-title-sub">기존 용역 MM + 신규 합산 → 12MM 초과 시 경고</span>
+    </div>
+    <div class="tbl-wrap"><table id="ss-mm-table">
+      <thead><tr>
+        <th>이름</th><th>직급</th>
+        ${yearOpts.replace(/<option value="(\d+)">[^<]+<\/option>/g,
+          (m,y)=>`<th style="text-align:center">${y}년<div style="font-size:9px;font-weight:400;color:var(--text3)">신규MM</div></th>`)}
+        <th style="text-align:center">기간합산MM</th>
+        <th style="text-align:center">인건비(천원)</th>
+        <th style="text-align:center">12MM 초과</th>
+      </tr></thead>
+      <tbody id="ss-mm-body"></tbody>
+      <tfoot><tr>
+        <td colspan="2" style="font-weight:700;text-align:right;font-size:12px">합계</td>
+        ${yearOpts.replace(/<option[^>]+>[^<]+<\/option>/g,'<td></td>')}
+        <td id="ss-total-mm" style="text-align:center;font-weight:700"></td>
+        <td id="ss-total-cost" style="text-align:center;font-weight:700;color:var(--green-text)"></td>
+        <td></td>
+      </tr></tfoot>
+    </table></div>
+  </div>
+
+  <div class="card" id="ss-verify-card" style="display:none">
+    <div class="card-title">⑤ 총 인건비 검증</div>
+    <div style="display:flex;gap:2rem;align-items:center;flex-wrap:wrap">
+      <div style="text-align:center">
+        <div style="font-size:11px;color:var(--text3);margin-bottom:4px">입력한 총 인건비</div>
+        <div id="ss-v-input" style="font-size:20px;font-weight:700"></div>
       </div>
-      <div id="ssim-result"></div>
-    </div>`;
-  renderSvcSimResult();
+      <div style="font-size:24px;color:var(--text3)">vs</div>
+      <div style="text-align:center">
+        <div style="font-size:11px;color:var(--text3);margin-bottom:4px">MM 합산 인건비</div>
+        <div id="ss-v-calc" style="font-size:20px;font-weight:700"></div>
+      </div>
+      <div style="text-align:center;flex:1">
+        <div style="font-size:11px;color:var(--text3);margin-bottom:4px">차액</div>
+        <div id="ss-v-diff" style="font-size:20px;font-weight:700"></div>
+      </div>
+    </div>
+  </div>`;
+
+  // 인원별 행 생성
+  const years=[...new Set([...svcYears, curYear, curYear+1, curYear+2])].sort();
+  svcSimBuildRows(years);
+  svcSimUpdate();
 }
 
-function renderSvcSimResult(){
-  const client=document.getElementById('ssim-client')?.value||'';
-  const year=parseInt(document.getElementById('ssim-year')?.value)||new Date().getFullYear();
-  const newMm=parseFloat(document.getElementById('ssim-mm')?.value)||0;
-  if(!client){document.getElementById('ssim-result').innerHTML='<div class="info-box">발주기관을 입력하세요</div>';return;}
-  let html=`<div class="tbl-wrap"><table><thead><tr><th>이름</th><th>직급</th><th style="text-align:center">${client} 현재MM</th><th style="text-align:center">신규 추가</th><th style="text-align:center">합계</th><th style="text-align:center">여유</th><th style="text-align:center">상태</th></tr></thead><tbody>`;
-  S.people.forEach(p=>{
-    const cur=svcMmByYear(p.id,client,year);
-    const total=cur+newMm;
-    const rem=12-total;
-    const st=total>12?{l:'초과',c:'b-over'}:total>=10?{l:'검토',c:'b-warn'}:{l:'가능',c:'b-ok'};
-    html+=`<tr ${total>12?'style="background:var(--red-bg)"':''}><td style="font-weight:600">${p.name}</td><td style="color:var(--text3)">${p.rank}</td>
-      <td style="text-align:center">${cur?cur+'MM':'-'}</td>
-      <td style="text-align:center;color:var(--blue-text);font-weight:600">+${newMm}MM</td>
-      <td style="text-align:center;font-weight:700;color:${total>12?'var(--red)':total>=10?'var(--amber)':'var(--green)'}">${total}MM</td>
-      <td style="text-align:center;color:${rem<0?'var(--red)':'var(--text3)'}">${rem.toFixed(1)}MM</td>
-      <td style="text-align:center"><span class="badge ${st.c}">${st.l}</span></td>
+let svcSimYears=[];
+function svcSimBuildRows(years){
+  svcSimYears=years;
+  const tbody=document.getElementById('ss-mm-body');
+  if(!tbody)return;
+  tbody.innerHTML=S.people.map(p=>{
+    const yearCells=years.map(y=>`
+      <td style="text-align:center">
+        <input type="number" class="rate-input" id="ss-mm-${p.id}-${y}"
+          value="" min="0" max="12" step="0.5" placeholder="0"
+          oninput="svcSimUpdate()" style="width:60px">
+      </td>`).join('');
+    return `<tr id="ss-row-${p.id}">
+      <td style="font-weight:600">${p.name}</td>
+      <td style="color:var(--text3)">${p.rank}</td>
+      ${yearCells}
+      <td id="ss-sum-${p.id}" style="text-align:center;font-weight:700"></td>
+      <td id="ss-cost-${p.id}" style="text-align:center;font-size:11px"></td>
+      <td id="ss-warn-${p.id}" style="text-align:center"></td>
     </tr>`;
-  });
-  html+=`</tbody></table></div>`;
-  document.getElementById('ssim-result').innerHTML=html;
+  }).join('');
 }
+
+function svcSimUpdate(){
+  const client=document.getElementById('ss-client')?.value.trim()||'';
+  const budget=parseFloat(document.getElementById('ss-budget')?.value)||0;
+  const months=parseInt(document.getElementById('ss-months')?.value)||12;
+  const years=svcSimYears;
+  if(!years.length)return;
+
+  let totalMM=0, totalCost=0;
+
+  S.people.forEach(p=>{
+    // 신규 MM 입력값
+    const newMMs=years.map(y=>parseFloat(document.getElementById(`ss-mm-${p.id}-${y}`)?.value)||0);
+    const personNewTotal=newMMs.reduce((s,m)=>s+m,0);
+
+    // 인건비 계산 (단가 × MM / 12 × 월수환산)
+    const monthlySal=p.salary/12; // 천원/월
+    const cost=Math.round(personNewTotal * monthlySal); // 천원
+
+    // 기존 MM (해당 기관 + 전체)
+    const maxExistByYear=years.map(y=>svcMmByYear(p.id,client,y));
+
+    // 합산 후 12MM 초과 여부
+    const overYears=years.filter((y,i)=>{
+      const exist=client?svcMmByYear(p.id,client,y):0;
+      const newMM=newMMs[i];
+      return (exist+newMM)>12;
+    });
+
+    // 행 업데이트
+    const sumEl=document.getElementById(`ss-sum-${p.id}`);
+    const costEl=document.getElementById(`ss-cost-${p.id}`);
+    const warnEl=document.getElementById(`ss-warn-${p.id}`);
+    const row=document.getElementById(`ss-row-${p.id}`);
+
+    if(sumEl) sumEl.textContent=personNewTotal?personNewTotal.toFixed(1)+'MM':'-';
+    if(sumEl) sumEl.style.color=personNewTotal>0?'var(--green-text)':'var(--text3)';
+
+    if(costEl) costEl.textContent=cost>0?Math.round(cost/1000).toLocaleString()+'백만원':'-';
+
+    if(warnEl){
+      if(overYears.length>0){
+        warnEl.innerHTML=`<span class="badge b-over">⚠ ${overYears.join(',')}년 초과</span>`;
+        if(row)row.style.background='var(--red-bg)';
+      } else {
+        warnEl.textContent='-';
+        if(row)row.style.background='';
+      }
+    }
+
+    if(personNewTotal>0){totalMM+=personNewTotal;totalCost+=cost;}
+  });
+
+  // 합계 행
+  const totalMMEl=document.getElementById('ss-total-mm');
+  const totalCostEl=document.getElementById('ss-total-cost');
+  if(totalMMEl) totalMMEl.textContent=totalMM?totalMM.toFixed(1)+'MM':'-';
+  if(totalCostEl) totalCostEl.textContent=totalCost>0?Math.round(totalCost/1000).toLocaleString()+'백만원':'-';
+
+  // 인건비 검증
+  const card=document.getElementById('ss-verify-card');
+  if(card){
+    if(budget>0 && totalCost>0){
+      card.style.display='block';
+      const budgetKr=budget*100000; // 천원
+      const diff=budgetKr-totalCost;
+      const diffPct=Math.abs(diff/budgetKr*100).toFixed(1);
+      document.getElementById('ss-v-input').textContent=budget+'억원';
+      document.getElementById('ss-v-calc').textContent=Math.round(totalCost/100000*10)/10+'억원';
+      const diffEl=document.getElementById('ss-v-diff');
+      if(Math.abs(diff)<budgetKr*0.05){
+        diffEl.textContent='✅ 일치 (±'+diffPct+'%)';
+        diffEl.style.color='var(--green-text)';
+      } else if(diff>0){
+        diffEl.textContent='▲ 예산 여유 '+Math.round(diff/1000).toLocaleString()+'백만원 ('+diffPct+'%)';
+        diffEl.style.color='var(--blue-text)';
+      } else {
+        diffEl.textContent='▼ 예산 초과 '+Math.round(Math.abs(diff)/1000).toLocaleString()+'백만원 ('+diffPct+'%)';
+        diffEl.style.color='var(--red-text)';
+      }
+    } else {
+      card.style.display='none';
+    }
+  }
+}
+
 
 // ── 용역 CRUD ──
 async function addService(){
