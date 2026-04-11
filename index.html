@@ -2181,7 +2181,7 @@ function renderSvcOverview(){
       html+=`<tr class="${isOver?'tr-over':''}">
         <td style="font-weight:600;white-space:nowrap">${p.name}</td>
         <td style="color:var(--text3)">${p.rank}</td>
-        <td style="text-align:center;color:var(--text3);font-size:12px">${roleBadge}</td>
+        <td style="color:var(--text3);font-size:12px">${roleBadge}</td>
         <td style="font-size:11px;white-space:nowrap;max-width:320px;overflow:hidden;text-overflow:ellipsis">${svcNames||'-'}</td>
         <td style="text-align:center;font-weight:700;color:${totalColor}">${parseFloat(totalMM).toFixed(1)}MM</td>`;
       clients.forEach(client=>{
@@ -2356,7 +2356,7 @@ function renderSvcAgency(){
         html+=`<tr ${maxMm>12?'style="background:var(--red-bg)"':''}>
           <td style="font-weight:600;vertical-align:middle;white-space:nowrap">${person.name}</td>
           <td style="color:var(--text3);vertical-align:middle">${person.rank}</td>
-          <td style="text-align:center;vertical-align:middle">${roleBadge}</td>`;
+          <td style="vertical-align:middle">${roleBadge}</td>`;
         partMMs.forEach(mm=>{
           const color=mm>12?'var(--red-text)':mm>0?'var(--green-text)':'var(--text3)';
           html+=`<td style="text-align:center;vertical-align:middle;font-weight:${mm?'700':'400'};color:${color}">${mm?parseFloat(mm).toFixed(2)+'MM':'-'}</td>`;
