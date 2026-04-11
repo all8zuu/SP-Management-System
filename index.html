@@ -2151,10 +2151,10 @@ function renderSvcOverview(){
   // ── 인원별 현황 테이블 (선택 연도 기준) ──
   html+=`<div class="card"><div class="card-title">인원별 ${y}년 맨먼스 현황 <span class="card-title-sub">역할 · 참여 용역 · 기관합산 · 초과 경고</span></div>
   <div class="tbl-wrap"><table><thead><tr>
-    <th>이름</th><th>직급</th><th>역할</th><th>참여 용역</th>
-    <th style="text-align:center">전체MM</th>
-    ${clients.map(c=>`<th style="text-align:center">${c}<br><span style="font-size:9px;font-weight:400">기관합산</span></th>`).join('')}
-    <th style="text-align:center">경고</th>
+    <th style="vertical-align:middle">이름</th><th style="vertical-align:middle">직급</th><th style="vertical-align:middle">역할</th><th style="vertical-align:middle">참여 용역</th>
+    <th style="text-align:center;vertical-align:middle">전체MM</th>
+    ${clients.map(c=>`<th style="text-align:center;vertical-align:middle">${c} <span style="font-size:9px;font-weight:400;color:var(--text3)">(기관합산)</span></th>`).join('')}
+    <th style="text-align:center;vertical-align:middle">경고</th>
   </tr></thead><tbody>`;
 
   const displayPeople=S.people.filter(p=>S.svcParts.some(sp=>sp.pid===p.id&&sp.year===y&&sp.manmonth>0));
