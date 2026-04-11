@@ -98,6 +98,7 @@ body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text
 /* 테이블 */
 .tbl-wrap{overflow-x:auto}
 .tbl-wrap table th,.tbl-wrap table td{vertical-align:middle}
+.tr-over{background:var(--red-bg)}.tr-warn{background:var(--amber-bg)}
 table{width:100%;border-collapse:collapse;font-size:12px}
 th{text-align:left;padding:7px 10px;font-weight:600;font-size:10px;color:var(--text3);border-bottom:1.5px solid var(--border);white-space:nowrap;text-transform:uppercase;letter-spacing:.4px;background:var(--surface2);vertical-align:middle}
 td{padding:7px 10px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
@@ -2177,19 +2178,19 @@ function renderSvcOverview(){
       const mainRole=roles.includes('PM')?'PM':roles.includes('PL')?'PL':roles.includes('참여')?'참여':'';
       const roleBadge=mainRole==='PM'?`<span class="badge b-blue" style="font-size:9px">PM</span>`:mainRole==='PL'?`<span class="badge b-purple" style="font-size:9px">PL</span>`:mainRole==='참여'?`<span class="badge b-gray" style="font-size:9px">참여</span>`:'<span style="color:var(--text3);font-size:10px">-</span>';
       const totalColor=isOver?'var(--red-text)':totalMM>=8?'var(--amber-text)':'var(--green-text)';
-      html+=`<tr style="${isOver?'background:var(--red-bg)':''}">
-        <td style="font-weight:600;white-space:nowrap;vertical-align:middle">${p.name}</td>
-        <td style="color:var(--text3);vertical-align:middle">${p.rank}</td>
-        <td style="text-align:center;vertical-align:middle">${roleBadge}</td>
-        <td style="font-size:11px;vertical-align:middle;white-space:nowrap;max-width:320px;overflow:hidden;text-overflow:ellipsis">${svcNames||'-'}</td>
-        <td style="text-align:center;font-weight:700;color:${totalColor};vertical-align:middle">${parseFloat(totalMM).toFixed(1)}MM</td>`;
+      html+=`<tr class="${isOver?'tr-over':''}">
+        <td style="font-weight:600;white-space:nowrap">${p.name}</td>
+        <td style="color:var(--text3)">${p.rank}</td>
+        <td style="text-align:center">${roleBadge}</td>
+        <td style="font-size:11px;white-space:nowrap;max-width:320px;overflow:hidden;text-overflow:ellipsis">${svcNames||'-'}</td>
+        <td style="text-align:center;font-weight:700;color:${totalColor}">${parseFloat(totalMM).toFixed(1)}MM</td>`;
       clients.forEach(client=>{
         const mm=svcMmByYear(p.id,client,y);
         const c2=mm>12?'var(--red-text)':mm>0?'var(--green-text)':'var(--text3)';
         const bg2=mm>12?'var(--red-bg)':mm>0?'var(--green-bg)':'';
-        html+=`<td style="text-align:center;color:${c2};background:${bg2};font-weight:${mm?'700':'400'};vertical-align:middle">${mm?parseFloat(mm).toFixed(1)+'MM':'-'}</td>`;
+        html+=`<td style="text-align:center;color:${c2};background:${bg2};font-weight:${mm?'700':'400'}">${mm?parseFloat(mm).toFixed(1)+'MM':'-'}</td>`;
       });
-      html+=`<td style="text-align:center;vertical-align:middle">${isOver?`<span class="badge b-over">⚠ 초과</span>`:totalMM>=8?`<span class="badge b-warn">주의</span>`:`<span class="badge b-ok">정상</span>`}</td>
+      html+=`<td style="text-align:center">${isOver?`<span class="badge b-over">⚠ 초과</span>`:totalMM>=8?`<span class="badge b-warn">주의</span>`:`<span class="badge b-ok">정상</span>`}</td>
       </tr>`;
     });
   }
