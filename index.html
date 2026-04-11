@@ -2381,20 +2381,30 @@ function renderSvcAgency(){
 
     // ── 기관 합산 소계 (용역 2건 이상일 때만) ──
     if(clientSvcs.length>1){
+      // 기관 내 모든 용역에 실제 참여한 pid 목록 (S.people 무관)
+      const allClientPids=[...new Set(
+        S.svcParts.filter(sp=>clientSvcs.some(s=>s.id===sp.svcId)).map(sp=>sp.pid)
+      )];
       html+=`<div style="background:var(--surface3);border-radius:var(--r);padding:8px 12px;margin-top:4px">
         <div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:6px">📊 ${client} 기관 합산</div>
         <div class="tbl-wrap"><table><thead><tr>
           <th style="vertical-align:middle">이름</th><th style="vertical-align:middle">직급</th>`;
       years.forEach(y=>html+=`<th style="text-align:center;vertical-align:middle">${y}년 합산</th>`);
       html+=`<th style="text-align:center;vertical-align:middle">총합산MM</th></tr></thead><tbody>`;
-      S.people.forEach(p=>{
-        const mms=years.map(y=>svcMmByYear(p.id,client,y));
+      allClientPids.forEach(pid=>{
+        // 현직·퇴사자 모두에서 인원 정보 조회
+        const person=S.people.find(x=>x.id===pid)||(S.retiredList||[]).find(x=>x.id===pid);
+        if(!person)return;
+        const mms=years.map(y=>
+          S.svcParts.filter(sp=>sp.pid===pid&&sp.year===y&&clientSvcs.some(s=>s.id===sp.svcId))
+            .reduce((sum,sp)=>sum+sp.manmonth,0)
+        );
         if(mms.every(m=>m===0))return;
         const totalMm=mms.reduce((s,m)=>s+m,0);
         const maxMm=Math.max(...mms);
-        html+=`<tr ${maxMm>12?'style="background:var(--red-bg)"':''}>
-          <td style="font-weight:600;white-space:nowrap;vertical-align:middle">${p.name}</td>
-          <td style="color:var(--text3);vertical-align:middle">${p.rank}</td>`;
+        html+=`<tr ${maxMm>12?'class="tr-over"':''}>
+          <td style="font-weight:600;white-space:nowrap;vertical-align:middle">${person.name}</td>
+          <td style="color:var(--text3);vertical-align:middle">${person.rank}</td>`;
         mms.forEach(mm=>{
           const color=mm>12?'var(--red-text)':mm>0?'var(--green-text)':'var(--text3)';
           html+=`<td style="text-align:center;vertical-align:middle;font-weight:${mm?'700':'400'};color:${color}">${mm?parseFloat(mm).toFixed(2)+'MM':'-'}</td>`;
@@ -2404,6 +2414,19 @@ function renderSvcAgency(){
           ${maxMm>12?'<div style="font-size:9px;color:var(--red-text);margin-top:2px">⚠연 12MM 초과</div>':''}
         </td></tr>`;
       });
+      // 기관 합산 연도별 합계행
+      const clientYearTotals=years.map(y=>
+        S.svcParts.filter(sp=>sp.year===y&&clientSvcs.some(s=>s.id===sp.svcId))
+          .reduce((sum,sp)=>sum+sp.manmonth,0)
+      );
+      const clientGrandTotal=clientYearTotals.reduce((s,m)=>s+m,0);
+      html+=`<tr style="background:var(--surface2);border-top:1.5px solid var(--border2);font-weight:600">
+        <td colspan="2" style="font-size:11px;color:var(--text2)">합계</td>`;
+      clientYearTotals.forEach(mm=>{
+        html+=`<td style="text-align:center;color:${mm>0?'var(--green-text)':'var(--text3)'}">${mm?parseFloat(mm).toFixed(2)+'MM':'-'}</td>`;
+      });
+      html+=`<td style="text-align:center;background:var(--blue-bg);font-weight:700;color:var(--blue-text)">${parseFloat(clientGrandTotal).toFixed(2)}MM</td>
+      </tr>`;
       html+=`</tbody></table></div></div>`;
     }
 
