@@ -2150,7 +2150,7 @@ function renderSvcOverview(){
 
   // ── 인원별 현황 테이블 (선택 연도 기준) ──
   html+=`<div class="card"><div class="card-title">인원별 ${y}년 맨먼스 현황 <span class="card-title-sub">역할 · 참여 용역 · 기관합산 · 초과 경고</span></div>
-  <div class="tbl-wrap"><table><thead><tr>
+  <div class="tbl-wrap"><table style="vertical-align:middle"><thead><tr>
     <th style="vertical-align:middle">이름</th><th style="vertical-align:middle">직급</th><th style="vertical-align:middle">역할</th><th style="vertical-align:middle">참여 용역</th>
     <th style="text-align:center;vertical-align:middle">전체MM</th>
     ${clients.map(c=>`<th style="text-align:center;vertical-align:middle">${c} <span style="font-size:9px;font-weight:400;color:var(--text3)">(기관합산)</span></th>`).join('')}
@@ -2180,7 +2180,7 @@ function renderSvcOverview(){
         <td style="font-weight:600;white-space:nowrap;vertical-align:middle">${p.name}</td>
         <td style="color:var(--text3);vertical-align:middle">${p.rank}</td>
         <td style="text-align:center;vertical-align:middle">${roleBadge}</td>
-        <td style="font-size:11px;vertical-align:middle">${svcNames||'-'}</td>
+        <td style="font-size:11px;vertical-align:middle;white-space:nowrap;max-width:320px;overflow:hidden;text-overflow:ellipsis">${svcNames||'-'}</td>
         <td style="text-align:center;font-weight:700;color:${totalColor};vertical-align:middle">${parseFloat(totalMM).toFixed(1)}MM</td>`;
       clients.forEach(client=>{
         const mm=svcMmByYear(p.id,client,y);
@@ -2313,35 +2313,99 @@ function renderSvcAgency(){
   let html='';
   clients.forEach(client=>{
     const clientSvcs=S.services.filter(s=>s.client===client);
-    html+=`<div class="card" style="margin-bottom:1.2rem"><div class="card-title">🏢 ${client} <span class="card-title-sub">${clientSvcs.length}건 용역</span></div>`;
-    // 용역 목록
-    html+=`<div style="margin-bottom:12px;display:flex;gap:6px;flex-wrap:wrap">`;
-    clientSvcs.forEach(s=>{
-      html+=`<span class="badge ${{수행중:'b-ok',협약중:'b-blue',계획중:'b-purple',종료:'b-gray'}[s.status]||'b-gray'}">${s.name} (${s.months}개월)</span>`;
-    });
-    html+=`</div>`;
-    // 인원별 기관 합산
-    html+=`<div class="tbl-wrap"><table><thead><tr><th>이름</th><th>직급</th><th style="text-align:center">역할</th>`;
-    years.forEach(y=>html+=`<th style="text-align:center">${y}년 합산MM</th>`);
-    html+=`<th style="text-align:center">합산MM</th></tr></thead><tbody>`;
-    S.people.forEach(p=>{
-      const mms=years.map(y=>svcMmByYear(p.id,client,y));
-      if(mms.every(m=>m===0))return;
-      const totalMm=mms.reduce((s,m)=>s+m,0);
-      const maxMm=Math.max(...mms); // 12MM 초과 경고용으로만 유지
-      // 이 기관 용역에서의 역할 (복수 용역 있으면 첫 번째)
-      const clientSvcs=S.services.filter(s=>s.client===client);
-      const anyPart=S.svcParts.find(sp=>sp.pid===p.id&&clientSvcs.some(s=>s.id===sp.svcId));
-      const role=anyPart?anyPart.role||'':'';
-      const roleBadge=role==='PM'?`<span class="badge b-blue" style="font-size:9px">PM</span>`:role==='PL'?`<span class="badge b-purple" style="font-size:9px">PL</span>`:role==='참여'?`<span class="badge b-gray" style="font-size:9px">참여</span>`:'<span style="color:var(--text3);font-size:10px">-</span>';
-      html+=`<tr ${maxMm>12?'style="background:var(--red-bg)"':''}><td style="font-weight:600">${p.name}</td><td style="color:var(--text3)">${p.rank}</td><td style="text-align:center">${roleBadge}</td>`;
-      mms.forEach(mm=>{
-        const color=mm>12?'var(--red-text)':mm>0?'var(--green-text)':'var(--text3)';
-        html+=`<td style="text-align:center;font-weight:${mm?'700':'400'};color:${color}">${mm?parseFloat(mm).toFixed(2)+'MM':'-'}</td>`;
+    html+=`<div class="card" style="margin-bottom:1.2rem">
+      <div class="card-title">🏢 ${client} <span class="card-title-sub">${clientSvcs.length}건 용역</span></div>`;
+
+    // ── 용역별 개별 테이블 ──
+    clientSvcs.forEach(svc=>{
+      const svcPids=[...new Set(S.svcParts.filter(sp=>sp.svcId===svc.id).map(sp=>sp.pid))];
+      if(!svcPids.length)return;
+      const statusBadge={수행중:'b-ok',협약중:'b-blue',계획중:'b-purple',종료:'b-gray'}[svc.status]||'b-gray';
+
+      html+=`<div style="margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;padding:6px 10px;background:var(--surface2);border-radius:var(--r)">
+          <span class="badge ${statusBadge}" style="font-size:10px">${svc.status}</span>
+          <span style="font-size:12px;font-weight:600">${svc.name}</span>
+          <span style="font-size:11px;color:var(--text3)">${svc.months}개월 · ${svc.client}</span>
+        </div>
+        <div class="tbl-wrap"><table><thead><tr>
+          <th style="vertical-align:middle">이름</th>
+          <th style="vertical-align:middle">직급</th>
+          <th style="text-align:center;vertical-align:middle">역할</th>`;
+      years.forEach(y=>html+=`<th style="text-align:center;vertical-align:middle">${y}년 MM</th>`);
+      html+=`<th style="text-align:center;vertical-align:middle">합산MM</th></tr></thead><tbody>`;
+
+      svcPids.forEach(pid=>{
+        const person=S.people.find(x=>x.id===pid);if(!person)return;
+        const partMMs=years.map(y=>{
+          const p=S.svcParts.find(sp=>sp.pid===pid&&sp.svcId===svc.id&&sp.year===y);
+          return p?p.manmonth:0;
+        });
+        const totalMm=partMMs.reduce((s,m)=>s+m,0);
+        if(!totalMm)return;
+        const maxMm=Math.max(...partMMs);
+        // 이 용역에서의 역할
+        const anyPart=S.svcParts.find(sp=>sp.pid===pid&&sp.svcId===svc.id);
+        const role=anyPart?anyPart.role||'':'';
+        const roleBadge=role==='PM'?`<span class="badge b-blue" style="font-size:9px">PM</span>`:
+          role==='PL'?`<span class="badge b-purple" style="font-size:9px">PL</span>`:
+          role==='참여'?`<span class="badge b-gray" style="font-size:9px">참여</span>`:
+          '<span style="color:var(--text3);font-size:10px">-</span>';
+        html+=`<tr ${maxMm>12?'style="background:var(--red-bg)"':''}>
+          <td style="font-weight:600;vertical-align:middle;white-space:nowrap">${person.name}</td>
+          <td style="color:var(--text3);vertical-align:middle">${person.rank}</td>
+          <td style="text-align:center;vertical-align:middle">${roleBadge}</td>`;
+        partMMs.forEach(mm=>{
+          const color=mm>12?'var(--red-text)':mm>0?'var(--green-text)':'var(--text3)';
+          html+=`<td style="text-align:center;vertical-align:middle;font-weight:${mm?'700':'400'};color:${color}">${mm?parseFloat(mm).toFixed(2)+'MM':'-'}</td>`;
+        });
+        html+=`<td style="text-align:center;vertical-align:middle;background:var(--blue-bg)">
+          <span class="badge b-blue" style="font-weight:700">${parseFloat(totalMm).toFixed(2)}MM</span>
+          ${maxMm>12?'<div style="font-size:9px;color:var(--red-text);margin-top:2px">⚠연 12MM 초과</div>':''}
+        </td></tr>`;
       });
-      html+=`<td style="text-align:center;background:var(--blue-bg)"><span class="badge b-blue" style="font-weight:700">${parseFloat(totalMm).toFixed(2)}MM</span>${maxMm>12?'<div style="font-size:9px;color:var(--red-text);margin-top:2px">⚠연 12MM 초과</div>':''}</td></tr>`;
+
+      // 용역 소계행
+      const svcTotals=years.map(y=>S.svcParts.filter(sp=>sp.svcId===svc.id&&sp.year===y).reduce((s,sp)=>s+sp.manmonth,0));
+      const svcGrandTotal=svcTotals.reduce((s,m)=>s+m,0);
+      html+=`<tr style="background:var(--surface2);border-top:1.5px solid var(--border2);font-weight:600">
+        <td colspan="3" style="font-size:11px;color:var(--text2)">소계</td>`;
+      svcTotals.forEach(mm=>{
+        html+=`<td style="text-align:center;color:${mm>0?'var(--green-text)':'var(--text3)'}">${mm?parseFloat(mm).toFixed(2)+'MM':'-'}</td>`;
+      });
+      html+=`<td style="text-align:center;background:var(--blue-bg);font-weight:700;color:var(--blue-text)">${parseFloat(svcGrandTotal).toFixed(2)}MM</td>
+      </tr></tbody></table></div></div>`;
     });
-    html+=`</tbody></table></div></div>`;
+
+    // ── 기관 합산 소계 (용역 2건 이상일 때만) ──
+    if(clientSvcs.length>1){
+      html+=`<div style="background:var(--surface3);border-radius:var(--r);padding:8px 12px;margin-top:4px">
+        <div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:6px">📊 ${client} 기관 합산</div>
+        <div class="tbl-wrap"><table><thead><tr>
+          <th style="vertical-align:middle">이름</th><th style="vertical-align:middle">직급</th>`;
+      years.forEach(y=>html+=`<th style="text-align:center;vertical-align:middle">${y}년 합산</th>`);
+      html+=`<th style="text-align:center;vertical-align:middle">총합산MM</th></tr></thead><tbody>`;
+      S.people.forEach(p=>{
+        const mms=years.map(y=>svcMmByYear(p.id,client,y));
+        if(mms.every(m=>m===0))return;
+        const totalMm=mms.reduce((s,m)=>s+m,0);
+        const maxMm=Math.max(...mms);
+        html+=`<tr ${maxMm>12?'style="background:var(--red-bg)"':''}>
+          <td style="font-weight:600;white-space:nowrap;vertical-align:middle">${p.name}</td>
+          <td style="color:var(--text3);vertical-align:middle">${p.rank}</td>`;
+        mms.forEach(mm=>{
+          const color=mm>12?'var(--red-text)':mm>0?'var(--green-text)':'var(--text3)';
+          html+=`<td style="text-align:center;vertical-align:middle;font-weight:${mm?'700':'400'};color:${color}">${mm?parseFloat(mm).toFixed(2)+'MM':'-'}</td>`;
+        });
+        html+=`<td style="text-align:center;vertical-align:middle;background:var(--blue-bg)">
+          <span class="badge b-blue" style="font-weight:700">${parseFloat(totalMm).toFixed(2)}MM</span>
+          ${maxMm>12?'<div style="font-size:9px;color:var(--red-text);margin-top:2px">⚠연 12MM 초과</div>':''}
+        </td></tr>`;
+      });
+      html+=`</tbody></table></div></div>`;
+    }
+
+    html+=`</div>`;
   });
   document.getElementById('svc-agency-content').innerHTML=html;
 }
