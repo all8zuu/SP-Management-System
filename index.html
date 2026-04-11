@@ -353,7 +353,7 @@ hr{border:none;border-top:1px solid var(--border);margin:12px 0}
         <div class="g3" style="margin-bottom:10px">
           <div class="form-row"><label class="form-label">과제명</label><input type="text" id="sim-name" placeholder="신규 R&D 과제명"></div>
           <div class="form-row"><label class="form-label">발주기관</label><input type="text" id="sim-client" placeholder="과기부"></div>
-          <div class="form-row"><label class="form-label">기준 연도</label><input type="number" id="sim-year" value="2026"></div>
+          <div class="form-row"><label class="form-label">기준 연도</label><select id="sim-year" onchange="renderSim();simCalc()"><option value="2026">2026년</option></select></div>
         </div>
         <div class="g4">
           <div class="form-row"><label class="form-label">정부지원금(억원)</label><input type="number" id="sim-gov" placeholder="40" step="0.1" oninput="simCalc()"></div>
@@ -1146,7 +1146,10 @@ function renderDetail(){
 
     pids.forEach(pid=>{
       const person=S.people.find(x=>x.id===pid);if(!person)return;
-      html+=`<tr><td class="name-col">${person.name}</td><td class="rank-col">${person.rank}</td>`;
+      const anyPart=S.parts.find(p=>p.pid===pid&&p.projId===pr.id);
+      const role=anyPart?anyPart.role||'':'';
+      const roleBadge=role==='PM'?`<span class="badge b-blue" style="font-size:9px;padding:1px 5px;margin-left:3px">PM</span>`:role==='PL'?`<span class="badge b-purple" style="font-size:9px;padding:1px 5px;margin-left:3px">PL</span>`:'';
+      html+=`<tr><td class="name-col">${person.name}${roleBadge}</td><td class="rank-col">${person.rank}</td>`;
       years.forEach(y=>{
         const part=S.parts.find(p=>p.pid===pid&&p.projId===pr.id&&p.year===y);
         const rate=part?part.rate:0;
@@ -1421,6 +1424,18 @@ function renderPeople(){
 
 // 시뮬레이션
 function renderSim(){
+  // 연도 select 동적 채우기
+  const yearSel=document.getElementById('sim-year');
+  if(yearSel){
+    const curVal=yearSel.value;
+    const years=getYears();
+    // 현재 연도 포함 없으면 추가
+    const curYear=new Date().getFullYear();
+    if(!years.includes(curYear))years.push(curYear);
+    if(!years.includes(curYear+1))years.push(curYear+1);
+    years.sort();
+    yearSel.innerHTML=years.map(y=>`<option value="${y}" ${String(y)===curVal?'selected':''}>${y}년</option>`).join('');
+  }
   const simYear=parseInt(document.getElementById('sim-year').value)||2026;
   document.getElementById('sim-people-list').innerHTML=S.people.map(p=>{
     const t=pTotY(p.id,simYear);const rem=Math.max(0,100-t);const color=rem>20?'var(--text)':rem>0?'var(--amber)':'var(--text3)';
@@ -2173,11 +2188,15 @@ function renderSvcManmonth(){
       // 해당 연도 기관 전체 경고
       html+=`<th style="text-align:center">${y}년<br><span style="font-size:9px;font-weight:400">맨먼스</span></th>`;
     });
-    html+=`<th style="text-align:center;min-width:90px">기간합산MM</th><th style="text-align:center;min-width:120px">기관합산경고</th><th style="min-width:50px"></th></tr></thead><tbody>`;
+    html+=`<th style="text-align:center;min-width:80px">역할</th><th style="text-align:center;min-width:90px">기간합산MM</th><th style="text-align:center;min-width:120px">기관합산경고</th><th style="min-width:50px"></th></tr></thead><tbody>`;
 
     pids.forEach(pid=>{
       const person=S.people.find(x=>x.id===pid);if(!person)return;
-      html+=`<tr><td style="font-weight:600">${person.name}</td><td style="color:var(--text3)">${person.rank}</td>`;
+      const anyPart=S.svcParts.find(p=>p.pid===pid&&p.svcId===svc.id);
+      const curRole=anyPart?anyPart.role||'':'';
+      const roleBadge=curRole==='PM'?`<span class="badge b-blue" style="font-size:9px;padding:1px 5px;margin-left:3px">PM</span>`:curRole==='PL'?`<span class="badge b-purple" style="font-size:9px;padding:1px 5px;margin-left:3px">PL</span>`:'';
+      html+=`<tr><td style="font-weight:600">${person.name}${roleBadge}</td><td style="color:var(--text3)">${person.rank}</td>`;
+      html+=`<td style="text-align:center"><select style="font-size:10px;padding:2px 4px;border:1px solid var(--border2);border-radius:4px;background:var(--surface)" onchange="updateSvcRole(${pid},${svc.id},this.value)"><option value="" ${curRole===''?'selected':''}>-</option><option value="PM" ${curRole==='PM'?'selected':''}>PM</option><option value="PL" ${curRole==='PL'?'selected':''}>PL</option><option value="참여" ${curRole==='참여'?'selected':''}>참여</option></select></td>`;
       years.forEach(y=>{
         const part=S.svcParts.find(p=>p.pid===pid&&p.svcId===svc.id&&p.year===y);
         const mm=part?part.manmonth:0;
@@ -2234,14 +2253,19 @@ function renderSvcAgency(){
     });
     html+=`</div>`;
     // 인원별 기관 합산
-    html+=`<div class="tbl-wrap"><table><thead><tr><th>이름</th><th>직급</th>`;
+    html+=`<div class="tbl-wrap"><table><thead><tr><th>이름</th><th>직급</th><th style="text-align:center">역할</th>`;
     years.forEach(y=>html+=`<th style="text-align:center">${y}년 합산MM</th>`);
     html+=`<th style="text-align:center">최대</th></tr></thead><tbody>`;
     S.people.forEach(p=>{
       const mms=years.map(y=>svcMmByYear(p.id,client,y));
       if(mms.every(m=>m===0))return;
       const maxMm=Math.max(...mms);
-      html+=`<tr ${maxMm>12?'style="background:var(--red-bg)"':''}><td style="font-weight:600">${p.name}</td><td style="color:var(--text3)">${p.rank}</td>`;
+      // 이 기관 용역에서의 역할 (복수 용역 있으면 첫 번째)
+      const clientSvcs=S.services.filter(s=>s.client===client);
+      const anyPart=S.svcParts.find(sp=>sp.pid===p.id&&clientSvcs.some(s=>s.id===sp.svcId));
+      const role=anyPart?anyPart.role||'':'';
+      const roleBadge=role==='PM'?`<span class="badge b-blue" style="font-size:9px">PM</span>`:role==='PL'?`<span class="badge b-purple" style="font-size:9px">PL</span>`:role==='참여'?`<span class="badge b-gray" style="font-size:9px">참여</span>`:'<span style="color:var(--text3);font-size:10px">-</span>';
+      html+=`<tr ${maxMm>12?'style="background:var(--red-bg)"':''}><td style="font-weight:600">${p.name}</td><td style="color:var(--text3)">${p.rank}</td><td style="text-align:center">${roleBadge}</td>`;
       mms.forEach(mm=>{
         const color=mm>12?'var(--red-text)':mm>0?'var(--green-text)':'var(--text3)';
         html+=`<td style="text-align:center;font-weight:${mm?'700':'400'};color:${color}">${mm?parseFloat(mm).toFixed(2)+'MM':'-'}</td>`;
@@ -2257,8 +2281,8 @@ function renderSvcAgency(){
 function renderSvcSim(){
   const svcYears=getSvcYears();
   const curYear=new Date().getFullYear();
-  const yearOpts=[...new Set([...svcYears, curYear, curYear+1, curYear+2])].sort()
-    .map(y=>`<option value="${y}">${y}년</option>`).join('');
+  const allYears=[...new Set([...svcYears, curYear, curYear+1, curYear+2])].sort();
+  const yearOpts=allYears.map(y=>`<option value="${y}">${y}년</option>`).join('');
 
   document.getElementById('svc-sim-content').innerHTML=`
   <div class="card" style="margin-bottom:1rem">
@@ -2273,6 +2297,12 @@ function renderSvcSim(){
       <div class="form-row"><label class="form-label">총 인건비(억원)</label>
         <input type="number" id="ss-budget" placeholder="예) 3.5" step="0.1" oninput="svcSimUpdate()"></div>
     </div>
+    <div class="g2" style="margin-top:10px">
+      <div class="form-row"><label class="form-label">시작 연도</label>
+        <select id="ss-start-year" onchange="svcSimRebuild()">${yearOpts}</select></div>
+      <div class="form-row"><label class="form-label">종료 연도</label>
+        <select id="ss-end-year" onchange="svcSimRebuild()">${allYears.map(y=>`<option value="${y}" ${y===allYears[allYears.length-1]?'selected':''}>${y}년</option>`).join('')}</select></div>
+    </div>
   </div>
 
   <div class="card" style="margin-bottom:1rem">
@@ -2280,10 +2310,9 @@ function renderSvcSim(){
       <span class="card-title-sub">기존 용역 MM + 신규 합산 → 12MM 초과 시 경고</span>
     </div>
     <div class="tbl-wrap"><table id="ss-mm-table">
-      <thead><tr>
+      <thead id="ss-mm-head"><tr>
         <th>이름</th><th>직급</th>
-        ${yearOpts.replace(/<option value="(\d+)">[^<]+<\/option>/g,
-          (m,y)=>`<th style="text-align:center">${y}년<div style="font-size:9px;font-weight:400;color:var(--text3)">신규MM</div></th>`)}
+        ${allYears.map(y=>`<th style="text-align:center">${y}년<div style="font-size:9px;font-weight:400;color:var(--text3)">신규MM</div></th>`).join('')}
         <th style="text-align:center">기간합산MM</th>
         <th style="text-align:center">인건비(천원)</th>
         <th style="text-align:center">12MM 초과</th>
@@ -2291,7 +2320,7 @@ function renderSvcSim(){
       <tbody id="ss-mm-body"></tbody>
       <tfoot><tr>
         <td colspan="2" style="font-weight:700;text-align:right;font-size:12px">합계</td>
-        ${yearOpts.replace(/<option[^>]+>[^<]+<\/option>/g,'<td></td>')}
+        ${allYears.map(()=>'<td></td>').join('')}
         <td id="ss-total-mm" style="text-align:center;font-weight:700"></td>
         <td id="ss-total-cost" style="text-align:center;font-weight:700;color:var(--green-text)"></td>
         <td></td>
@@ -2345,6 +2374,27 @@ function svcSimBuildRows(years){
       <td id="ss-warn-${p.id}" style="text-align:center"></td>
     </tr>`;
   }).join('');
+}
+function svcSimRebuild(){
+  const startY=parseInt(document.getElementById('ss-start-year')?.value)||new Date().getFullYear();
+  const endY=parseInt(document.getElementById('ss-end-year')?.value)||startY;
+  const svcYears=getSvcYears();
+  const curYear=new Date().getFullYear();
+  const allYears=[...new Set([...svcYears,curYear,curYear+1,curYear+2])].sort();
+  const filteredYears=allYears.filter(y=>y>=startY&&y<=Math.max(startY,endY));
+  if(!filteredYears.length)return;
+  // 헤더 재구성
+  const head=document.getElementById('ss-mm-head');
+  if(head){
+    head.innerHTML=`<tr><th>이름</th><th>직급</th>${filteredYears.map(y=>`<th style="text-align:center">${y}년<div style="font-size:9px;font-weight:400;color:var(--text3)">신규MM</div></th>`).join('')}<th style="text-align:center">기간합산MM</th><th style="text-align:center">인건비(천원)</th><th style="text-align:center">12MM 초과</th></tr>`;
+  }
+  // tfoot 재구성
+  const tfoot=document.querySelector('#ss-mm-table tfoot tr');
+  if(tfoot){
+    tfoot.innerHTML=`<td colspan="2" style="font-weight:700;text-align:right;font-size:12px">합계</td>${filteredYears.map(()=>'<td></td>').join('')}<td id="ss-total-mm" style="text-align:center;font-weight:700"></td><td id="ss-total-cost" style="text-align:center;font-weight:700;color:var(--green-text)"></td><td></td>`;
+  }
+  svcSimBuildRows(filteredYears);
+  svcSimUpdate();
 }
 
 function svcSimUpdate(){
@@ -2469,6 +2519,12 @@ async function updateSvcPart(pid,svcId,year,val,el){
   if(el){el.style.borderColor='var(--amber)';setTimeout(()=>{el.style.borderColor='var(--green)';setTimeout(()=>el.style.borderColor='',2000)},300);}
   renderSvcOverview();renderSvcAgency();
   await apiPost({action:'updateSvcPart',pid,svcId,year,manmonth:mm});
+}
+async function updateSvcRole(pid,svcId,role){
+  // 해당 인원의 이 용역 모든 연도 rows에 role 업데이트
+  S.svcParts.filter(p=>p.pid===pid&&p.svcId===svcId).forEach(p=>p.role=role);
+  renderSvcManmonth();renderSvcAgency();
+  await apiPost({action:'updateSvcRole',pid,svcId,role});
 }
 async function removeSvcPerson(pid,svcId){
   if(!confirm('이 인원을 이 용역에서 삭제할까요?'))return;
