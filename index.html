@@ -589,7 +589,7 @@ function sw(tab, module){
   // 모든 section 숨기기
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
   // 클릭된 nav-item 활성화
-  const activeClass = module==='service'?'active-green':module==='kosa'?'active-amber':module==='cert'?'active-purple':module==='people'?'active-blue':'active';
+  const activeClass = module==='service'?'active-green':module==='kosa'?'active-amber':module==='cert'?'active-purple':module==='people'?'active-purple':'active';
   event.currentTarget.classList.add(activeClass);
   // 해당 섹션 표시
   const el=document.getElementById('tab-'+tab);
@@ -1396,7 +1396,7 @@ function renderPeople(){
     const svcMM=S.svcParts.filter(x=>x.pid===p.id&&x.year===year).reduce((s,x)=>s+x.manmonth,0);
     const showSal2=sessionStorage.getItem('show_salary')==='1';
     html+=`<tr>
-      <td style="font-weight:600">${p.name}</td>
+      <td style="font-weight:600;white-space:nowrap;min-width:52px">${p.name}</td>
       <td>
         <select style="font-size:11px;padding:2px 5px;border:1px solid var(--border2);border-radius:4px;background:var(--surface)" onchange="updPersonField(${p.id},'rank',this.value)">
           ${['대표','부사장','본부장','이사','부장','차장','과장','대리','위원','PM'].map(r=>`<option value="${r}" ${p.rank===r?'selected':''}>${r}</option>`).join('')}
@@ -1411,7 +1411,7 @@ function renderPeople(){
       <td style="text-align:center;font-size:11px;font-weight:600;color:${svcMM>0?'var(--green-text)':'var(--text3)'}">${svcMM?svcMM.toFixed(1)+'MM':'-'}</td>
       <td><span class="badge ${st.c}">${st.l}</span></td>
       ${showSal2?`<td style="color:var(--red-text);font-size:11px">${p.salary.toLocaleString()}</td>`:''}
-      <td style="display:flex;gap:4px;align-items:center">
+      <td style="display:flex;gap:4px;align-items:center;white-space:nowrap">
         <button class="btn btn-sm" style="background:var(--amber-bg);color:var(--amber-text);border:1px solid var(--border)" 
           onclick="retirePerson(${p.id})" title="퇴사 처리 — 퇴사자 명단으로 이동">퇴사</button>
         <button class="btn btn-danger btn-sm" onclick="delPerson(${p.id})" title="완전 삭제 — 연동 데이터 모두 삭제됨">삭제</button>
@@ -2073,70 +2073,138 @@ function getSvcYears(){
 }
 
 // ── 용역 대시보드 ──
+let svcDashYear = null; // 선택된 연도 (null이면 자동)
+
 function renderSvcOverview(){
   const years=getSvcYears();
   if(!S.services.length){
     document.getElementById('svc-overview-content').innerHTML=`
-      <div class="info-box">등록된 용역이 없습니다. 연차별 맨먼스 입력 탭에서 용역을 추가해주세요.</div>`;
+      <div class="info-box">등록된 용역이 없습니다. 용역별 맨먼스 관리 탭에서 용역을 추가해주세요.</div>`;
     return;
   }
-  // 기관별 맨먼스 집계
+  // 연도 초기화
+  if(!svcDashYear||!years.includes(svcDashYear)) svcDashYear=years[years.length-1]||new Date().getFullYear();
+  const y=svcDashYear;
+
   const clients=[...new Set(S.services.map(s=>s.client))];
-  let html=`<div class="kpi-grid" style="grid-template-columns:repeat(3,minmax(0,1fr))">
-    <div class="kpi green"><div class="kpi-label">전체 용역</div><div class="kpi-value">${S.services.length}<span style="font-size:14px;font-weight:400">건</span></div></div>
-    <div class="kpi blue"><div class="kpi-label">발주기관</div><div class="kpi-value">${clients.length}<span style="font-size:14px;font-weight:400">개</span></div></div>
-    <div class="kpi ${S.people.some(p=>getSvcYears().some(y=>svcMmTotal(p.id,y)>12))?'red':'green'}"><div class="kpi-label">12MM 초과 인원</div><div class="kpi-value" style="color:${S.people.some(p=>getSvcYears().some(y=>svcMmTotal(p.id,y)>12))?'var(--red)':'var(--green)'}">${S.people.filter(p=>getSvcYears().some(y=>svcMmTotal(p.id,y)>12)).length}<span style="font-size:14px;font-weight:400">명</span></div></div>
+
+  // ── KPI 계산 ──
+  const activeSvcs=S.services.filter(s=>s.status!=='종료');
+  const investedPids=[...new Set(S.svcParts.filter(sp=>sp.year===y&&sp.manmonth>0).map(sp=>sp.pid))];
+  const totalMMThisYear=S.svcParts.filter(sp=>sp.year===y).reduce((s,sp)=>s+sp.manmonth,0);
+  const overPeople=S.people.filter(p=>svcMmTotal(p.id,y)>12);
+  const overClients=clients.filter(c=>{
+    return S.people.some(p=>svcMmByYear(p.id,c,y)>12);
+  });
+
+  // ── 연도 탭 ──
+  let html=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:12px 16px;margin-bottom:1.2rem">
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+      <span style="font-size:11px;font-weight:600;color:var(--text2);min-width:28px">연도</span>
+      <div style="display:flex;gap:4px;flex-wrap:wrap">
+        ${years.map(yr=>`<button onclick="svcDashYear=${yr};renderSvcOverview()" style="padding:4px 12px;font-size:11px;border-radius:var(--r);border:1px solid ${yr===y?'var(--green)':'var(--border2)'};background:${yr===y?'var(--green)':'var(--surface)'};color:${yr===y?'#fff':'var(--text2)'};cursor:pointer;font-family:inherit;font-weight:${yr===y?'600':'400'}">${yr}년</button>`).join('')}
+      </div>
+    </div>
   </div>`;
 
-  // 기관별 현황 카드
-  html+=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem;margin-bottom:1rem">`;
+  // ── KPI 카드 ──
+  html+=`<div class="kpi-grid" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:1.2rem">
+    <div class="kpi green"><div class="kpi-label">전체 용역</div><div class="kpi-value">${S.services.length}<span style="font-size:14px;font-weight:400">건</span></div><div class="kpi-sub">수행중 ${activeSvcs.length}건</div></div>
+    <div class="kpi blue"><div class="kpi-label">${y}년 투입 인원</div><div class="kpi-value">${investedPids.length}<span style="font-size:14px;font-weight:400">명</span></div><div class="kpi-sub">전체 ${S.people.length}명 중</div></div>
+    <div class="kpi amber"><div class="kpi-label">${y}년 총 MM</div><div class="kpi-value" style="font-size:20px">${parseFloat(totalMMThisYear).toFixed(1)}<span style="font-size:14px;font-weight:400">MM</span></div><div class="kpi-sub">인원 평균 ${investedPids.length?parseFloat(totalMMThisYear/investedPids.length).toFixed(1):'-'}MM</div></div>
+    <div class="kpi ${overPeople.length?'red':'green'}"><div class="kpi-label">12MM 초과</div><div class="kpi-value" style="color:${overPeople.length?'var(--red)':'var(--green)'}">${overPeople.length}<span style="font-size:14px;font-weight:400">명</span></div><div class="kpi-sub">${overPeople.length?overPeople.map(p=>p.name).join(', '):'전원 정상'}</div></div>
+  </div>`;
+
+  // ── 기관별 요약 카드 ──
+  html+=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-bottom:1.2rem">`;
   clients.forEach(client=>{
     const clientSvcs=S.services.filter(s=>s.client===client);
-    html+=`<div class="card"><div class="card-title">🏢 ${client} <span class="card-title-sub">${clientSvcs.length}건</span></div>`;
-    years.forEach(y=>{
-      const overPeople=S.people.filter(p=>{
-        const mm=svcMmByYear(p.id,client,y);
-        return mm>0&&mm>12;
-      });
-      const totalPeople=[...new Set(S.svcParts.filter(sp=>sp.year===y&&clientSvcs.some(s=>s.id===sp.svcId)).map(sp=>sp.pid))].length;
-      html+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border)">
-        <span style="font-size:11px;color:var(--text2)">${y}년</span>
-        <div style="display:flex;align-items:center;gap:8px">
-          <span style="font-size:11px">${totalPeople}명 투입</span>
-          ${overPeople.length?`<span class="badge b-over">⚠ ${overPeople.map(p=>p.name).join(', ')} 초과</span>`:'<span class="badge b-ok">정상</span>'}
+    const clientPids=[...new Set(S.svcParts.filter(sp=>sp.year===y&&sp.manmonth>0&&clientSvcs.some(s=>s.id===sp.svcId)).map(sp=>sp.pid))];
+    const clientTotalMM=S.svcParts.filter(sp=>sp.year===y&&clientSvcs.some(s=>s.id===sp.svcId)).reduce((s,sp)=>s+sp.manmonth,0);
+    const clientOver=S.people.filter(p=>svcMmByYear(p.id,client,y)>12);
+    const pmPart=S.svcParts.find(sp=>clientSvcs.some(s=>s.id===sp.svcId)&&sp.role==='PM');
+    const pm=pmPart?S.people.find(p=>p.id===pmPart.pid):null;
+    html+=`<div class="card" style="margin-bottom:0">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-size:12px;font-weight:700">🏢 ${client}</div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap">${clientSvcs.map(s=>`<span class="badge ${{수행중:'b-ok',협약중:'b-blue',계획중:'b-purple',종료:'b-gray'}[s.status]||'b-gray'}" style="font-size:9px">${s.name.length>8?s.name.slice(0,8)+'..':s.name}</span>`).join('')}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px">
+        <div style="text-align:center;background:var(--surface2);border-radius:var(--r);padding:6px">
+          <div style="font-size:9px;color:var(--text3)">투입인원</div>
+          <div style="font-size:16px;font-weight:700">${clientPids.length}명</div>
         </div>
-      </div>`;
-    });
-    html+=`</div>`;
+        <div style="text-align:center;background:var(--surface2);border-radius:var(--r);padding:6px">
+          <div style="font-size:9px;color:var(--text3)">총 MM</div>
+          <div style="font-size:16px;font-weight:700;color:var(--green-text)">${parseFloat(clientTotalMM).toFixed(1)}</div>
+        </div>
+        <div style="text-align:center;background:${clientOver.length?'var(--red-bg)':'var(--surface2)'};border-radius:var(--r);padding:6px">
+          <div style="font-size:9px;color:${clientOver.length?'var(--red-text)':'var(--text3)'}">12MM 초과</div>
+          <div style="font-size:16px;font-weight:700;color:${clientOver.length?'var(--red-text)':'var(--text2)'}">${clientOver.length}명</div>
+        </div>
+      </div>
+      ${pm?`<div style="font-size:10px;color:var(--text3)">PM: <span style="font-weight:600;color:var(--blue-text)">${pm.name}</span></div>`:''}
+    </div>`;
   });
   html+=`</div>`;
 
-  // 인원별 맨먼스 현황
-  html+=`<div class="card"><div class="card-title">인원별 연도별 맨먼스 현황 <span class="card-title-sub">기관별 합산 · 12MM 초과 시 빨간색</span></div>
-  <div class="tbl-wrap"><table><thead><tr><th>이름</th><th>직급</th>`;
-  years.forEach(y=>html+=`<th style="text-align:center">${y}년 (전체)</th>`);
-  clients.forEach(c=>years.forEach(y=>html+=`<th style="text-align:center">${c}<br><span style="font-size:9px;font-weight:400">${y}년</span></th>`));
-  html+=`</tr></thead><tbody>`;
-  S.people.forEach(p=>{
-    const hasAny=S.svcParts.some(sp=>sp.pid===p.id);
-    if(!hasAny)return;
-    html+=`<tr><td style="font-weight:600">${p.name}</td><td style="color:var(--text3)">${p.rank}</td>`;
-    years.forEach(y=>{
-      const total=svcMmTotal(p.id,y);
-      const color=total>12?'var(--red-text)':total>0?'var(--text)':'var(--text3)';
-      const bg=total>12?'var(--red-bg)':'';
-      html+=`<td style="text-align:center;font-weight:${total?'700':'400'};color:${color};background:${bg}">${total?parseFloat(total).toFixed(2)+'MM':'-'}</td>`;
-    });
-    clients.forEach(client=>{
-      years.forEach(y=>{
+  // ── 인원별 현황 테이블 (선택 연도 기준) ──
+  html+=`<div class="card"><div class="card-title">인원별 ${y}년 맨먼스 현황 <span class="card-title-sub">역할 · 참여 용역 · 기관합산 · 초과 경고</span></div>
+  <div class="tbl-wrap"><table><thead><tr>
+    <th>이름</th><th>직급</th><th>역할</th><th>참여 용역</th>
+    <th style="text-align:center">전체MM</th>
+    ${clients.map(c=>`<th style="text-align:center">${c}<br><span style="font-size:9px;font-weight:400">기관합산</span></th>`).join('')}
+    <th style="text-align:center">경고</th>
+  </tr></thead><tbody>`;
+
+  const displayPeople=S.people.filter(p=>S.svcParts.some(sp=>sp.pid===p.id&&sp.year===y&&sp.manmonth>0));
+  if(!displayPeople.length){
+    html+=`<tr><td colspan="${4+1+clients.length+1}" style="text-align:center;color:var(--text3);padding:2rem">${y}년 투입 인원이 없습니다.</td></tr>`;
+  } else {
+    displayPeople.forEach(p=>{
+      const totalMM=svcMmTotal(p.id,y);
+      const isOver=totalMM>12;
+      // 참여 용역 목록
+      const partSvcs=S.svcParts.filter(sp=>sp.pid===p.id&&sp.year===y&&sp.manmonth>0);
+      const svcNames=partSvcs.map(sp=>{
+        const svc=S.services.find(s=>s.id===sp.svcId);
+        const role=sp.role||'';
+        return svc?`<span class="tag">${svc.name.length>10?svc.name.slice(0,10)+'..':svc.name} <strong>${parseFloat(sp.manmonth).toFixed(1)}MM</strong>${role?` <span style="color:var(--blue-text)">[${role}]</span>`:''}</span>`:'';
+      }).filter(Boolean).join('');
+      // 대표 역할 (PM>PL>참여 순)
+      const roles=partSvcs.map(sp=>sp.role||'').filter(Boolean);
+      const mainRole=roles.includes('PM')?'PM':roles.includes('PL')?'PL':roles.includes('참여')?'참여':'';
+      const roleBadge=mainRole==='PM'?`<span class="badge b-blue" style="font-size:9px">PM</span>`:mainRole==='PL'?`<span class="badge b-purple" style="font-size:9px">PL</span>`:mainRole==='참여'?`<span class="badge b-gray" style="font-size:9px">참여</span>`:'<span style="color:var(--text3);font-size:10px">-</span>';
+      const totalColor=isOver?'var(--red-text)':totalMM>=8?'var(--amber-text)':'var(--green-text)';
+      html+=`<tr style="${isOver?'background:var(--red-bg)':''}">
+        <td style="font-weight:600;white-space:nowrap">${p.name}</td>
+        <td style="color:var(--text3)">${p.rank}</td>
+        <td style="text-align:center">${roleBadge}</td>
+        <td style="font-size:11px">${svcNames||'-'}</td>
+        <td style="text-align:center;font-weight:700;color:${totalColor}">${parseFloat(totalMM).toFixed(1)}MM</td>`;
+      clients.forEach(client=>{
         const mm=svcMmByYear(p.id,client,y);
-        const color=mm>12?'var(--red-text)':mm>0?'var(--green-text)':'var(--text3)';
-        const bg=mm>12?'var(--red-bg)':mm>0?'var(--green-bg)':'';
-        html+=`<td style="text-align:center;font-size:11px;color:${color};background:${bg}">${mm?parseFloat(mm).toFixed(2)+'MM':'-'}</td>`;
+        const c2=mm>12?'var(--red-text)':mm>0?'var(--green-text)':'var(--text3)';
+        const bg2=mm>12?'var(--red-bg)':mm>0?'var(--green-bg)':'';
+        html+=`<td style="text-align:center;color:${c2};background:${bg2};font-weight:${mm?'700':'400'}">${mm?parseFloat(mm).toFixed(1)+'MM':'-'}</td>`;
       });
+      html+=`<td style="text-align:center">${isOver?`<span class="badge b-over">⚠ 초과</span>`:totalMM>=8?`<span class="badge b-warn">주의</span>`:`<span class="badge b-ok">정상</span>`}</td>
+      </tr>`;
     });
-    html+=`</tr>`;
-  });
+  }
+
+  // 합계행
+  const colTotalMM=displayPeople.reduce((s,p)=>s+svcMmTotal(p.id,y),0);
+  html+=`<tr style="background:var(--surface2);border-top:2px solid var(--border2);font-weight:700">
+    <td colspan="4" style="font-size:11px;color:var(--text2)">합계</td>
+    <td style="text-align:center;color:var(--green-text)">${parseFloat(colTotalMM).toFixed(1)}MM</td>
+    ${clients.map(c=>{
+      const mm=displayPeople.reduce((s,p)=>s+svcMmByYear(p.id,c,y),0);
+      return `<td style="text-align:center;color:var(--green-text)">${mm?parseFloat(mm).toFixed(1)+'MM':'-'}</td>`;
+    }).join('')}
+    <td></td>
+  </tr>`;
+
   html+=`</tbody></table></div></div>`;
   document.getElementById('svc-overview-content').innerHTML=html;
 }
@@ -2255,11 +2323,12 @@ function renderSvcAgency(){
     // 인원별 기관 합산
     html+=`<div class="tbl-wrap"><table><thead><tr><th>이름</th><th>직급</th><th style="text-align:center">역할</th>`;
     years.forEach(y=>html+=`<th style="text-align:center">${y}년 합산MM</th>`);
-    html+=`<th style="text-align:center">최대</th></tr></thead><tbody>`;
+    html+=`<th style="text-align:center">합산MM</th></tr></thead><tbody>`;
     S.people.forEach(p=>{
       const mms=years.map(y=>svcMmByYear(p.id,client,y));
       if(mms.every(m=>m===0))return;
-      const maxMm=Math.max(...mms);
+      const totalMm=mms.reduce((s,m)=>s+m,0);
+      const maxMm=Math.max(...mms); // 12MM 초과 경고용으로만 유지
       // 이 기관 용역에서의 역할 (복수 용역 있으면 첫 번째)
       const clientSvcs=S.services.filter(s=>s.client===client);
       const anyPart=S.svcParts.find(sp=>sp.pid===p.id&&clientSvcs.some(s=>s.id===sp.svcId));
@@ -2270,7 +2339,7 @@ function renderSvcAgency(){
         const color=mm>12?'var(--red-text)':mm>0?'var(--green-text)':'var(--text3)';
         html+=`<td style="text-align:center;font-weight:${mm?'700':'400'};color:${color}">${mm?parseFloat(mm).toFixed(2)+'MM':'-'}</td>`;
       });
-      html+=`<td style="text-align:center"><span class="badge ${maxMm>12?'b-over':maxMm>0?'b-ok':'b-gray'}">${parseFloat(maxMm).toFixed(2)}MM</span></td></tr>`;
+      html+=`<td style="text-align:center;background:var(--blue-bg)"><span class="badge b-blue" style="font-weight:700">${parseFloat(totalMm).toFixed(2)}MM</span>${maxMm>12?'<div style="font-size:9px;color:var(--red-text);margin-top:2px">⚠연 12MM 초과</div>':''}</td></tr>`;
     });
     html+=`</tbody></table></div></div>`;
   });
