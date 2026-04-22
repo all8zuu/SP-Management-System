@@ -1058,7 +1058,7 @@ function renderOverview(){
   years.forEach(y=>html+=`<th style="text-align:center;min-width:70px">${y}년</th>`);
   html+=`<th style="text-align:center;min-width:70px;background:var(--blue-bg);color:var(--blue-text)">여유(최소)</th></tr></thead><tbody>`;
   S.people.forEach(p=>{
-    const tots=years.map(y=>pTotY(p.id,y));
+    const tots=years.map(y=>pTotFiltered(p.id,y));
     const minRemain=Math.min(...tots.map(t=>100-t));
     const anyOver=tots.some(t=>t>100);
     html+=`<tr ${anyOver?'style="background:var(--red-bg)"':''}>
@@ -1080,7 +1080,7 @@ function renderOverview(){
     const col=avg>100?'var(--red-text)':avg>=80?'var(--amber-text)':avg>=20?'var(--green-text)':'var(--text3)';
     html+=`<td style="text-align:center;font-weight:700;color:${col}">${avg}%</td>`;
   });
-  const avgMinRemain=Math.round(100-Math.max(...years.map(y=>Math.round(S.people.reduce((s,p)=>s+pTotY(p.id,y),0)/S.people.length))));
+  const avgMinRemain=Math.round(100-Math.max(...years.map(y=>Math.round(S.people.reduce((s,p)=>s+pTotFiltered(p.id,y),0)/S.people.length))));
   html+=`<td style="text-align:center;background:var(--blue-bg);font-weight:700;color:var(--blue-text)">${avgMinRemain}%p</td></tr>`;
   html+=`</tbody></table></div></div>`;
 
