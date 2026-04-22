@@ -1260,7 +1260,7 @@ function renderYearly(){
       <div style="padding:1rem 1.2rem"><div class="tbl-wrap"><table><thead><tr>
       <th style="min-width:60px">이름</th><th style="min-width:44px">직급</th>`;
     html+=`<th style="text-align:center;min-width:70px">역할</th>`;
-    prYears.forEach(y=>html+=`<th style="text-align:center;min-width:110px">${y}년<div style="font-size:9px;font-weight:400;color:var(--text3)">참여율 / 단가(천원)</div></th>`);
+    prYears.forEach(y=>html+=`<th style="text-align:center;min-width:110px">${y}년<div style="font-size:9px;font-weight:400;color:var(--text3)">참여율 / 단가 / 인건비</div></th>`);
     html+=`<th></th></tr></thead><tbody>`;
     pids.forEach(pid=>{
       const person=S.people.find(x=>x.id===pid);if(!person)return;
@@ -1278,9 +1278,13 @@ function renderYearly(){
       prYears.forEach(y=>{
         const part=S.parts.find(p=>p.pid===pid&&p.projId===pr.id&&p.year===y);
         if(part){
+          const sal=part.salary||person.salary||60000;
+          const laborAmt=sal/12*pr.months*(part.rate/100);
+          const laborStr=laborAmt>0?Math.round(laborAmt).toLocaleString()+'천원':'';
           html+=`<td style="text-align:center"><div style="display:flex;flex-direction:column;gap:3px;align-items:center">
-            <input type="number" class="rate-input" value="${part.rate}" min="0" max="100" step="5" onchange="updatePartY(${pid},${pr.id},${y},this.value,'rate',null,this)">
+            <input type="number" class="rate-input" value="${part.rate}" min="0" max="100" step="0.001" onchange="updatePartY(${pid},${pr.id},${y},this.value,'rate',null,this)">
             <input type="number" class="salary-input" value="${part.salary||person.salary||''}" step="100" placeholder="단가" onchange="updatePartY(${pid},${pr.id},${y},null,'salary',this.value,this)">
+            <span class="part-labor" style="font-size:9px;color:var(--green-text);font-weight:600;min-height:12px">${laborStr}</span>
           </div></td>`;
         }else{
           html+=`<td style="text-align:center"><button class="btn btn-sm" onclick="addPartY(${pid},${pr.id},${y})">+ 추가</button></td>`;
@@ -1296,7 +1300,7 @@ function renderYearly(){
         <span style="font-size:11px;font-weight:600;color:var(--text3)">인원 추가</span>
         <select id="yadd-p-${pr.id}" style="flex:1;min-width:140px;font-size:11px">${addOpts}</select>
         <select id="yadd-y-${pr.id}" style="width:75px;font-size:11px">${prYears.map(y=>`<option value="${y}">${y}년</option>`).join('')}</select>
-        <input type="number" id="yadd-r-${pr.id}" value="20" min="0" max="100" step="5" style="width:60px;font-size:11px" placeholder="%">
+        <input type="number" id="yadd-r-${pr.id}" value="20" min="0" max="100" step="0.001" style="width:60px;font-size:11px" placeholder="%">
         <button class="btn" onclick="addPartYNew(${pr.id})">+ 추가</button>
       </div>
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
@@ -1776,8 +1780,18 @@ async function updatePartRole(pid, projId, role){
 
 async function updatePartY(pid,projId,year,rate,field,salVal,inputEl){
   const idx=S.parts.findIndex(p=>p.pid===pid&&p.projId===projId&&p.year===year);if(idx<0)return;
-  if(field==='rate')S.parts[idx].rate=parseInt(rate)||0;
+  if(field==='rate')S.parts[idx].rate=parseFloat(rate)||0;
   if(field==='salary')S.parts[idx].salary=parseInt(salVal)||null;
+  // 인건비 표시 실시간 갱신
+  const pr=S.projects.find(p=>p.id===projId);
+  const person=S.people.find(p=>p.id===pid);
+  if(pr&&person&&inputEl){
+    const sal=S.parts[idx].salary||person.salary||60000;
+    const laborAmt=sal/12*pr.months*(S.parts[idx].rate/100);
+    const laborStr=laborAmt>0?Math.round(laborAmt).toLocaleString()+'천원':'';
+    const cell=inputEl.closest('td');
+    if(cell){const span=cell.querySelector('.part-labor');if(span)span.textContent=laborStr;}
+  }
   // 저장 피드백
   if(inputEl){
     inputEl.style.borderColor='var(--amber)';
