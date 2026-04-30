@@ -499,11 +499,11 @@ function fmtDate(d){
   }
   return s;
 }
-// 용역 일자 표시: 계획중/협약중이고 day=01이면 월까지만 표시
+// 용역 일자 표시: 계획중/협약중/평가중이고 day=01이면 월까지만 표시
 function fmtSvcDate(svc, d){
   const full=fmtDate(d);
   if(!full)return '';
-  const isLoose=svc&&(svc.status==='계획중'||svc.status==='협약중');
+  const isLoose=svc&&(svc.status==='계획중'||svc.status==='협약중'||svc.status==='평가중');
   if(isLoose){
     const m=full.match(/^(\d{4})-(\d{2})-01$/);
     if(m) return `${m[1]}-${m[2]}`;
@@ -2128,6 +2128,16 @@ function getSvcYears(){
 
 // ── 용역 대시보드 ──
 let svcDashYear = null; // 선택된 연도 (null이면 자동)
+let svcDashStatusChecks = {수행중:true, 협약중:true, 평가중:false, 계획중:false};
+
+function toggleSvcDashStatus(status){
+  svcDashStatusChecks[status]=!svcDashStatusChecks[status];
+  renderSvcOverview();
+}
+function setSvcDashAll(val){
+  Object.keys(svcDashStatusChecks).forEach(k=>svcDashStatusChecks[k]=val);
+  renderSvcOverview();
+}
 
 function renderSvcOverview(){
   const years=getSvcYears();
@@ -2140,48 +2150,90 @@ function renderSvcOverview(){
   if(!svcDashYear||!years.includes(svcDashYear)) svcDashYear=years[years.length-1]||new Date().getFullYear();
   const y=svcDashYear;
 
-  const clients=[...new Set(S.services.map(s=>s.client))];
+  // 상태 필터 적용
+  const activeStatuses=Object.entries(svcDashStatusChecks).filter(([_,v])=>v).map(([k])=>k);
+  const filteredServices=S.services.filter(s=>activeStatuses.includes(s.status));
+  const filteredSvcIds=new Set(filteredServices.map(s=>s.id));
+
+  // 필터에 맞는 svcParts만 사용
+  const fParts=S.svcParts.filter(sp=>filteredSvcIds.has(sp.svcId));
+
+  // 필터된 데이터로 헬퍼 함수 (이 화면 한정)
+  const fSvcMmByYear=(pid,client,year)=>{
+    const clientSvcIds=filteredServices.filter(s=>s.client===client).map(s=>s.id);
+    return fParts.filter(p=>p.pid===pid&&p.year===year&&clientSvcIds.includes(p.svcId)).reduce((sum,p)=>sum+p.manmonth,0);
+  };
+  const fSvcMmTotal=(pid,year)=>fParts.filter(p=>p.pid===pid&&p.year===year).reduce((sum,p)=>sum+p.manmonth,0);
+
+  const clients=[...new Set(filteredServices.map(s=>s.client))];
 
   // ── KPI 계산 ──
-  const activeSvcs=S.services.filter(s=>s.status!=='종료');
-  const investedPids=[...new Set(S.svcParts.filter(sp=>sp.year===y&&sp.manmonth>0).map(sp=>sp.pid))];
-  const totalMMThisYear=S.svcParts.filter(sp=>sp.year===y).reduce((s,sp)=>s+sp.manmonth,0);
-  const overPeople=S.people.filter(p=>svcMmTotal(p.id,y)>12);
-  const overClients=clients.filter(c=>{
-    return S.people.some(p=>svcMmByYear(p.id,c,y)>12);
-  });
+  const investedPids=[...new Set(fParts.filter(sp=>sp.year===y&&sp.manmonth>0).map(sp=>sp.pid))];
+  const totalMMThisYear=fParts.filter(sp=>sp.year===y).reduce((s,sp)=>s+sp.manmonth,0);
+  const overPeople=S.people.filter(p=>fSvcMmTotal(p.id,y)>12);
+  const overClients=clients.filter(c=>S.people.some(p=>fSvcMmByYear(p.id,c,y)>12));
 
-  // ── 연도 탭 ──
+  // ── 필터 카드 (연도 + 상태) ──
+  const statuses=['수행중','협약중','평가중','계획중'];
+  const checkedCount=Object.values(svcDashStatusChecks).filter(Boolean).length;
+  const isAll=checkedCount===statuses.length;
+
   let html=`<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:12px 16px;margin-bottom:1.2rem">
-    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px">
       <span style="font-size:11px;font-weight:600;color:var(--text2);min-width:28px">연도</span>
       <div style="display:flex;gap:4px;flex-wrap:wrap">
         ${years.map(yr=>`<button onclick="svcDashYear=${yr};renderSvcOverview()" style="padding:4px 12px;font-size:11px;border-radius:var(--r);border:1px solid ${yr===y?'var(--green)':'var(--border2)'};background:${yr===y?'var(--green)':'var(--surface)'};color:${yr===y?'#fff':'var(--text2)'};cursor:pointer;font-family:inherit;font-weight:${yr===y?'600':'400'}">${yr}년</button>`).join('')}
       </div>
     </div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <span style="font-size:11px;font-weight:600;color:var(--text2);min-width:28px">상태</span>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+        ${statuses.map(s=>{
+          const checked=svcDashStatusChecks[s];
+          const colors={수행중:['var(--green)','var(--green-bg)','var(--green-text)'],협약중:['var(--blue)','var(--blue-bg)','var(--blue-text)'],평가중:['var(--amber)','var(--amber-bg)','var(--amber-text)'],계획중:['var(--purple)','var(--purple-bg)','var(--purple-text)']};
+          const [bc,bg,tc]=colors[s]||['var(--text3)','var(--surface2)','var(--text2)'];
+          return `<label style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:var(--r);border:1.5px solid ${checked?bc:'var(--border2)'};background:${checked?bg:'var(--surface)'};cursor:pointer;font-size:11px;font-weight:${checked?'600':'400'};color:${checked?tc:'var(--text3)'}">
+            <input type="checkbox" ${checked?'checked':''} onchange="toggleSvcDashStatus('${s}')" style="accent-color:${bc};width:13px;height:13px">${s}
+          </label>`;
+        }).join('')}
+        <div style="width:1px;height:18px;background:var(--border);margin:0 2px"></div>
+        <button onclick="setSvcDashAll(true)" style="padding:3px 8px;font-size:10px;border:1px solid var(--border2);border-radius:var(--r);background:var(--surface);cursor:pointer;color:var(--text2);font-family:inherit">전체선택</button>
+        <button onclick="setSvcDashAll(false)" style="padding:3px 8px;font-size:10px;border:1px solid var(--border2);border-radius:var(--r);background:var(--surface);cursor:pointer;color:var(--text2);font-family:inherit">전체해제</button>
+      </div>
+      ${isAll?'<span style="font-size:10px;color:var(--text3);margin-left:4px">(수행+협약+평가+계획 포함)</span>':''}
+    </div>
   </div>`;
 
+  // 필터 결과가 없으면
+  if(!filteredServices.length){
+    html+=`<div class="info-box">선택한 상태에 해당하는 용역이 없습니다. 위 필터를 조정해주세요.</div>`;
+    document.getElementById('svc-overview-content').innerHTML=html;
+    return;
+  }
+
   // ── KPI 카드 ──
+  const activeSvcs=filteredServices.filter(s=>s.status==='수행중');
   html+=`<div class="kpi-grid" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:1.2rem">
-    <div class="kpi green"><div class="kpi-label">전체 용역</div><div class="kpi-value">${S.services.length}<span style="font-size:14px;font-weight:400">건</span></div><div class="kpi-sub">수행중 ${activeSvcs.length}건</div></div>
+    <div class="kpi green"><div class="kpi-label">표시 용역</div><div class="kpi-value">${filteredServices.length}<span style="font-size:14px;font-weight:400">건</span></div><div class="kpi-sub">전체 ${S.services.length}건 중 · 수행중 ${activeSvcs.length}건</div></div>
     <div class="kpi blue"><div class="kpi-label">${y}년 투입 인원</div><div class="kpi-value">${investedPids.length}<span style="font-size:14px;font-weight:400">명</span></div><div class="kpi-sub">전체 ${S.people.length}명 중</div></div>
-    <div class="kpi amber"><div class="kpi-label">${y}년 총 MM</div><div class="kpi-value" style="font-size:20px">${parseFloat(totalMMThisYear).toFixed(1)}<span style="font-size:14px;font-weight:400">MM</span></div><div class="kpi-sub">인원 평균 ${investedPids.length?parseFloat(totalMMThisYear/investedPids.length).toFixed(1):'-'}MM</div></div>
+    <div class="kpi amber"><div class="kpi-label">${y}년 총 MM</div><div class="kpi-value" style="font-size:20px">${parseFloat(totalMMThisYear).toFixed(2)}<span style="font-size:14px;font-weight:400">MM</span></div><div class="kpi-sub">인원 평균 ${investedPids.length?parseFloat(totalMMThisYear/investedPids.length).toFixed(2):'-'}MM</div></div>
     <div class="kpi ${overPeople.length?'red':'green'}"><div class="kpi-label">12MM 초과</div><div class="kpi-value" style="color:${overPeople.length?'var(--red)':'var(--green)'}">${overPeople.length}<span style="font-size:14px;font-weight:400">명</span></div><div class="kpi-sub">${overPeople.length?overPeople.map(p=>p.name).join(', '):'전원 정상'}</div></div>
   </div>`;
 
   // ── 기관별 요약 카드 ──
   html+=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-bottom:1.2rem">`;
   clients.forEach(client=>{
-    const clientSvcs=S.services.filter(s=>s.client===client);
-    const clientPids=[...new Set(S.svcParts.filter(sp=>sp.year===y&&sp.manmonth>0&&clientSvcs.some(s=>s.id===sp.svcId)).map(sp=>sp.pid))];
-    const clientTotalMM=S.svcParts.filter(sp=>sp.year===y&&clientSvcs.some(s=>s.id===sp.svcId)).reduce((s,sp)=>s+sp.manmonth,0);
-    const clientOver=S.people.filter(p=>svcMmByYear(p.id,client,y)>12);
-    const pmPart=S.svcParts.find(sp=>clientSvcs.some(s=>s.id===sp.svcId)&&sp.role==='PM');
+    const clientSvcs=filteredServices.filter(s=>s.client===client);
+    const clientSvcIdSet=new Set(clientSvcs.map(s=>s.id));
+    const clientPids=[...new Set(fParts.filter(sp=>sp.year===y&&sp.manmonth>0&&clientSvcIdSet.has(sp.svcId)).map(sp=>sp.pid))];
+    const clientTotalMM=fParts.filter(sp=>sp.year===y&&clientSvcIdSet.has(sp.svcId)).reduce((s,sp)=>s+sp.manmonth,0);
+    const clientOver=S.people.filter(p=>fSvcMmByYear(p.id,client,y)>12);
+    const pmPart=fParts.find(sp=>clientSvcIdSet.has(sp.svcId)&&sp.role==='PM');
     const pm=pmPart?S.people.find(p=>p.id===pmPart.pid):null;
     html+=`<div class="card" style="margin-bottom:0">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
         <div style="font-size:12px;font-weight:700">🏢 ${client}</div>
-        <div style="display:flex;gap:4px;flex-wrap:wrap">${clientSvcs.map(s=>`<span class="badge ${{수행중:'b-ok',협약중:'b-blue',계획중:'b-purple',종료:'b-gray'}[s.status]||'b-gray'}" style="font-size:9px">${s.name.length>8?s.name.slice(0,8)+'..':s.name}</span>`).join('')}</div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap">${clientSvcs.map(s=>`<span class="badge ${{수행중:'b-ok',협약중:'b-blue',평가중:'b-warn',계획중:'b-purple',종료:'b-gray'}[s.status]||'b-gray'}" style="font-size:9px">${s.name.length>8?s.name.slice(0,8)+'..':s.name}</span>`).join('')}</div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px">
         <div style="text-align:center;background:var(--surface2);border-radius:var(--r);padding:6px">
@@ -2190,7 +2242,7 @@ function renderSvcOverview(){
         </div>
         <div style="text-align:center;background:var(--surface2);border-radius:var(--r);padding:6px">
           <div style="font-size:9px;color:var(--text3)">총 MM</div>
-          <div style="font-size:16px;font-weight:700;color:var(--green-text)">${parseFloat(clientTotalMM).toFixed(1)}</div>
+          <div style="font-size:16px;font-weight:700;color:var(--green-text)" title="${clientTotalMM}">${parseFloat(clientTotalMM).toFixed(2)}</div>
         </div>
         <div style="text-align:center;background:${clientOver.length?'var(--red-bg)':'var(--surface2)'};border-radius:var(--r);padding:6px">
           <div style="font-size:9px;color:${clientOver.length?'var(--red-text)':'var(--text3)'}">12MM 초과</div>
@@ -2204,43 +2256,47 @@ function renderSvcOverview(){
 
   // ── 인원별 현황 테이블 (선택 연도 기준) ──
   html+=`<div class="card"><div class="card-title">인원별 ${y}년 맨먼스 현황 <span class="card-title-sub">역할 · 참여 용역 · 기관합산 · 초과 경고</span></div>
+  <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;flex-wrap:wrap">
+    <input type="text" id="svc-overview-search" placeholder="🔍 인원 이름/직급 검색"
+      oninput="filterSvcOverviewRows()" style="flex:1;min-width:180px;max-width:300px;font-size:12px;padding:6px 10px;border:1px solid var(--border);border-radius:6px">
+  </div>
   <div class="tbl-wrap"><table style="vertical-align:middle"><thead><tr>
     <th style="vertical-align:middle">이름</th><th style="text-align:center;vertical-align:middle">직급</th><th style="text-align:center;vertical-align:middle">역할</th><th style="vertical-align:middle">참여 용역</th>
     <th style="text-align:center;vertical-align:middle">전체MM</th>
     ${clients.map(c=>`<th style="text-align:center;vertical-align:middle">${c} <span style="font-size:9px;font-weight:400;color:var(--text3)">(기관합산)</span></th>`).join('')}
     <th style="text-align:center;vertical-align:middle">경고</th>
-  </tr></thead><tbody>`;
+  </tr></thead><tbody id="svc-overview-tbody">`;
 
-  const displayPeople=S.people.filter(p=>S.svcParts.some(sp=>sp.pid===p.id&&sp.year===y&&sp.manmonth>0));
+  const displayPeople=S.people.filter(p=>fParts.some(sp=>sp.pid===p.id&&sp.year===y&&sp.manmonth>0));
   if(!displayPeople.length){
     html+=`<tr><td colspan="${4+1+clients.length+1}" style="text-align:center;color:var(--text3);padding:2rem">${y}년 투입 인원이 없습니다.</td></tr>`;
   } else {
     displayPeople.forEach(p=>{
-      const totalMM=svcMmTotal(p.id,y);
+      const totalMM=fSvcMmTotal(p.id,y);
       const isOver=totalMM>12;
       // 참여 용역 목록
-      const partSvcs=S.svcParts.filter(sp=>sp.pid===p.id&&sp.year===y&&sp.manmonth>0);
+      const partSvcs=fParts.filter(sp=>sp.pid===p.id&&sp.year===y&&sp.manmonth>0);
       const svcNames=partSvcs.map(sp=>{
-        const svc=S.services.find(s=>s.id===sp.svcId);
+        const svc=filteredServices.find(s=>s.id===sp.svcId);
         const role=sp.role||'';
-        return svc?`<span class="tag">${svc.name.length>10?svc.name.slice(0,10)+'..':svc.name} <strong>${parseFloat(sp.manmonth).toFixed(1)}MM</strong>${role?` <span style="color:var(--blue-text)">[${role}]</span>`:''}</span>`:'';
+        return svc?`<span class="tag">${svc.name.length>10?svc.name.slice(0,10)+'..':svc.name} <strong>${parseFloat(sp.manmonth).toFixed(2)}MM</strong>${role?` <span style="color:var(--blue-text)">[${role}]</span>`:''}</span>`:'';
       }).filter(Boolean).join('');
       // 대표 역할 (PM>PL>참여 순)
       const roles=partSvcs.map(sp=>sp.role||'').filter(Boolean);
       const mainRole=roles.includes('PM')?'PM':roles.includes('PL')?'PL':roles.includes('참여')?'참여':'';
       const roleBadge=mainRole==='PM'?`<span class="badge b-blue" style="font-size:9px">PM</span>`:mainRole==='PL'?`<span class="badge b-purple" style="font-size:9px">PL</span>`:mainRole==='참여'?`<span class="badge b-gray" style="font-size:9px">참여</span>`:`-`;
       const totalColor=isOver?'var(--red-text)':totalMM>=8?'var(--amber-text)':'var(--green-text)';
-      html+=`<tr class="${isOver?'tr-over':''}">
+      html+=`<tr class="${isOver?'tr-over':''}" data-name="${escapeAttr(p.name)}" data-rank="${escapeAttr(p.rank||'')}">
         <td style="font-weight:600;white-space:nowrap">${p.name}</td>
         <td style="text-align:center;color:var(--text3)">${p.rank}</td>
         <td style="text-align:center;color:var(--text3);font-size:12px">${roleBadge}</td>
         <td style="font-size:11px;white-space:nowrap;max-width:320px;overflow:hidden;text-overflow:ellipsis">${svcNames||'-'}</td>
-        <td style="text-align:center;font-weight:700;color:${totalColor}">${parseFloat(totalMM).toFixed(1)}MM</td>`;
+        <td style="text-align:center;font-weight:700;color:${totalColor}" title="${totalMM}">${parseFloat(totalMM).toFixed(2)}MM</td>`;
       clients.forEach(client=>{
-        const mm=svcMmByYear(p.id,client,y);
+        const mm=fSvcMmByYear(p.id,client,y);
         const c2=mm>12?'var(--red-text)':mm>0?'var(--green-text)':'var(--text3)';
         const bg2=mm>12?'var(--red-bg)':mm>0?'var(--green-bg)':'';
-        html+=`<td style="text-align:center;color:${c2};background:${bg2};font-weight:${mm?'700':'400'}">${mm?parseFloat(mm).toFixed(1)+'MM':'-'}</td>`;
+        html+=`<td style="text-align:center;color:${c2};background:${bg2};font-weight:${mm?'700':'400'}" title="${mm}">${mm?parseFloat(mm).toFixed(2)+'MM':'-'}</td>`;
       });
       html+=`<td style="text-align:center">${isOver?`<span class="badge b-over">⚠ 초과</span>`:totalMM>=8?`<span class="badge b-warn">주의</span>`:`<span class="badge b-ok">정상</span>`}</td>
       </tr>`;
@@ -2248,13 +2304,13 @@ function renderSvcOverview(){
   }
 
   // 합계행
-  const colTotalMM=displayPeople.reduce((s,p)=>s+svcMmTotal(p.id,y),0);
+  const colTotalMM=displayPeople.reduce((s,p)=>s+fSvcMmTotal(p.id,y),0);
   html+=`<tr style="background:var(--surface2);border-top:2px solid var(--border2);font-weight:700">
     <td colspan="4" style="font-size:11px;color:var(--text2)">합계</td>
-    <td style="text-align:center;color:var(--green-text)">${parseFloat(colTotalMM).toFixed(1)}MM</td>
+    <td style="text-align:center;color:var(--green-text)" title="${colTotalMM}">${parseFloat(colTotalMM).toFixed(2)}MM</td>
     ${clients.map(c=>{
-      const mm=displayPeople.reduce((s,p)=>s+svcMmByYear(p.id,c,y),0);
-      return `<td style="text-align:center;color:var(--green-text)">${mm?parseFloat(mm).toFixed(1)+'MM':'-'}</td>`;
+      const mm=displayPeople.reduce((s,p)=>s+fSvcMmByYear(p.id,c,y),0);
+      return `<td style="text-align:center;color:var(--green-text)" title="${mm}">${mm?parseFloat(mm).toFixed(2)+'MM':'-'}</td>`;
     }).join('')}
     <td></td>
   </tr>`;
@@ -2263,20 +2319,44 @@ function renderSvcOverview(){
   document.getElementById('svc-overview-content').innerHTML=html;
 }
 
+function filterSvcOverviewRows(){
+  const q=(document.getElementById('svc-overview-search')?.value||'').trim().toLowerCase();
+  document.querySelectorAll('#svc-overview-tbody tr').forEach(tr=>{
+    if(!q){tr.style.display='';return;}
+    const n=(tr.dataset.name||'').toLowerCase();
+    const r=(tr.dataset.rank||'').toLowerCase();
+    tr.style.display=(n.includes(q)||r.includes(q))?'':'none';
+  });
+}
+
 // ── 용역 맨먼스 관리 ──
 function renderSvcManmonth(){
   const years=getSvcYears();
-  let html=`<div style="display:flex;justify-content:flex-end;margin-bottom:1rem;gap:8px;align-items:center">
-    <input type="number" id="svc-new-year" value="${new Date().getFullYear()+1}" style="width:75px;font-size:11px;padding:5px 8px">
-    <button class="btn btn-primary btn-sm" onclick="addSvcYear()">+ 연도 추가</button>
-    <button class="btn btn-primary" onclick="toggleForm('add-svc-form')">+ 용역 추가</button>
+  let html=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;gap:8px;flex-wrap:wrap">
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <input type="text" id="svc-mm-search" placeholder="🔍 인원 이름 검색"
+        oninput="filterSvcMmRows()" style="font-size:12px;padding:5px 10px;border:1px solid var(--border);border-radius:6px;width:200px">
+      <select id="svc-mm-status-filter" onchange="filterSvcMmCards()" style="font-size:11px;padding:5px 8px">
+        <option value="">전체 상태</option>
+        <option value="수행중">수행중</option>
+        <option value="협약중">협약중</option>
+        <option value="평가중">평가중</option>
+        <option value="계획중">계획중</option>
+        <option value="종료">종료</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <input type="number" id="svc-new-year" value="${new Date().getFullYear()+1}" style="width:75px;font-size:11px;padding:5px 8px">
+      <button class="btn btn-primary btn-sm" onclick="addSvcYear()">+ 연도 추가</button>
+      <button class="btn btn-primary" onclick="toggleForm('add-svc-form')">+ 용역 추가</button>
+    </div>
   </div>
   <div class="add-form" id="add-svc-form">
     <div class="form-title">새 용역 등록</div>
     <div class="g3" style="margin-bottom:10px">
       <div class="form-row"><label class="form-label">용역명</label><input type="text" id="ns-name" placeholder="한수원 빅데이터 구축"></div>
       <div class="form-row"><label class="form-label">발주기관</label><input type="text" id="ns-client" placeholder="한수원"></div>
-      <div class="form-row"><label class="form-label">상태</label><select id="ns-status" onchange="onAddSvcStatusChange()"><option>계획중</option><option>협약중</option><option>수행중</option><option>종료</option></select></div>
+      <div class="form-row"><label class="form-label">상태</label><select id="ns-status" onchange="onAddSvcStatusChange()"><option>계획중</option><option>협약중</option><option>수행중</option><option>평가중</option><option>종료</option></select></div>
     </div>
     <div class="g3">
       <div class="form-row"><label class="form-label">기간(개월)</label><input type="number" id="ns-months" placeholder="30" step="1"></div>
@@ -2299,8 +2379,15 @@ function renderSvcManmonth(){
 
   S.services.forEach(svc=>{
     const pids=[...new Set(S.svcParts.filter(p=>p.svcId===svc.id).map(p=>p.pid))];
-    const statusMap={'수행중':'b-ok','협약중':'b-blue','계획중':'b-purple','종료':'b-gray'};
-    html+=`<div class="yearly-proj"><div class="yearly-proj-head">
+    const statusMap={'수행중':'b-ok','협약중':'b-blue','평가중':'b-warn','계획중':'b-purple','종료':'b-gray'};
+
+    // 이 용역의 사업기간 연도 (시작일/시작연도 + 기간 기반) - 입력된 연도도 합쳐서 누락 방지
+    const svcSpanYears=getSvcSpanYears(svc);
+    const svcInputYears=[...new Set(S.svcParts.filter(p=>p.svcId===svc.id).map(p=>+p.year))].filter(y=>!isNaN(y)&&y>2000);
+    let svcYears=[...new Set([...svcSpanYears, ...svcInputYears])].sort((a,b)=>a-b);
+    if(!svcYears.length) svcYears=[new Date().getFullYear()];
+
+    html+=`<div class="yearly-proj svc-card" data-status="${svc.status||''}"><div class="yearly-proj-head">
       <span style="font-size:13px;font-weight:600">${svc.name}</span>
       <span class="badge ${statusMap[svc.status]||'b-gray'}">${svc.status}</span>
       <span style="font-size:11px;color:var(--text3)">${svc.client} · ${svc.months}개월 · ${fmtSvcDate(svc, svc.startDate)||svc.startYear+'년 시작'}${svc.endDate?' ~ '+fmtSvcDate(svc, svc.endDate):''}</span>
@@ -2308,7 +2395,7 @@ function renderSvcManmonth(){
       <button class="btn btn-danger btn-sm" onclick="deleteService(${svc.id})">삭제</button>
     </div><div style="padding:1rem 1.2rem">
     <div class="tbl-wrap"><table><thead><tr><th>이름</th><th>직급</th>`;
-    years.forEach(y=>{
+    svcYears.forEach(y=>{
       // 해당 연도 기관 전체 경고
       html+=`<th style="text-align:center">${y}년<br><span style="font-size:9px;font-weight:400">맨먼스</span></th>`;
     });
@@ -2319,28 +2406,28 @@ function renderSvcManmonth(){
       const anyPart=S.svcParts.find(p=>p.pid===pid&&p.svcId===svc.id);
       const curRole=anyPart?anyPart.role||'':'';
       const roleBadge=curRole==='PM'?`<span class="badge b-blue" style="font-size:9px;padding:1px 5px;margin-left:3px">PM</span>`:curRole==='PL'?`<span class="badge b-purple" style="font-size:9px;padding:1px 5px;margin-left:3px">PL</span>`:'';
-      html+=`<tr><td style="font-weight:600">${person.name}${roleBadge}</td><td style="color:var(--text3)">${person.rank}</td>`;
+      html+=`<tr data-name="${escapeAttr(person.name)}" data-rank="${escapeAttr(person.rank||'')}"><td style="font-weight:600">${person.name}${roleBadge}</td><td style="color:var(--text3)">${person.rank}</td>`;
       html+=`<td style="text-align:center"><select style="font-size:10px;padding:2px 4px;border:1px solid var(--border2);border-radius:4px;background:var(--surface)" onchange="updateSvcRole(${pid},${svc.id},this.value)"><option value="" ${curRole===''?'selected':''}>-</option><option value="PM" ${curRole==='PM'?'selected':''}>PM</option><option value="PL" ${curRole==='PL'?'selected':''}>PL</option><option value="참여" ${curRole==='참여'?'selected':''}>참여</option></select></td>`;
-      years.forEach(y=>{
+      svcYears.forEach(y=>{
         const part=S.svcParts.find(p=>p.pid===pid&&p.svcId===svc.id&&p.year===y);
         const mm=part?part.manmonth:0;
         html+=`<td style="text-align:center">`;
         if(part){
-          html+=`<input type="number" class="rate-input" value="${mm}" min="0" max="12" step="0.5" onchange="updateSvcPart(${pid},${svc.id},${y},this.value,this)" title="${y}년 맨먼스">`;
+          html+=`<input type="number" class="rate-input" value="${mm}" min="0" max="12" step="0.1" onchange="updateSvcPart(${pid},${svc.id},${y},this.value,this)" title="${y}년 맨먼스 (정확값: ${mm})">`;
         } else {
           html+=`<button class="btn btn-sm" onclick="addSvcPart(${pid},${svc.id},${y})">+</button>`;
         }
         html+=`</td>`;
       });
       // 기간합산 (이 용역에서 해당 인원의 전 연도 MM 합계)
-      const periodTotal=years.reduce((sum,y)=>{
+      const periodTotal=svcYears.reduce((sum,y)=>{
         const part=S.svcParts.find(p=>p.pid===pid&&p.svcId===svc.id&&p.year===y);
         return sum+(part?part.manmonth:0);
       },0);
-      html+=`<td style="text-align:center;font-weight:700;color:${periodTotal>0?'var(--green)':'var(--text3)'}">${periodTotal?periodTotal.toFixed(1)+'MM':'-'}</td>`;
+      html+=`<td style="text-align:center;font-weight:700;color:${periodTotal>0?'var(--green)':'var(--text3)'}" title="${periodTotal}">${periodTotal?periodTotal.toFixed(2)+'MM':'-'}</td>`;
       // 기관합산경고 (같은 기관 모든 용역의 연도별 합산 중 최댓값)
-      const agencyMaxMm=Math.max(...years.map(y=>svcMmByYear(pid,svc.client,y)));
-      html+=`<td style="text-align:center;min-width:120px">${agencyMaxMm>12?`<span class="badge b-over">⚠ ${agencyMaxMm.toFixed(1)}MM/년 초과</span>`:agencyMaxMm>0?`<span class="badge b-ok">최대 ${agencyMaxMm.toFixed(1)}MM/년</span>`:'<span style="color:var(--text3);font-size:11px">-</span>'}</td>`;
+      const agencyMaxMm=Math.max(...svcYears.map(y=>svcMmByYear(pid,svc.client,y)));
+      html+=`<td style="text-align:center;min-width:120px">${agencyMaxMm>12?`<span class="badge b-over" title="${agencyMaxMm}">⚠ ${agencyMaxMm.toFixed(2)}MM/년 초과</span>`:agencyMaxMm>0?`<span class="badge b-ok" title="${agencyMaxMm}">최대 ${agencyMaxMm.toFixed(2)}MM/년</span>`:'<span style="color:var(--text3);font-size:11px">-</span>'}</td>`;
       html+=`<td><button class="btn btn-danger btn-sm" onclick="removeSvcPerson(${pid},${svc.id})">삭제</button></td></tr>`;
     });
     html+=`</tbody></table></div>`;
@@ -2349,13 +2436,34 @@ function renderSvcManmonth(){
     const addOpts=S.people.filter(p=>!pids.includes(p.id)).map(p=>`<option value="${p.id}">${p.name}(${p.rank})</option>`).join('');
     html+=`<div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding-top:10px;border-top:1px solid var(--border)">
       <select id="svc-add-p-${svc.id}" style="flex:1;min-width:140px;font-size:11px">${addOpts}</select>
-      <select id="svc-add-y-${svc.id}" style="width:75px;font-size:11px">${years.map(y=>`<option value="${y}">${y}년</option>`).join('')}</select>
-      <input type="number" id="svc-add-mm-${svc.id}" value="1" min="0" max="12" step="0.5" style="width:65px;font-size:11px" placeholder="MM">
+      <select id="svc-add-y-${svc.id}" style="width:75px;font-size:11px">${svcYears.map(y=>`<option value="${y}">${y}년</option>`).join('')}</select>
+      <input type="number" id="svc-add-mm-${svc.id}" value="1" min="0" max="12" step="0.1" style="width:65px;font-size:11px" placeholder="MM">
       <button class="btn" onclick="addSvcPartNew(${svc.id})">+ 인원 추가</button>
     </div></div></div>`;
   });
 
   document.getElementById('svc-manmonth-content').innerHTML=html;
+}
+
+// 용역 세부 현황 - 인원 검색 (행 단위)
+function filterSvcMmRows(){
+  const q=(document.getElementById('svc-mm-search')?.value||'').trim().toLowerCase();
+  document.querySelectorAll('#svc-manmonth-content .svc-card tbody tr').forEach(tr=>{
+    if(!q){tr.style.display='';return;}
+    const n=(tr.dataset.name||'').toLowerCase();
+    const r=(tr.dataset.rank||'').toLowerCase();
+    tr.style.display=(n.includes(q)||r.includes(q))?'':'none';
+  });
+}
+
+// 용역 세부 현황 - 상태 필터 (카드 단위)
+function filterSvcMmCards(){
+  const v=(document.getElementById('svc-mm-status-filter')?.value||'').trim();
+  document.querySelectorAll('#svc-manmonth-content .svc-card').forEach(card=>{
+    if(!v){card.style.display='';return;}
+    const s=card.dataset.status||'';
+    card.style.display=(s===v)?'':'none';
+  });
 }
 
 // ── 용역 기관별 현황 ──
@@ -2376,7 +2484,7 @@ function renderSvcAgency(){
     clientSvcs.forEach(svc=>{
       const svcPids=[...new Set(S.svcParts.filter(sp=>sp.svcId===svc.id).map(sp=>sp.pid))];
       if(!svcPids.length)return;
-      const statusBadge={수행중:'b-ok',협약중:'b-blue',계획중:'b-purple',종료:'b-gray'}[svc.status]||'b-gray';
+      const statusBadge={수행중:'b-ok',협약중:'b-blue',평가중:'b-warn',계획중:'b-purple',종료:'b-gray'}[svc.status]||'b-gray';
 
       html+=`<div style="margin-bottom:14px">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;padding:6px 10px;background:var(--surface2);border-radius:var(--r)">
@@ -2522,6 +2630,7 @@ function renderSvcSim(){
           <option value="계획중">계획중</option>
           <option value="협약중">협약중</option>
           <option value="수행중">수행중</option>
+          <option value="평가중">평가중</option>
         </select></div>
       <div class="form-row"><label class="form-label">기간(개월)</label>
         <input type="number" id="ss-months" value="12" min="1" max="60" oninput="svcSimUpdate()"></div>
@@ -2881,7 +2990,7 @@ function svcSimReset(silent){
 // ── 용역 CRUD ──
 function onAddSvcStatusChange(){
   const status=document.getElementById('ns-status')?.value||'계획중';
-  const isLoose=(status==='계획중'||status==='협약중');
+  const isLoose=(status==='계획중'||status==='협약중'||status==='평가중');
   const area=document.getElementById('ns-date-area');
   if(!area)return;
   // 현재 입력값 보존
@@ -2911,7 +3020,7 @@ async function addService(){
   let sdRaw=document.getElementById('ns-startdate')?.value||'';
   let edRaw=document.getElementById('ns-enddate')?.value||'';
   let svcStartDate='', svcEndDate='';
-  if(status==='계획중'||status==='협약중'){
+  if(status==='계획중'||status==='협약중'||status==='평가중'){
     const sdM=normalizeMonthInput(sdRaw);
     const edM=normalizeMonthInput(edRaw);
     if(sdRaw && !sdM){alert('시작 월 형식이 올바르지 않습니다 (예: 2026-04)');return;}
@@ -2976,7 +3085,7 @@ function openEditSvcModal(id){
       <div class="g3" style="gap:12px;margin-bottom:12px">
         <div class="form-row"><label class="form-label">상태</label>
           <select id="es-status" onchange="onEditSvcStatusChange()">
-            ${['계획중','협약중','수행중','종료'].map(s=>`<option value="${s}" ${svc.status===s?'selected':''}>${s}</option>`).join('')}
+            ${['계획중','협약중','수행중','평가중','종료'].map(s=>`<option value="${s}" ${svc.status===s?'selected':''}>${s}</option>`).join('')}
           </select></div>
         <div class="form-row"><label class="form-label">기간(개월)</label>
           <input type="number" id="es-months" value="${+svc.months||12}" min="1" max="120"></div>
@@ -3023,7 +3132,7 @@ function onEditSvcStatusChange(){
 function renderEditSvcDateArea(status, startDate, endDate){
   const area=document.getElementById('es-date-area');
   if(!area)return;
-  const isLoose=(status==='계획중'||status==='협약중');
+  const isLoose=(status==='계획중'||status==='협약중'||status==='평가중');
 
   if(isLoose){
     // 월 단위 입력 (text, "YYYY-MM" 형식 허용)
@@ -3105,7 +3214,7 @@ async function saveEditSvc(){
   let sdRaw=(document.getElementById('es-startdate')?.value||'').trim();
   let edRaw=(document.getElementById('es-enddate')?.value||'').trim();
   let startDate='', endDate='';
-  if(status==='계획중'||status==='협약중'){
+  if(status==='계획중'||status==='협약중'||status==='평가중'){
     // 월 단위: YYYY-MM 으로 저장 (Date 파싱은 -01 일로 추가하여 호환)
     const sdM=normalizeMonthInput(sdRaw);
     const edM=normalizeMonthInput(edRaw);
