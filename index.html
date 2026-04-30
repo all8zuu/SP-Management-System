@@ -499,6 +499,17 @@ function fmtDate(d){
   }
   return s;
 }
+// 용역 일자 표시: 계획중/협약중이고 day=01이면 월까지만 표시
+function fmtSvcDate(svc, d){
+  const full=fmtDate(d);
+  if(!full)return '';
+  const isLoose=svc&&(svc.status==='계획중'||svc.status==='협약중');
+  if(isLoose){
+    const m=full.match(/^(\d{4})-(\d{2})-01$/);
+    if(m) return `${m[1]}-${m[2]}`;
+  }
+  return full;
+}
 function calcKosaGrade(edu, eduCareer, cert, certCareer) {
   if (cert === '기술사') return '특급';
   if (cert === '기사') {
@@ -2075,16 +2086,43 @@ function svcMmTotal(pid, year){
   // 전체 용역 맨먼스 합산 (기관 무관)
   return S.svcParts.filter(p=>p.pid===pid&&p.year===year).reduce((sum,p)=>sum+p.manmonth,0);
 }
+// 용역의 모든 활동 연도 계산 (시작일/시작연도 + 기간(months) 기반으로 종료연도까지 모두 포함)
+function getSvcSpanYears(s){
+  // 시작연도 결정 우선순위: startDate > startYear
+  let startY = null;
+  if(s.startDate){
+    const d=new Date(s.startDate);
+    if(!isNaN(d.getTime())) startY=d.getFullYear();
+  }
+  if(startY===null && s.startYear) startY=+s.startYear;
+  if(!startY||isNaN(startY)) return [];
+
+  // 종료연도 결정 우선순위: endDate > startDate+months > startYear+ceil(months/12)-1
+  let endY = startY;
+  if(s.endDate){
+    const d=new Date(s.endDate);
+    if(!isNaN(d.getTime())) endY=d.getFullYear();
+  } else if(s.startDate && s.months){
+    const d=new Date(s.startDate);
+    if(!isNaN(d.getTime())){
+      const totalMonths = d.getMonth() + (+s.months) - 1;
+      endY = d.getFullYear() + Math.floor(totalMonths/12);
+    }
+  } else if(s.months){
+    // startYear만 있는 경우: 1월 시작 가정
+    endY = startY + Math.ceil((+s.months)/12) - 1;
+  }
+  if(endY < startY) endY = startY;
+
+  const years=[];
+  for(let y=startY; y<=endY; y++) years.push(y);
+  return years;
+}
+
 function getSvcYears(){
-  const fromParts=[...new Set(S.svcParts.map(p=>p.year))];
-  const fromSvcs=S.services.flatMap(s=>{
-    const years=[];
-    if(s.startDate)years.push(new Date(s.startDate).getFullYear());
-    if(s.endDate)years.push(new Date(s.endDate).getFullYear());
-    if(s.startYear)years.push(+s.startYear);
-    return years;
-  }).filter(y=>!isNaN(y)&&y>2000);
-  const ys=[...new Set([...fromParts,...fromSvcs])].sort();
+  const fromParts=[...new Set(S.svcParts.map(p=>+p.year))].filter(y=>!isNaN(y)&&y>2000);
+  const fromSvcs=S.services.flatMap(s=>getSvcSpanYears(s));
+  const ys=[...new Set([...fromParts,...fromSvcs])].sort((a,b)=>a-b);
   return ys.length?ys:[new Date().getFullYear()];
 }
 
@@ -2238,16 +2276,17 @@ function renderSvcManmonth(){
     <div class="g3" style="margin-bottom:10px">
       <div class="form-row"><label class="form-label">용역명</label><input type="text" id="ns-name" placeholder="한수원 빅데이터 구축"></div>
       <div class="form-row"><label class="form-label">발주기관</label><input type="text" id="ns-client" placeholder="한수원"></div>
-      <div class="form-row"><label class="form-label">상태</label><select id="ns-status"><option>수행중</option><option>협약중</option><option>계획중</option><option>종료</option></select></div>
+      <div class="form-row"><label class="form-label">상태</label><select id="ns-status" onchange="onAddSvcStatusChange()"><option>계획중</option><option>협약중</option><option>수행중</option><option>종료</option></select></div>
     </div>
     <div class="g3">
       <div class="form-row"><label class="form-label">기간(개월)</label><input type="number" id="ns-months" placeholder="30" step="1"></div>
       <div class="form-row"><label class="form-label">시작연도</label><input type="number" id="ns-startyear" value="${new Date().getFullYear()}"></div>
       <div class="form-row"><label class="form-label">비고</label><input type="text" id="ns-memo" placeholder="특이사항"></div>
     </div>
-    <div class="g3" style="margin-top:8px">
-      <div class="form-row"><label class="form-label">시작일</label><input type="date" id="ns-startdate"></div>
-      <div class="form-row"><label class="form-label">종료일</label><input type="date" id="ns-enddate"></div>
+    <div id="ns-date-area" class="g3" style="margin-top:8px">
+      <div class="form-row"><label class="form-label">시작 (월)</label><input type="text" id="ns-startdate" placeholder="2026-04"><div style="font-size:10px;color:var(--text3);margin-top:3px">계획/협약 단계는 월까지만</div></div>
+      <div class="form-row"><label class="form-label">종료 (월)</label><input type="text" id="ns-enddate" placeholder="2028-09"><div style="font-size:10px;color:var(--text3);margin-top:3px">수행중으로 변경 시 일자까지 입력</div></div>
+      <div></div>
     </div>
     <div class="form-actions"><button class="btn" onclick="toggleForm('add-svc-form')">취소</button><button class="btn btn-primary" onclick="addService()">등록</button></div>
   </div>`;
@@ -2264,8 +2303,9 @@ function renderSvcManmonth(){
     html+=`<div class="yearly-proj"><div class="yearly-proj-head">
       <span style="font-size:13px;font-weight:600">${svc.name}</span>
       <span class="badge ${statusMap[svc.status]||'b-gray'}">${svc.status}</span>
-      <span style="font-size:11px;color:var(--text3)">${svc.client} · ${svc.months}개월 · ${fmtDate(svc.startDate)||svc.startYear+'년 시작'}${svc.endDate?' ~ '+fmtDate(svc.endDate):''}</span>
-      <button class="btn btn-danger btn-sm" style="margin-left:auto" onclick="deleteService(${svc.id})">삭제</button>
+      <span style="font-size:11px;color:var(--text3)">${svc.client} · ${svc.months}개월 · ${fmtSvcDate(svc, svc.startDate)||svc.startYear+'년 시작'}${svc.endDate?' ~ '+fmtSvcDate(svc, svc.endDate):''}</span>
+      <button class="btn btn-sm" style="margin-left:auto" onclick="openEditSvcModal(${svc.id})">✎ 수정</button>
+      <button class="btn btn-danger btn-sm" onclick="deleteService(${svc.id})">삭제</button>
     </div><div style="padding:1rem 1.2rem">
     <div class="tbl-wrap"><table><thead><tr><th>이름</th><th>직급</th>`;
     years.forEach(y=>{
@@ -2450,58 +2490,81 @@ function renderSvcAgency(){
 }
 
 // ── 용역 시뮬 ──
+// ─────────────────────────────────────────────────────
+// 신규 용역 시뮬레이터 (현 엑셀 형식: 기존MM | 신규MM | 합계 | 여유)
+// ─────────────────────────────────────────────────────
+let svcSimYears=[];
+
 function renderSvcSim(){
-  const svcYears=getSvcYears();
   const curYear=new Date().getFullYear();
-  const allYears=[...new Set([...svcYears, curYear, curYear+1, curYear+2])].sort();
-  const yearOpts=allYears.map(y=>`<option value="${y}">${y}년</option>`).join('');
+  // 기본 범위: 올해 ~ 올해+2년 (3년)
+  const defStart=curYear, defEnd=curYear+2;
+  // 선택지: 기존 용역 연도 ∪ (올해-1 ~ 올해+5)
+  const svcYears=getSvcYears();
+  const baseRange=[];
+  for(let y=curYear-1; y<=curYear+5; y++) baseRange.push(y);
+  const allYears=[...new Set([...svcYears, ...baseRange])].sort((a,b)=>a-b);
+  const yearOptsStart=allYears.map(y=>`<option value="${y}" ${y===defStart?'selected':''}>${y}년</option>`).join('');
+  const yearOptsEnd=allYears.map(y=>`<option value="${y}" ${y===defEnd?'selected':''}>${y}년</option>`).join('');
 
   document.getElementById('svc-sim-content').innerHTML=`
   <div class="card" style="margin-bottom:1rem">
-    <div class="card-title">① 신규 용역 기본 정보</div>
+    <div class="card-title">① 신규 용역 기본 정보
+      <span class="card-title-sub">'정식 용역으로 저장' 시 이 정보로 등록됩니다</span>
+    </div>
     <div class="g4">
       <div class="form-row"><label class="form-label">발주기관</label>
         <input type="text" id="ss-client" placeholder="예) 한수원" oninput="svcSimUpdate()"></div>
       <div class="form-row"><label class="form-label">용역명</label>
-        <input type="text" id="ss-name" placeholder="예) 빅데이터 구축" oninput="svcSimUpdate()"></div>
+        <input type="text" id="ss-name" placeholder="예) 빅데이터 구축"></div>
+      <div class="form-row"><label class="form-label">상태</label>
+        <select id="ss-status">
+          <option value="계획중">계획중</option>
+          <option value="협약중">협약중</option>
+          <option value="수행중">수행중</option>
+        </select></div>
       <div class="form-row"><label class="form-label">기간(개월)</label>
         <input type="number" id="ss-months" value="12" min="1" max="60" oninput="svcSimUpdate()"></div>
-      <div class="form-row"><label class="form-label">총 인건비(억원)</label>
-        <input type="number" id="ss-budget" placeholder="예) 3.5" step="0.1" oninput="svcSimUpdate()"></div>
+    </div>
+    <div class="g4" style="margin-top:10px">
+      <div class="form-row"><label class="form-label">시작 연도</label>
+        <select id="ss-start-year" onchange="svcSimRebuild()">${yearOptsStart}</select></div>
+      <div class="form-row"><label class="form-label">종료 연도</label>
+        <select id="ss-end-year" onchange="svcSimRebuild()">${yearOptsEnd}</select></div>
+      <div class="form-row"><label class="form-label">시작일(선택)</label>
+        <input type="text" id="ss-startdate" placeholder="2026-04 또는 2026-04-15"></div>
+      <div class="form-row"><label class="form-label">종료일(선택)</label>
+        <input type="text" id="ss-enddate" placeholder="2028-09 또는 2028-09-30"></div>
     </div>
     <div class="g2" style="margin-top:10px">
-      <div class="form-row"><label class="form-label">시작 연도</label>
-        <select id="ss-start-year" onchange="svcSimRebuild()">${yearOpts}</select></div>
-      <div class="form-row"><label class="form-label">종료 연도</label>
-        <select id="ss-end-year" onchange="svcSimRebuild()">${allYears.map(y=>`<option value="${y}" ${y===allYears[allYears.length-1]?'selected':''}>${y}년</option>`).join('')}</select></div>
+      <div class="form-row"><label class="form-label">총 인건비(억원, 선택)</label>
+        <input type="number" id="ss-budget" placeholder="예) 3.5" step="0.1" oninput="svcSimUpdate()"></div>
+      <div class="form-row"><label class="form-label">비고</label>
+        <input type="text" id="ss-memo" placeholder="특이사항"></div>
     </div>
   </div>
 
   <div class="card" style="margin-bottom:1rem">
-    <div class="card-title">② 인원별 연도별 투입 MM 입력
-      <span class="card-title-sub">기존 용역 MM + 신규 합산 → 12MM 초과 시 경고</span>
+    <div class="card-title">② 인원별 연도별 투입 MM 시뮬레이션
+      <span class="card-title-sub">발주기관 입력 시 동일 기관 기존 용역 MM이 자동 표시됩니다 · 1행 = 1인원, 1셀 = [기존|신규|누적|여유]</span>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:10px;align-items:center;flex-wrap:wrap">
+      <input type="text" id="ss-search" placeholder="🔍 인원 이름/직급 검색"
+        oninput="svcSimFilterPeople()" style="flex:1;min-width:180px;max-width:300px;font-size:12px;padding:6px 10px;border:1px solid var(--border);border-radius:6px">
+      <span style="font-size:11px;color:var(--text3)">총 ${S.people.length}명</span>
     </div>
     <div class="tbl-wrap"><table id="ss-mm-table">
-      <thead id="ss-mm-head"><tr>
-        <th>이름</th><th>직급</th>
-        ${allYears.map(y=>`<th style="text-align:center">${y}년<div style="font-size:9px;font-weight:400;color:var(--text3)">신규MM</div></th>`).join('')}
-        <th style="text-align:center">기간합산MM</th>
-        <th style="text-align:center">인건비(천원)</th>
-        <th style="text-align:center">12MM 초과</th>
-      </tr></thead>
+      <thead id="ss-mm-head"></thead>
       <tbody id="ss-mm-body"></tbody>
-      <tfoot><tr>
-        <td colspan="2" style="font-weight:700;text-align:right;font-size:12px">합계</td>
-        ${allYears.map(()=>'<td></td>').join('')}
-        <td id="ss-total-mm" style="text-align:center;font-weight:700"></td>
-        <td id="ss-total-cost" style="text-align:center;font-weight:700;color:var(--green-text)"></td>
-        <td></td>
-      </tr></tfoot>
+      <tfoot id="ss-mm-foot"></tfoot>
     </table></div>
+    <div style="margin-top:8px;font-size:11px;color:var(--text3);line-height:1.6">
+      💡 <b>표 읽는 법</b>: 회색=기존MM(이미 들어간 양) · 파랑=신규MM(이번에 입력) · 초록=누적(기존+신규) · 빨강=여유(12-누적, 음수면 초과)
+    </div>
   </div>
 
-  <div class="card" id="ss-verify-card" style="display:none">
-    <div class="card-title">⑤ 총 인건비 검증</div>
+  <div class="card" id="ss-verify-card" style="display:none;margin-bottom:1rem">
+    <div class="card-title">③ 총 인건비 검증</div>
     <div style="display:flex;gap:2rem;align-items:center;flex-wrap:wrap">
       <div style="text-align:center">
         <div style="font-size:11px;color:var(--text3);margin-bottom:4px">입력한 총 인건비</div>
@@ -2517,126 +2580,219 @@ function renderSvcSim(){
         <div id="ss-v-diff" style="font-size:20px;font-weight:700"></div>
       </div>
     </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">④ 정식 용역으로 저장</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.6">
+      위 ①의 용역 정보 + ②에 입력된 인원·연도별 신규MM이 함께 새 용역으로 저장됩니다.<br>
+      저장 후에는 <b>용역별 맨먼스 관리</b> 화면에서 추가/수정할 수 있습니다.
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="svcSimSaveAsService()">💾 정식 용역으로 저장</button>
+      <button class="btn" onclick="svcSimReset()">↺ 입력값 초기화</button>
+    </div>
   </div>`;
 
-  // 인원별 행 생성
-  const years=[...new Set([...svcYears, curYear, curYear+1, curYear+2])].sort();
+  svcSimRebuild();
+}
+
+// 시작/종료 연도로 표시할 연도 목록 결정
+function svcSimGetYears(){
+  const startY=parseInt(document.getElementById('ss-start-year')?.value)||new Date().getFullYear();
+  const endY=parseInt(document.getElementById('ss-end-year')?.value)||startY;
+  const lo=Math.min(startY,endY), hi=Math.max(startY,endY);
+  const out=[];
+  for(let y=lo; y<=hi; y++) out.push(y);
+  return out;
+}
+
+function svcSimRebuild(){
+  const years=svcSimGetYears();
+  if(!years.length)return;
+  svcSimYears=years;
+
+  // 헤더: 연도별 4컬럼(기존/신규/누적/여유)
+  const head=document.getElementById('ss-mm-head');
+  if(head){
+    let h=`<tr><th rowspan="2" style="vertical-align:middle">이름</th><th rowspan="2" style="vertical-align:middle">직급</th>`;
+    years.forEach(y=>{
+      h+=`<th colspan="4" style="text-align:center;background:var(--surface2);border-left:2px solid var(--border2)">${y}년</th>`;
+    });
+    h+=`<th rowspan="2" style="vertical-align:middle;text-align:center;border-left:2px solid var(--border2)">신규<br>합계MM</th>`;
+    h+=`<th rowspan="2" style="vertical-align:middle;text-align:center">인건비</th></tr>`;
+    h+=`<tr>`;
+    years.forEach(()=>{
+      h+=`<th style="text-align:center;font-size:9px;font-weight:500;color:var(--text3);border-left:2px solid var(--border2);background:var(--surface2)">기존</th>`;
+      h+=`<th style="text-align:center;font-size:9px;font-weight:500;color:var(--blue-text);background:var(--surface2)">신규</th>`;
+      h+=`<th style="text-align:center;font-size:9px;font-weight:500;color:var(--green-text);background:var(--surface2)">누적</th>`;
+      h+=`<th style="text-align:center;font-size:9px;font-weight:500;color:var(--red-text);background:var(--surface2)">여유</th>`;
+    });
+    h+=`</tr>`;
+    head.innerHTML=h;
+  }
+
   svcSimBuildRows(years);
+
+  // 합계 행
+  const foot=document.getElementById('ss-mm-foot');
+  if(foot){
+    let f=`<tr style="background:var(--surface2);font-weight:700;border-top:2px solid var(--border2)">
+      <td colspan="2" style="text-align:right;font-size:12px">합계</td>`;
+    years.forEach(y=>{
+      f+=`<td colspan="4" style="text-align:center;border-left:2px solid var(--border2)" id="ss-yr-total-${y}"></td>`;
+    });
+    f+=`<td id="ss-total-mm" style="text-align:center;border-left:2px solid var(--border2)"></td>`;
+    f+=`<td id="ss-total-cost" style="text-align:center;color:var(--green-text)"></td></tr>`;
+    foot.innerHTML=f;
+  }
+
   svcSimUpdate();
 }
 
-let svcSimYears=[];
 function svcSimBuildRows(years){
-  svcSimYears=years;
   const tbody=document.getElementById('ss-mm-body');
   if(!tbody)return;
   tbody.innerHTML=S.people.map(p=>{
-    const yearCells=years.map(y=>`
-      <td style="text-align:center">
-        <input type="number" class="rate-input" id="ss-mm-${p.id}-${y}"
-          value="" min="0" max="12" step="0.5" placeholder="0"
-          oninput="svcSimUpdate()" style="width:60px">
-      </td>`).join('');
-    return `<tr id="ss-row-${p.id}">
-      <td style="font-weight:600">${p.name}</td>
-      <td style="color:var(--text3)">${p.rank}</td>
-      ${yearCells}
-      <td id="ss-sum-${p.id}" style="text-align:center;font-weight:700"></td>
-      <td id="ss-cost-${p.id}" style="text-align:center;font-size:11px"></td>
-      <td id="ss-warn-${p.id}" style="text-align:center"></td>
+    let cells='';
+    years.forEach(y=>{
+      cells+=`<td style="text-align:center;color:var(--text3);font-size:10px;border-left:2px solid var(--border2)" id="ss-exist-${p.id}-${y}">-</td>`;
+      cells+=`<td style="text-align:center;background:var(--blue-bg)"><input type="number" class="rate-input" id="ss-mm-${p.id}-${y}" value="" min="0" max="12" step="0.1" placeholder="0" oninput="svcSimUpdate()" style="width:55px;font-size:11px"></td>`;
+      cells+=`<td style="text-align:center;font-size:10px;font-weight:600" id="ss-acc-${p.id}-${y}">-</td>`;
+      cells+=`<td style="text-align:center;font-size:10px;font-weight:600" id="ss-rest-${p.id}-${y}">-</td>`;
+    });
+    return `<tr id="ss-row-${p.id}" data-name="${p.name}" data-rank="${p.rank||''}">
+      <td style="font-weight:600;white-space:nowrap">${p.name}</td>
+      <td style="color:var(--text3);font-size:11px">${p.rank||''}</td>
+      ${cells}
+      <td id="ss-sum-${p.id}" style="text-align:center;font-weight:700;border-left:2px solid var(--border2)">-</td>
+      <td id="ss-cost-${p.id}" style="text-align:center;font-size:11px">-</td>
     </tr>`;
   }).join('');
 }
-function svcSimRebuild(){
-  const startY=parseInt(document.getElementById('ss-start-year')?.value)||new Date().getFullYear();
-  const endY=parseInt(document.getElementById('ss-end-year')?.value)||startY;
-  const svcYears=getSvcYears();
-  const curYear=new Date().getFullYear();
-  const allYears=[...new Set([...svcYears,curYear,curYear+1,curYear+2])].sort();
-  const filteredYears=allYears.filter(y=>y>=startY&&y<=Math.max(startY,endY));
-  if(!filteredYears.length)return;
-  // 헤더 재구성
-  const head=document.getElementById('ss-mm-head');
-  if(head){
-    head.innerHTML=`<tr><th>이름</th><th>직급</th>${filteredYears.map(y=>`<th style="text-align:center">${y}년<div style="font-size:9px;font-weight:400;color:var(--text3)">신규MM</div></th>`).join('')}<th style="text-align:center">기간합산MM</th><th style="text-align:center">인건비(천원)</th><th style="text-align:center">12MM 초과</th></tr>`;
-  }
-  // tfoot 재구성
-  const tfoot=document.querySelector('#ss-mm-table tfoot tr');
-  if(tfoot){
-    tfoot.innerHTML=`<td colspan="2" style="font-weight:700;text-align:right;font-size:12px">합계</td>${filteredYears.map(()=>'<td></td>').join('')}<td id="ss-total-mm" style="text-align:center;font-weight:700"></td><td id="ss-total-cost" style="text-align:center;font-weight:700;color:var(--green-text)"></td><td></td>`;
-  }
-  svcSimBuildRows(filteredYears);
-  svcSimUpdate();
+
+function svcSimFilterPeople(){
+  const q=(document.getElementById('ss-search')?.value||'').trim().toLowerCase();
+  document.querySelectorAll('#ss-mm-body tr').forEach(tr=>{
+    if(!q){tr.style.display='';return;}
+    const n=(tr.dataset.name||'').toLowerCase();
+    const r=(tr.dataset.rank||'').toLowerCase();
+    tr.style.display=(n.includes(q)||r.includes(q))?'':'none';
+  });
 }
 
 function svcSimUpdate(){
-  const client=document.getElementById('ss-client')?.value.trim()||'';
+  const client=(document.getElementById('ss-client')?.value||'').trim();
   const budget=parseFloat(document.getElementById('ss-budget')?.value)||0;
-  const months=parseInt(document.getElementById('ss-months')?.value)||12;
   const years=svcSimYears;
   if(!years.length)return;
 
-  let totalMM=0, totalCost=0;
+  let grandNewMM=0, grandCost=0;
+  const yearTotals={}; // {year: {exist, neu, acc}}
+  years.forEach(y=>yearTotals[y]={exist:0,neu:0,acc:0});
 
   S.people.forEach(p=>{
-    // 신규 MM 입력값
-    const newMMs=years.map(y=>parseFloat(document.getElementById(`ss-mm-${p.id}-${y}`)?.value)||0);
-    const personNewTotal=newMMs.reduce((s,m)=>s+m,0);
+    let personNewTotal=0;
 
-    // 인건비 계산 (단가 × MM / 12 × 월수환산)
-    const monthlySal=p.salary/12; // 천원/월
-    const cost=Math.round(personNewTotal * monthlySal); // 천원
-
-    // 기존 MM (해당 기관 + 전체)
-    const maxExistByYear=years.map(y=>svcMmByYear(p.id,client,y));
-
-    // 합산 후 12MM 초과 여부
-    const overYears=years.filter((y,i)=>{
+    years.forEach(y=>{
+      const newMM=parseFloat(document.getElementById(`ss-mm-${p.id}-${y}`)?.value)||0;
+      // 동일 기관 기존 MM (기관명 입력 없으면 0)
       const exist=client?svcMmByYear(p.id,client,y):0;
-      const newMM=newMMs[i];
-      return (exist+newMM)>12;
+      const acc=exist+newMM;
+      const rest=12-acc;
+
+      const existEl=document.getElementById(`ss-exist-${p.id}-${y}`);
+      const accEl=document.getElementById(`ss-acc-${p.id}-${y}`);
+      const restEl=document.getElementById(`ss-rest-${p.id}-${y}`);
+
+      if(existEl){
+        existEl.textContent=exist>0?exist.toFixed(2):'-';
+        existEl.style.color=exist>0?'var(--text2)':'var(--text3)';
+      }
+      if(accEl){
+        if(acc>0){
+          accEl.textContent=acc.toFixed(2);
+          accEl.style.color=acc>12?'var(--red-text)':'var(--green-text)';
+        } else {
+          accEl.textContent='-';
+          accEl.style.color='var(--text3)';
+        }
+      }
+      if(restEl){
+        if(acc>0){
+          restEl.textContent=rest.toFixed(2);
+          restEl.style.color=rest<0?'var(--red-text)':rest<2?'var(--orange-text, #d97706)':'var(--text2)';
+          restEl.style.fontWeight=rest<0?'700':'600';
+        } else {
+          restEl.textContent='-';
+          restEl.style.color='var(--text3)';
+          restEl.style.fontWeight='400';
+        }
+      }
+
+      personNewTotal+=newMM;
+      yearTotals[y].exist+=exist;
+      yearTotals[y].neu+=newMM;
+      yearTotals[y].acc+=acc;
     });
 
-    // 행 업데이트
+    // 인건비
+    const monthlySal=(p.salary||0)/12;
+    const cost=Math.round(personNewTotal*monthlySal);
+
     const sumEl=document.getElementById(`ss-sum-${p.id}`);
     const costEl=document.getElementById(`ss-cost-${p.id}`);
-    const warnEl=document.getElementById(`ss-warn-${p.id}`);
     const row=document.getElementById(`ss-row-${p.id}`);
 
-    if(sumEl) sumEl.textContent=personNewTotal?personNewTotal.toFixed(1)+'MM':'-';
-    if(sumEl) sumEl.style.color=personNewTotal>0?'var(--green-text)':'var(--text3)';
-
-    if(costEl) costEl.textContent=cost>0?Math.round(cost/1000).toLocaleString()+'백만원':'-';
-
-    if(warnEl){
-      if(overYears.length>0){
-        warnEl.innerHTML=`<span class="badge b-over">⚠ ${overYears.join(',')}년 초과</span>`;
-        if(row)row.style.background='var(--red-bg)';
-      } else {
-        warnEl.textContent='-';
-        if(row)row.style.background='';
-      }
+    if(sumEl){
+      sumEl.textContent=personNewTotal>0?personNewTotal.toFixed(2)+'MM':'-';
+      sumEl.style.color=personNewTotal>0?'var(--green-text)':'var(--text3)';
+    }
+    if(costEl){
+      costEl.textContent=cost>0?Math.round(cost/1000).toLocaleString()+'백만원':'-';
     }
 
-    if(personNewTotal>0){totalMM+=personNewTotal;totalCost+=cost;}
+    // 행 강조: 어느 한 연도라도 누적 > 12면 빨강
+    if(row){
+      const anyOver=years.some(y=>{
+        const newMM=parseFloat(document.getElementById(`ss-mm-${p.id}-${y}`)?.value)||0;
+        const exist=client?svcMmByYear(p.id,client,y):0;
+        return (exist+newMM)>12;
+      });
+      row.style.background=anyOver?'var(--red-bg)':'';
+    }
+
+    if(personNewTotal>0){grandNewMM+=personNewTotal;grandCost+=cost;}
   });
 
   // 합계 행
+  years.forEach(y=>{
+    const t=yearTotals[y];
+    const el=document.getElementById(`ss-yr-total-${y}`);
+    if(el){
+      if(t.neu>0){
+        el.innerHTML=`<div style="font-size:11px">신규 <b style="color:var(--blue-text)">${t.neu.toFixed(2)}</b> · 누적 <b style="color:${t.acc>12?'var(--red-text)':'var(--green-text)'}">${t.acc.toFixed(2)}</b></div>`;
+      } else {
+        el.textContent='-';
+      }
+    }
+  });
+
   const totalMMEl=document.getElementById('ss-total-mm');
   const totalCostEl=document.getElementById('ss-total-cost');
-  if(totalMMEl) totalMMEl.textContent=totalMM?totalMM.toFixed(1)+'MM':'-';
-  if(totalCostEl) totalCostEl.textContent=totalCost>0?Math.round(totalCost/1000).toLocaleString()+'백만원':'-';
+  if(totalMMEl) totalMMEl.textContent=grandNewMM?grandNewMM.toFixed(2)+'MM':'-';
+  if(totalCostEl) totalCostEl.textContent=grandCost>0?Math.round(grandCost/1000).toLocaleString()+'백만원':'-';
 
   // 인건비 검증
   const card=document.getElementById('ss-verify-card');
   if(card){
-    if(budget>0 && totalCost>0){
+    if(budget>0 && grandCost>0){
       card.style.display='block';
-      const budgetKr=budget*100000; // 천원
-      const diff=budgetKr-totalCost;
+      const budgetKr=budget*100000;
+      const diff=budgetKr-grandCost;
       const diffPct=Math.abs(diff/budgetKr*100).toFixed(1);
       document.getElementById('ss-v-input').textContent=budget+'억원';
-      document.getElementById('ss-v-calc').textContent=Math.round(totalCost/100000*10)/10+'억원';
+      document.getElementById('ss-v-calc').textContent=Math.round(grandCost/100000*10)/10+'억원';
       const diffEl=document.getElementById('ss-v-diff');
       if(Math.abs(diff)<budgetKr*0.05){
         diffEl.textContent='✅ 일치 (±'+diffPct+'%)';
@@ -2654,14 +2810,127 @@ function svcSimUpdate(){
   }
 }
 
+// "정식 용역으로 저장" - 시뮬레이터 입력값을 통째로 신규 용역으로 등록
+async function svcSimSaveAsService(){
+  const name=(document.getElementById('ss-name')?.value||'').trim();
+  const client=(document.getElementById('ss-client')?.value||'').trim();
+  if(!name){alert('용역명을 입력해주세요.');return;}
+  if(!client){alert('발주기관을 입력해주세요.');return;}
+
+  const status=document.getElementById('ss-status')?.value||'계획중';
+  const months=parseInt(document.getElementById('ss-months')?.value)||12;
+  const memo=(document.getElementById('ss-memo')?.value||'').trim();
+  const startDate=(document.getElementById('ss-startdate')?.value||'').trim();
+  const endDate=(document.getElementById('ss-enddate')?.value||'').trim();
+  const startYear=parseInt(document.getElementById('ss-start-year')?.value)||new Date().getFullYear();
+
+  // 입력된 인원·연도별 MM 수집
+  const years=svcSimYears;
+  const inputs=[]; // [{pid, year, manmonth}]
+  S.people.forEach(p=>{
+    years.forEach(y=>{
+      const mm=parseFloat(document.getElementById(`ss-mm-${p.id}-${y}`)?.value)||0;
+      if(mm>0) inputs.push({pid:p.id, year:y, manmonth:mm});
+    });
+  });
+
+  if(inputs.length===0){
+    if(!confirm('입력된 인원/MM이 없습니다. 용역 정보만 등록할까요?'))return;
+  } else {
+    if(!confirm(`'${name}' 용역을 등록하고 ${inputs.length}건의 인원·MM 데이터를 함께 저장합니다. 계속하시겠습니까?`))return;
+  }
+
+  // 1. 용역 등록
+  const svcRes=await apiPost({
+    action:'addService', name, client, status, months, startYear,
+    memo, startDate, endDate
+  });
+  if(!svcRes.id){alert('용역 등록 실패: '+(svcRes.error||'알 수 없는 오류'));return;}
+
+  // 로컬 데이터 즉시 반영
+  const newSvc={id:svcRes.id, name, client, status, months:+months, startYear:+startYear, memo, startDate, endDate};
+  S.services.push(newSvc);
+
+  // 2. 인원·MM 일괄 등록
+  for(const it of inputs){
+    await apiPost({action:'addSvcPart', pid:it.pid, svcId:svcRes.id, year:it.year, manmonth:it.manmonth});
+    S.svcParts.push({pid:it.pid, svcId:svcRes.id, year:it.year, manmonth:it.manmonth, role:''});
+  }
+
+  alert(`'${name}' 용역이 등록되었습니다.\n· 인원·MM: ${inputs.length}건\n\n용역별 맨먼스 관리 화면에서 확인하실 수 있습니다.`);
+
+  // 시뮬레이터 초기화 후 용역 화면으로 이동
+  svcSimReset(true);
+  if(typeof renderSvcManmonth==='function')renderSvcManmonth();
+  if(typeof renderSvcOverview==='function')renderSvcOverview();
+  if(typeof renderSvcAgency==='function')renderSvcAgency();
+}
+
+function svcSimReset(silent){
+  if(!silent && !confirm('시뮬레이터 입력값을 모두 초기화하시겠습니까?'))return;
+  ['ss-client','ss-name','ss-memo','ss-startdate','ss-enddate','ss-budget'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  const monthsEl=document.getElementById('ss-months'); if(monthsEl) monthsEl.value=12;
+  const statusEl=document.getElementById('ss-status'); if(statusEl) statusEl.value='계획중';
+  document.querySelectorAll('[id^="ss-mm-"]').forEach(el=>{ if(el.tagName==='INPUT') el.value=''; });
+  svcSimUpdate();
+}
+
 
 // ── 용역 CRUD ──
+function onAddSvcStatusChange(){
+  const status=document.getElementById('ns-status')?.value||'계획중';
+  const isLoose=(status==='계획중'||status==='협약중');
+  const area=document.getElementById('ns-date-area');
+  if(!area)return;
+  // 현재 입력값 보존
+  const sd=document.getElementById('ns-startdate')?.value||'';
+  const ed=document.getElementById('ns-enddate')?.value||'';
+  if(isLoose){
+    area.innerHTML=`
+      <div class="form-row"><label class="form-label">시작 (월)</label><input type="text" id="ns-startdate" value="${escapeAttr(toYearMonth(sd)||sd)}" placeholder="2026-04"><div style="font-size:10px;color:var(--text3);margin-top:3px">계획/협약 단계는 월까지만</div></div>
+      <div class="form-row"><label class="form-label">종료 (월)</label><input type="text" id="ns-enddate" value="${escapeAttr(toYearMonth(ed)||ed)}" placeholder="2028-09"><div style="font-size:10px;color:var(--text3);margin-top:3px">수행중으로 변경 시 일자까지 입력</div></div>
+      <div></div>`;
+  } else {
+    area.innerHTML=`
+      <div class="form-row"><label class="form-label">시작일</label><input type="date" id="ns-startdate" value="${toYMD(sd)}"></div>
+      <div class="form-row"><label class="form-label">종료일</label><input type="date" id="ns-enddate" value="${toYMD(ed)}"></div>
+      <div></div>`;
+  }
+}
+
 async function addService(){
-  const name=document.getElementById('ns-name').value.trim();if(!name)return;
-  const svcStartDate=document.getElementById('ns-startdate').value;
-  const svcEndDate=document.getElementById('ns-enddate').value;
-  const res=await apiPost({action:'addService',name,client:document.getElementById('ns-client').value.trim(),status:document.getElementById('ns-status').value,months:parseInt(document.getElementById('ns-months').value)||12,startYear:parseInt(document.getElementById('ns-startyear').value)||new Date().getFullYear(),memo:document.getElementById('ns-memo').value.trim(),startDate:svcStartDate,endDate:svcEndDate});
-  if(res.id){S.services.push({id:res.id,name,client:document.getElementById('ns-client').value.trim(),status:document.getElementById('ns-status').value,months:parseInt(document.getElementById('ns-months').value)||12,startYear:parseInt(document.getElementById('ns-startyear').value)||new Date().getFullYear(),memo:document.getElementById('ns-memo').value.trim(),startDate:svcStartDate,endDate:svcEndDate});toggleForm('add-svc-form');renderSvcManmonth();renderSvcOverview();}
+  const name=document.getElementById('ns-name').value.trim();if(!name){alert('용역명을 입력해주세요');return;}
+  const client=document.getElementById('ns-client').value.trim();
+  const status=document.getElementById('ns-status').value;
+  const months=parseInt(document.getElementById('ns-months').value)||12;
+  const startYear=parseInt(document.getElementById('ns-startyear').value)||new Date().getFullYear();
+  const memo=document.getElementById('ns-memo').value.trim();
+
+  let sdRaw=document.getElementById('ns-startdate')?.value||'';
+  let edRaw=document.getElementById('ns-enddate')?.value||'';
+  let svcStartDate='', svcEndDate='';
+  if(status==='계획중'||status==='협약중'){
+    const sdM=normalizeMonthInput(sdRaw);
+    const edM=normalizeMonthInput(edRaw);
+    if(sdRaw && !sdM){alert('시작 월 형식이 올바르지 않습니다 (예: 2026-04)');return;}
+    if(edRaw && !edM){alert('종료 월 형식이 올바르지 않습니다 (예: 2028-09)');return;}
+    svcStartDate=sdM?(sdM+'-01'):'';
+    svcEndDate=edM?(edM+'-01'):'';
+  } else {
+    svcStartDate=toYMD(sdRaw);
+    svcEndDate=toYMD(edRaw);
+  }
+
+  const res=await apiPost({action:'addService',name,client,status,months,startYear,memo,startDate:svcStartDate,endDate:svcEndDate});
+  if(res.id){
+    S.services.push({id:res.id,name,client,status,months,startYear,memo,startDate:svcStartDate,endDate:svcEndDate});
+    toggleForm('add-svc-form');
+    renderSvcManmonth();renderSvcOverview();
+  } else {
+    alert('등록 실패: '+(res.error||'알 수 없는 오류'));
+  }
 }
 async function deleteService(id){
   if(!confirm('용역을 삭제하시겠습니까?'))return;
@@ -2669,6 +2938,200 @@ async function deleteService(id){
   renderSvcManmonth();renderSvcOverview();renderSvcAgency();
   await apiPost({action:'deleteService',id});
 }
+
+// ─────────────────────────────────────────────────────
+// 용역 수정 모달
+// ─────────────────────────────────────────────────────
+function openEditSvcModal(id){
+  const svc=S.services.find(s=>s.id===id);
+  if(!svc){alert('용역을 찾을 수 없습니다.');return;}
+
+  // 모달이 없으면 생성
+  let modal=document.getElementById('edit-svc-modal');
+  if(!modal){
+    modal=document.createElement('div');
+    modal.id='edit-svc-modal';
+    modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+    document.body.appendChild(modal);
+  }
+
+  // 상태에 따른 일자 입력 모드 결정 (계획중/협약중 → 월, 수행중/종료 → 일)
+  const isLooseStatus=(svc.status==='계획중'||svc.status==='협약중');
+  modal.dataset.svcId=id;
+
+  modal.innerHTML=`
+    <div style="background:var(--surface);border-radius:12px;padding:24px;max-width:680px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <div style="font-size:16px;font-weight:700">용역 정보 수정</div>
+        <button class="btn btn-sm" onclick="closeEditSvcModal()">✕</button>
+      </div>
+
+      <div class="g2" style="gap:12px;margin-bottom:12px">
+        <div class="form-row"><label class="form-label">용역명</label>
+          <input type="text" id="es-name" value="${escapeAttr(svc.name||'')}"></div>
+        <div class="form-row"><label class="form-label">발주기관</label>
+          <input type="text" id="es-client" value="${escapeAttr(svc.client||'')}"></div>
+      </div>
+
+      <div class="g3" style="gap:12px;margin-bottom:12px">
+        <div class="form-row"><label class="form-label">상태</label>
+          <select id="es-status" onchange="onEditSvcStatusChange()">
+            ${['계획중','협약중','수행중','종료'].map(s=>`<option value="${s}" ${svc.status===s?'selected':''}>${s}</option>`).join('')}
+          </select></div>
+        <div class="form-row"><label class="form-label">기간(개월)</label>
+          <input type="number" id="es-months" value="${+svc.months||12}" min="1" max="120"></div>
+        <div class="form-row"><label class="form-label">시작연도</label>
+          <input type="number" id="es-startyear" value="${+svc.startYear||new Date().getFullYear()}"></div>
+      </div>
+
+      <div id="es-date-area" class="g2" style="gap:12px;margin-bottom:12px">
+        <!-- 일자 영역은 onEditSvcStatusChange에서 동적 생성 -->
+      </div>
+
+      <div class="form-row" style="margin-bottom:16px">
+        <label class="form-label">비고</label>
+        <input type="text" id="es-memo" value="${escapeAttr(svc.memo||'')}">
+      </div>
+
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn" onclick="closeEditSvcModal()">취소</button>
+        <button class="btn btn-primary" onclick="saveEditSvc()">저장</button>
+      </div>
+    </div>`;
+
+  // 일자 영역 초기 렌더
+  renderEditSvcDateArea(svc.status, svc.startDate||'', svc.endDate||'');
+}
+
+function escapeAttr(s){
+  return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function closeEditSvcModal(){
+  const m=document.getElementById('edit-svc-modal');
+  if(m) m.remove();
+}
+
+function onEditSvcStatusChange(){
+  const status=document.getElementById('es-status')?.value||'계획중';
+  // 현재 입력값 보존
+  const sd=document.getElementById('es-startdate')?.value||'';
+  const ed=document.getElementById('es-enddate')?.value||'';
+  renderEditSvcDateArea(status, sd, ed);
+}
+
+function renderEditSvcDateArea(status, startDate, endDate){
+  const area=document.getElementById('es-date-area');
+  if(!area)return;
+  const isLoose=(status==='계획중'||status==='협약중');
+
+  if(isLoose){
+    // 월 단위 입력 (text, "YYYY-MM" 형식 허용)
+    const sdMonth=toYearMonth(startDate);
+    const edMonth=toYearMonth(endDate);
+    area.innerHTML=`
+      <div class="form-row"><label class="form-label">시작 (월 단위)</label>
+        <input type="text" id="es-startdate" value="${sdMonth}" placeholder="2026-04">
+        <div style="font-size:10px;color:var(--text3);margin-top:3px">계획/협약 단계는 월까지만 입력 (예: 2026-04)</div>
+      </div>
+      <div class="form-row"><label class="form-label">종료 (월 단위)</label>
+        <input type="text" id="es-enddate" value="${edMonth}" placeholder="2028-09">
+        <div style="font-size:10px;color:var(--text3);margin-top:3px">정확한 일자는 수행중으로 변경 후 입력</div>
+      </div>`;
+  } else {
+    // 일 단위 입력 (date)
+    const sdFull=toYMD(startDate);
+    const edFull=toYMD(endDate);
+    area.innerHTML=`
+      <div class="form-row"><label class="form-label">시작일</label>
+        <input type="date" id="es-startdate" value="${sdFull}">
+      </div>
+      <div class="form-row"><label class="form-label">종료일</label>
+        <input type="date" id="es-enddate" value="${edFull}">
+      </div>`;
+  }
+}
+
+// "YYYY-MM-DD" 또는 "YYYY-MM" → "YYYY-MM"
+function toYearMonth(s){
+  if(!s)return '';
+  const m=String(s).match(/^(\d{4})-(\d{1,2})/);
+  if(!m)return '';
+  return `${m[1]}-${m[2].padStart(2,'0')}`;
+}
+// "YYYY-MM" → "YYYY-MM-01", "YYYY-MM-DD" → 그대로
+function toYMD(s){
+  if(!s)return '';
+  const t=String(s).trim();
+  if(/^\d{4}-\d{1,2}-\d{1,2}/.test(t)){
+    const m=t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+    return `${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
+  }
+  if(/^\d{4}-\d{1,2}$/.test(t)){
+    const m=t.match(/^(\d{4})-(\d{1,2})$/);
+    return `${m[1]}-${m[2].padStart(2,'0')}-01`;
+  }
+  return '';
+}
+// 월 단위 입력 정규화: "2026-4" → "2026-04", 빈 값 허용, 잘못된 값은 빈 값
+function normalizeMonthInput(s){
+  if(!s)return '';
+  const m=String(s).trim().match(/^(\d{4})-(\d{1,2})$/);
+  if(!m)return '';
+  const yyyy=m[1], mm=m[2].padStart(2,'0');
+  const mn=parseInt(mm,10);
+  if(mn<1||mn>12)return '';
+  return `${yyyy}-${mm}`;
+}
+
+async function saveEditSvc(){
+  const modal=document.getElementById('edit-svc-modal');
+  if(!modal)return;
+  const id=parseInt(modal.dataset.svcId);
+  const svc=S.services.find(s=>s.id===id);
+  if(!svc){alert('용역을 찾을 수 없습니다.');return;}
+
+  const name=(document.getElementById('es-name')?.value||'').trim();
+  const client=(document.getElementById('es-client')?.value||'').trim();
+  if(!name){alert('용역명을 입력해주세요.');return;}
+  if(!client){alert('발주기관을 입력해주세요.');return;}
+
+  const status=document.getElementById('es-status')?.value||'계획중';
+  const months=parseInt(document.getElementById('es-months')?.value)||12;
+  const startYear=parseInt(document.getElementById('es-startyear')?.value)||new Date().getFullYear();
+  const memo=(document.getElementById('es-memo')?.value||'').trim();
+
+  // 일자: 상태에 따라 정규화
+  let sdRaw=(document.getElementById('es-startdate')?.value||'').trim();
+  let edRaw=(document.getElementById('es-enddate')?.value||'').trim();
+  let startDate='', endDate='';
+  if(status==='계획중'||status==='협약중'){
+    // 월 단위: YYYY-MM 으로 저장 (Date 파싱은 -01 일로 추가하여 호환)
+    const sdM=normalizeMonthInput(sdRaw);
+    const edM=normalizeMonthInput(edRaw);
+    if(sdRaw && !sdM){alert('시작 월 형식이 올바르지 않습니다 (예: 2026-04)');return;}
+    if(edRaw && !edM){alert('종료 월 형식이 올바르지 않습니다 (예: 2028-09)');return;}
+    // 백엔드 호환을 위해 YYYY-MM-01로 저장
+    startDate=sdM?(sdM+'-01'):'';
+    endDate=edM?(edM+'-01'):'';
+  } else {
+    startDate=toYMD(sdRaw);
+    endDate=toYMD(edRaw);
+  }
+
+  const payload={action:'updateService', id, name, client, status, months, startYear, memo, startDate, endDate};
+  const res=await apiPost(payload);
+  if(res.error){alert('저장 실패: '+res.error);return;}
+
+  // 로컬 데이터 갱신
+  Object.assign(svc, {name, client, status, months, startYear, memo, startDate, endDate});
+
+  closeEditSvcModal();
+  renderSvcManmonth();
+  renderSvcOverview();
+  if(typeof renderSvcAgency==='function')renderSvcAgency();
+}
+
 async function addSvcPart(pid,svcId,year){
   if(S.svcParts.find(p=>p.pid===pid&&p.svcId===svcId&&p.year===year))return;
   S.svcParts.push({pid,svcId,year,manmonth:1});
