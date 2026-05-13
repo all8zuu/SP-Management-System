@@ -1434,12 +1434,15 @@ function toggleSalary(){
   if(btn)btn.textContent=cur?'🔒 단가 보기':'🔓 단가 숨기기';
   renderPeople();
 }
+// Phase 4 Step 1: 인라인 편집 열린 행 상태 (한 번에 하나만)
+let expandedTechRow=null;
 function renderPeople(){
   const years=getYears();
   document.getElementById('people-ytabs').innerHTML=years.map(y=>`<button class="ytab ${y===curPeopleYear?'active':''}" onclick="curPeopleYear=${y};renderPeople()">${y}년</button>`).join('');
   const year=curPeopleYear;
   const showSal=sessionStorage.getItem('show_salary')==='1';
   // Phase 4 Step 1: 기술등급 컬럼 추가
+  const COLSPAN = 10 + (showSal?1:0); // 이름~액션까지 컬럼 수
   let html=`<div class="card" style="padding:0"><div class="tbl-wrap"><table><thead><tr><th>이름</th><th>직급</th><th>소속</th><th style="text-align:center">기술등급</th><th>참여 과제</th><th style="min-width:140px">참여율</th><th>여유율</th><th style="text-align:center">용역MM</th><th>상태</th>${showSal?'<th style="color:var(--red-text)">단가(천원)</th>':''}<th></th></tr></thead><tbody>`;
   S.people.forEach(p=>{
     const t=pTotY(p.id,year);const rem=100-t;const st=stOf(t);const w=Math.min(t,100);
@@ -1450,49 +1453,63 @@ function renderPeople(){
     const eduG=techGradeFromEdu(p.edu,p.eduCareer);
     const certG=techGradeFromCert(p.cert,p.certCareer);
     const tgTooltip=`학력: ${p.edu||'-'}${p.eduCareer!=null?'/'+p.eduCareer+'년':''} (${eduG||'-'})\n자격: ${p.cert||'-'}${p.certCareer!=null?'/'+p.certCareer+'년':''} (${certG||'-'})`;
-    html+=`<tr>
-      <td style="font-weight:600;white-space:nowrap;min-width:52px">${p.name}</td>
-      <td>
-        <select style="font-size:11px;padding:2px 5px;border:1px solid var(--border2);border-radius:4px;background:var(--surface)" onchange="updPersonField(${p.id},'rank',this.value)">
+    const isOpen = expandedTechRow===p.id;
+    html+=`<tr${isOpen?' style="background:var(--surface2)"':''}>
+      <td style="font-weight:600;white-space:nowrap;min-width:52px;vertical-align:middle">${p.name}</td>
+      <td style="vertical-align:middle">
+        <select style="font-size:11px;padding:2px 22px 2px 6px;border:1px solid var(--border2);border-radius:4px;background:var(--surface);min-width:60px;appearance:none;-webkit-appearance:none;background-image:url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%228%22 height=%226%22 viewBox=%220 0 8 6%22><path fill=%22%23999%22 d=%22M0 0h8L4 6z%22/></svg>');background-repeat:no-repeat;background-position:right 6px center" onchange="updPersonField(${p.id},'rank',this.value)">
           ${['대표','부사장','본부장','이사','부장','차장','과장','대리','위원','PM'].map(r=>`<option value="${r}" ${p.rank===r?'selected':''}>${r}</option>`).join('')}
         </select>
       </td>
-      <td>
+      <td style="vertical-align:middle">
         <input type="text" value="${p.field}" style="font-size:11px;padding:2px 6px;border:1px solid var(--border2);border-radius:4px;width:90px" onchange="updPersonField(${p.id},'field',this.value)">
       </td>
-      <td style="text-align:center" title="${tgTooltip}">${gradeBadge(tg)}</td>
-      <td>${tags}</td>
-      <td><div class="bar-wrap"><div class="bar-track"><div class="bar-fill" style="width:${w}%;background:${bc(t)}"></div></div><span class="bar-val" style="color:${bc(t)}">${t}%</span></div></td>
-      <td style="font-weight:600;color:${rem<0?'var(--red)':rem<20?'var(--amber)':'var(--green)'}">${rem}%p</td>
-      <td style="text-align:center;font-size:11px;font-weight:600;color:${svcMM>0?'var(--green-text)':'var(--text3)'}">${svcMM?svcMM.toFixed(1)+'MM':'-'}</td>
-      <td><span class="badge ${st.c}">${st.l}</span></td>
-      ${showSal2?`<td style="color:var(--red-text);font-size:11px">${p.salary.toLocaleString()}</td>`:''}
-      <td style="display:flex;gap:4px;align-items:center;white-space:nowrap">
-        <button class="btn btn-sm" onclick="openTechEdit(${p.id})" title="기술등급 정보 편집">✎</button>
-        <button class="btn btn-sm" style="background:var(--amber-bg);color:var(--amber-text);border:1px solid var(--border)" 
-          onclick="retirePerson(${p.id})" title="퇴사 처리 — 퇴사자 명단으로 이동">퇴사</button>
-        <button class="btn btn-danger btn-sm" onclick="delPerson(${p.id})" title="완전 삭제 — 연동 데이터 모두 삭제됨">삭제</button>
+      <td style="text-align:center;vertical-align:middle" title="${tgTooltip}">${gradeBadge(tg)}</td>
+      <td style="vertical-align:middle">${tags}</td>
+      <td style="vertical-align:middle"><div class="bar-wrap"><div class="bar-track"><div class="bar-fill" style="width:${w}%;background:${bc(t)}"></div></div><span class="bar-val" style="color:${bc(t)}">${t}%</span></div></td>
+      <td style="font-weight:600;vertical-align:middle;color:${rem<0?'var(--red)':rem<20?'var(--amber)':'var(--green)'}">${rem}%p</td>
+      <td style="text-align:center;font-size:11px;font-weight:600;vertical-align:middle;color:${svcMM>0?'var(--green-text)':'var(--text3)'}">${svcMM?svcMM.toFixed(1)+'MM':'-'}</td>
+      <td style="vertical-align:middle"><span class="badge ${st.c}">${st.l}</span></td>
+      ${showSal2?`<td style="color:var(--red-text);font-size:11px;vertical-align:middle">${p.salary.toLocaleString()}</td>`:''}
+      <td style="vertical-align:middle;white-space:nowrap">
+        <div style="display:flex;gap:4px;align-items:center;justify-content:flex-end">
+          <button class="btn btn-sm" onclick="toggleTechEdit(${p.id})" title="기술등급 정보 편집" style="${isOpen?'background:var(--blue-bg);color:var(--blue-text);border:1px solid var(--blue-text)':''}">✎</button>
+          <button class="btn btn-sm" style="background:var(--amber-bg);color:var(--amber-text);border:1px solid var(--border)" onclick="retirePerson(${p.id})" title="퇴사 처리">퇴사</button>
+          <button class="btn btn-danger btn-sm" onclick="delPerson(${p.id})" title="완전 삭제">삭제</button>
+        </div>
       </td>
     </tr>`;
+    if(isOpen){
+      html+=`<tr class="tech-edit-row"><td colspan="${COLSPAN}" style="background:var(--surface2);padding:16px 20px;border-bottom:2px solid var(--blue-text)">${renderTechEditForm(p)}</td></tr>`;
+    }
   });
-  html+=`</tbody></table></div></div>
-  <div id="tech-edit-panel" class="add-form" style="margin-top:1rem"></div>`;
+  html+=`</tbody></table></div></div>`;
   document.getElementById('people-content').innerHTML=html;
 }
 
-// Phase 4 Step 1: 기술등급 편집 패널
-function openTechEdit(id){
-  const p=S.people.find(x=>x.id===id);if(!p)return;
-  const panel=document.getElementById('tech-edit-panel');
-  if(!panel)return;
-  const eduG=techGradeFromEdu(p.edu,p.eduCareer);
-  const certG=techGradeFromCert(p.cert,p.certCareer);
-  const finalG=calcTechGrade(p);
-  panel.classList.add('open');
-  panel.innerHTML=`
-    <div class="form-title">기술등급 편집 — ${p.name} (${p.rank})</div>
+// Phase 4 Step 1: 기술등급 인라인 편집 행 토글
+function toggleTechEdit(id){
+  expandedTechRow = (expandedTechRow===id) ? null : id;
+  renderPeople();
+  // 열린 행으로 스크롤 + 초기 미리보기 트리거
+  if(expandedTechRow===id){
+    setTimeout(()=>{
+      const row=document.querySelector('.tech-edit-row');
+      if(row) row.scrollIntoView({behavior:'smooth',block:'nearest'});
+      refreshTechPreview(id);
+    },50);
+  }
+}
+
+// Phase 4 Step 1: 기술등급 편집 폼 HTML 생성 (인라인 행에 삽입됨)
+function renderTechEditForm(p){
+  return `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div style="font-weight:700;color:var(--blue-text);font-size:13px">📊 기술등급 편집 — ${p.name} (${p.rank})</div>
+      <button class="btn btn-sm" onclick="expandedTechRow=null;renderPeople()" title="닫기">✕</button>
+    </div>
     <div style="background:var(--amber-bg);border:1px solid var(--border);border-radius:var(--r);padding:8px 12px;margin-bottom:12px;font-size:10px;color:var(--amber-text);line-height:1.6">
-      <span style="font-weight:700">📊 ITSQF 등급 기준</span><br>
+      <span style="font-weight:700">ITSQF 등급 기준</span><br>
       · 특급: 박사+3년 / 석사+9년 / 학사+12년 / 기술사 즉시 / 기사+7년 / 산업기사+10년<br>
       · 고급: 박사+0년 / 석사+6년 / 학사+9년 / 전문학사+9년 / 기사+3년 / 산업기사+6년<br>
       · 중급: 석사+3년 / 학사+6년 / 전문학사+3년 / 기사+0년 / 산업기사+0년<br>
@@ -1501,31 +1518,30 @@ function openTechEdit(id){
     <div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:6px">학력 정보</div>
     <div class="g3" style="margin-bottom:10px">
       <div class="form-row"><label class="form-label">학력</label>
-        <select id="te-edu" onchange="refreshTechPreview(${id})">
+        <select id="te-edu" onchange="refreshTechPreview(${p.id})">
           <option value="">선택안함</option>
           ${['박사','석사','학사','전문학사'].map(v=>`<option value="${v}" ${p.edu===v?'selected':''}>${v}</option>`).join('')}
         </select></div>
       <div class="form-row"><label class="form-label">졸업일</label><input type="date" id="te-edu-date" value="${fmtDate(p.eduDate)}"></div>
-      <div class="form-row"><label class="form-label">학력경력(년)</label><input type="number" id="te-edu-career" min="0" step="1" value="${p.eduCareer??''}" oninput="refreshTechPreview(${id})"></div>
+      <div class="form-row"><label class="form-label">학력경력(년)</label><input type="number" id="te-edu-career" min="0" step="1" value="${p.eduCareer??''}" oninput="refreshTechPreview(${p.id})"></div>
     </div>
     <div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:6px">자격 정보</div>
     <div class="g3" style="margin-bottom:10px">
       <div class="form-row"><label class="form-label">자격증</label>
-        <select id="te-cert" onchange="refreshTechPreview(${id})">
+        <select id="te-cert" onchange="refreshTechPreview(${p.id})">
           <option value="">선택안함</option>
           ${['기술사','기사','산업기사'].map(v=>`<option value="${v}" ${p.cert===v?'selected':''}>${v}</option>`).join('')}
         </select></div>
       <div class="form-row"><label class="form-label">취득일</label><input type="date" id="te-cert-date" value="${fmtDate(p.certDate)}"></div>
-      <div class="form-row"><label class="form-label">자격경력(년)</label><input type="number" id="te-cert-career" min="0" step="1" value="${p.certCareer??''}" oninput="refreshTechPreview(${id})"></div>
+      <div class="form-row"><label class="form-label">자격경력(년)</label><input type="number" id="te-cert-career" min="0" step="1" value="${p.certCareer??''}" oninput="refreshTechPreview(${p.id})"></div>
     </div>
-    <div id="te-preview" style="background:var(--surface2);border-radius:var(--r);padding:10px 12px;margin-bottom:10px;font-size:11px"></div>
+    <div id="te-preview" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;margin-bottom:10px;font-size:11px"></div>
     <div class="form-actions">
-      <button class="btn" onclick="closeTechEdit()">취소</button>
-      <button class="btn btn-primary" onclick="saveTechEdit(${id})">저장</button>
+      <button class="btn" onclick="expandedTechRow=null;renderPeople()">취소</button>
+      <button class="btn btn-primary" onclick="saveTechEdit(${p.id})">저장</button>
     </div>`;
-  refreshTechPreview(id);
-  panel.scrollIntoView({behavior:'smooth',block:'center'});
 }
+
 function refreshTechPreview(id){
   const edu=document.getElementById('te-edu').value;
   const eduC=document.getElementById('te-edu-career').value;
@@ -1537,10 +1553,7 @@ function refreshTechPreview(id){
   const box=document.getElementById('te-preview');
   if(box) box.innerHTML=`<span style="color:var(--text3)">현재 산출 —</span> 학력 기준 ${gradeBadge(a)} · 자격 기준 ${gradeBadge(b)} · <strong style="color:var(--blue-text)">최종 채택 ${gradeBadge(f)}</strong>`;
 }
-function closeTechEdit(){
-  const panel=document.getElementById('tech-edit-panel');
-  if(panel){panel.classList.remove('open');panel.innerHTML='';}
-}
+
 async function saveTechEdit(id){
   const p=S.people.find(x=>x.id===id);if(!p)return;
   const edu=document.getElementById('te-edu').value;
@@ -1553,7 +1566,7 @@ async function saveTechEdit(id){
   const certCareer=certCareerRaw===''?null:(parseInt(certCareerRaw)||0);
   // 낙관적 업데이트
   Object.assign(p,{edu,eduDate,eduCareer,cert,certDate,certCareer});
-  closeTechEdit();
+  expandedTechRow=null;
   renderPeople();
   await apiPost({action:'updatePerson',id,name:p.name,rank:p.rank,field:p.field,salary:p.salary,edu,eduDate,eduCareer,cert,certDate,certCareer});
 }
@@ -2048,7 +2061,6 @@ async function addPerson(){
   const res=await apiPost({action:'addPerson',name,rank,field,salary,edu,eduDate,eduCareer,cert,certDate,certCareer});
   if(res.id){
     S.people.push({id:res.id,name,rank,field,salary,edu,eduDate,eduCareer,cert,certDate,certCareer});
-    // 폼 초기화
     ['np-name','np-field','np-salary','np-edu-date','np-edu-career','np-cert-date','np-cert-career'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
     document.getElementById('np-edu').value='';
     document.getElementById('np-cert').value='';
